@@ -1,0 +1,206 @@
+/* 
+ * Mach Operating System
+ * Copyright (c) 1991,1992 Carnegie Mellon University
+ * All Rights Reserved.
+ * 
+ * Permission to use, copy, modify and distribute this software and its
+ * documentation is hereby granted, provided that both the copyright
+ * notice and this permission notice appear in all copies of the
+ * software, derivative works or modified versions, and any portions
+ * thereof, and that both notices appear in supporting documentation.
+ * 
+ * CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS 
+ * CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+ * ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+ * 
+ * Carnegie Mellon requests users of this software to return to
+ * 
+ *  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+ *  School of Computer Science
+ *  Carnegie Mellon University
+ *  Pittsburgh PA 15213-3890
+ * 
+ * any improvements or extensions that they make and grant Carnegie the
+ * rights to redistribute these changes.
+ */
+/*
+ * HISTORY
+ * $Log:	xmm_proxy.defs,v $
+ * Revision 2.4  92/03/10  16:29:32  jsb
+ * 	Merged in norma branch changes as of NORMA_MK7.
+ * 	[92/03/09  12:52:28  jsb]
+ * 
+ * Revision 2.3.3.3  92/02/21  11:27:57  jsb
+ * 	Changed proxy_terminate back into a simpleroutine, and changed its
+ * 	destination argument from copy_send to move_send.
+ * 	[92/02/17  07:18:19  jsb]
+ * 
+ * 	Changed proxy_init destination from copy_send to move_send.
+ * 	[92/02/16  14:12:32  jsb]
+ * 
+ * 	Renamed {mobj,kobj}_port to xmm_{pager,kernel}.
+ * 	Changed proxy_init to use xmm_object instead of
+ * 	<memory_object_host, memory_object> pair.
+ * 	[92/02/10  17:04:18  jsb]
+ * 
+ * 	Changed for new memory_object_name protocol.
+ * 	[92/02/09  12:56:43  jsb]
+ * 
+ * Revision 2.3.3.2  92/01/21  22:09:01  jsb
+ * 	From dlb@ri.osf.org: make proxy_terminate an rpc.
+ * 
+ * Revision 2.3.3.1  92/01/21  21:54:39  jsb
+ * 	Changed interface to use ports instead of pointers.
+ * 	[92/01/20  17:28:21  jsb]
+ * 
+ * 	Fixes from OSF.
+ * 	[92/01/17  14:15:23  jsb]
+ * 
+ * Revision 2.3.1.1  92/01/15  12:22:11  jeffreyh
+ * 	Pass memory_object_name as a receive right in proxy_terminate. (dlb)
+ * 
+ * Revision 2.3  91/12/10  13:26:30  jsb
+ * 	Added missing third parameter to proxy_terminate.
+ * 	It should in the future become a moving receive right.
+ * 	[91/12/10  12:49:57  jsb]
+ * 
+ * Revision 2.2  91/06/17  15:48:31  jsb
+ * 	First checkin.
+ * 	[91/06/17  13:45:41  jsb]
+ * 
+ */
+/*
+ *	File:	norma/xmm_proxy.defs
+ *	Author:	Joseph S. Barrera III
+ *	Date:	1991
+ *
+ *	Mig interface for communication between xmm_export.c and xmm_import.c.
+ */
+
+subsystem
+#if	KERNEL_USER
+	  KernelUser
+#endif	KERNEL_USER
+#if	KERNEL_SERVER
+	  KernelServer
+#endif	KERNEL_SERVER
+		proxy 923000;
+
+serverprefix _;
+
+#include <mach/std_types.defs>
+#include <mach/mach_types.defs>
+
+/*
+ * Calls from kernel to memory manager (adopted from memory_object.defs).
+ */
+
+simpleroutine	proxy_init(
+		xmm_object		: mach_port_move_send_t;
+		xmm_kernel		: mach_port_make_send_t;
+		page_size		: vm_size_t;
+		internal		: boolean_t;
+		size			: vm_size_t);
+
+simpleroutine	proxy_terminate(
+		xmm_pager		: mach_port_move_send_t);
+
+simpleroutine	proxy_copy(
+		xmm_pager		: mach_port_t;
+		offset			: vm_offset_t;
+		length			: vm_size_t;
+		new_memory_object	: memory_object_t =
+						MACH_MSG_TYPE_MOVE_RECEIVE
+						ctype: mach_port_t);
+
+simpleroutine	proxy_data_request(
+		xmm_pager		: mach_port_t;
+		offset			: vm_offset_t;
+		length			: vm_size_t;
+		desired_access		: vm_prot_t);
+
+simpleroutine	proxy_data_unlock(
+		xmm_pager		: mach_port_t;
+		offset			: vm_offset_t;
+		length			: vm_size_t;
+		desired_access		: vm_prot_t);
+
+simpleroutine	proxy_data_write(
+		xmm_pager		: mach_port_t;
+		offset			: vm_offset_t;
+		data			: pointer_t);
+
+simpleroutine	proxy_lock_completed(
+		reply_to		: mach_port_move_send_once_t;
+		offset			: vm_offset_t;
+		length			: vm_size_t);
+
+simpleroutine	proxy_supply_completed(
+		reply_to		: mach_port_move_send_once_t;
+		offset			: vm_offset_t;
+		length			: vm_size_t;
+		result			: kern_return_t;
+		error_offset		: vm_offset_t);
+
+simpleroutine	proxy_data_return(
+		xmm_pager		: mach_port_t;
+		offset			: vm_offset_t;
+		data			: pointer_t);
+
+simpleroutine	proxy_change_completed(
+		reply_to		: mach_port_move_send_once_t;
+		may_cache		: boolean_t;
+		copy_strategy		: memory_object_copy_strategy_t);
+
+/*
+ * Calls from memory manager to kernel (adopted from mach.defs).
+ */
+
+simpleroutine proxy_data_unavailable(
+		xmm_kernel	: mach_port_t;
+		offset		: vm_offset_t;
+		size		: vm_size_t);
+
+routine proxy_get_attributes(
+		xmm_kernel	: mach_port_t;
+	out	object_ready	: boolean_t;
+	out	may_cache	: boolean_t;
+	out	copy_strategy	: memory_object_copy_strategy_t);
+
+simpleroutine proxy_lock_request(
+		xmm_kernel	: mach_port_t;
+		offset		: vm_offset_t;
+		size		: vm_size_t;
+		should_clean	: boolean_t;
+		should_flush	: boolean_t;
+		lock_value	: vm_prot_t;
+		reply_to	: mach_port_make_send_once_t);
+
+simpleroutine proxy_data_error(
+		xmm_kernel	: mach_port_t;
+		offset		: vm_offset_t;
+		size		: vm_size_t;
+		error_value	: kern_return_t);
+
+simpleroutine proxy_set_ready(
+		xmm_kernel	: mach_port_t;
+		xmm_pager	: mach_port_make_send_t;
+		object_ready	: boolean_t;
+		may_cache	: boolean_t;
+		copy_strategy	: memory_object_copy_strategy_t;
+		error_value	: kern_return_t;
+		use_old_pageout	: boolean_t;
+		pager_name	: mach_port_move_send_t;
+		reply_to	: mach_port_make_send_once_t);
+
+simpleroutine proxy_destroy(
+		xmm_kernel	: mach_port_t;
+		reason		: kern_return_t);
+
+simpleroutine proxy_data_supply(
+		xmm_kernel	: mach_port_t;
+		offset		: vm_offset_t;
+		data		: pointer_t;
+		lock_value	: vm_prot_t;
+		precious	: boolean_t;
+		reply_to	: mach_port_make_send_once_t);

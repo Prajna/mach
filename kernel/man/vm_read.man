@@ -1,0 +1,125 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	vm_read.man,v $
+.\" Revision 2.5  93/03/18  15:16:58  mrt
+.\" 	corrected types
+.\" 	[93/03/12  16:55:34  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:16:12  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:16:31  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:17:33  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:47:57  rpd
+.\" 	Created.
+.\" 
+.TH vm_read 2 1/13/87
+.CM 4
+.SH NAME
+.nf
+vm_read  \-  allows one task to read another's memory
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t vm_read(target_task, address, size, data, data_count)
+	mach_port_t	target_task
+	vm_address_t	address;
+	vm_size_t	size;
+	vm_offset_t	*data;		/* out */
+	mach_msg_type_number_t		*data_count;	/* out */
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+target_task
+Task whose memory is to be read.
+.TP 15
+.B
+address
+The first address to be read (must be
+on a page boundary).
+.TP 15
+.B
+size
+The number of bytes of data to be read
+(must be an integral number of pages)
+.TP 15
+.B
+data
+The array of data copied from the given task.
+.TP 15
+.B
+data_count
+The size of the 
+.B data
+array in bytes.
+(will be an integral number of pages).
+
+.SH DESCRIPTION
+.B vm_read
+allows one task's virtual memory to be read by
+another task. Note that the data array is returned in a
+newly allocated region; the task reading the data should
+.B vm_deallocate
+this region when it is done with the data.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+Memory read.
+.TP 25
+KERN_INVALID_ARGUMENT
+Either the address does not start on a page
+boundary or the size is not an integral number of pages.
+.TP 25
+KERN_NO_SPACE
+There is not enough room in the callers
+virtual memory to allocate space for the data to be returned.
+.TP 25
+KERN_PROTECTION_FAILURE
+The address region in the target task is 
+protected against reading.
+.TP 25
+KERN_INVALID_ADDRESS
+Illegal or non-allocated address specified, or there 
+was not 
+.B size
+bytes of data following that address.
+
+.SH SEE ALSO
+.B vm_read, vm_write, vm_copy, vm_deallocate
+

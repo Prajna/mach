@@ -1,0 +1,149 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	vm_region.man,v $
+.\" Revision 2.5  93/03/18  15:17:01  mrt
+.\" 	corrected types
+.\" 	[93/03/12  16:55:37  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:16:21  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:16:35  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:17:38  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:48:05  rpd
+.\" 	Created.
+.\" 
+.TH vm_region 2 11/20/87
+.CM 4
+.SH NAME
+.nf
+vm_region  \-  returns information about regions of a task's address space
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t  vm_region(target_task, address, size, protection,
+			 max_protection, inheritance, shared,
+			 object_name, offset)
+	mach_port_t		target_task;
+        vm_address_t		*address;		/* in/out */
+        vm_size_t		*size;			/* out */
+	vm_prot_t		*protection;		/* out */
+	vm_prot_t		*max_protection;	/* out */
+	vm_inherit_t		*inheritance;		/* out */
+	boolean_t		*shared;		/* out */
+	mach_port_t		*object_name;		/* out */
+	vm_offset_t		*offset;		/* out */
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+target_task
+The task for which an address space description is requested.
+.TP 15
+.B
+address
+The address at which to start looking for a region.
+.TP 15
+.B
+size
+The size (in bytes) of the located region.
+.TP 15
+.B
+protection
+The current protection of the region.
+.TP 15
+.B
+max_protection
+The maximum allowable protection for this region.
+.TP 15
+.B
+inheritance
+The inheritance attribute for this region.
+.TP 15
+.B
+shared
+Is this region shared or not.
+.TP 15
+.B
+object_name
+The port identifying the memory object associated with this
+region.  (See 
+.B pager_init
+.) 
+.TP 15
+.B
+offset
+The offset into the pager object that this region begins at.
+
+.SH DESCRIPTION
+
+.B vm_region
+returns a description of the specified region of the target
+task's virtual address space.  
+.B vm_region
+begins at 
+.B address
+and looks
+forward thru memory until it comes to an allocated region.  (If address is
+within a region, then that region is used.)  Various bits of information
+about the region are returned.  If 
+.B address
+was 
+.B not
+within a region,
+then 
+.B address
+is set to the start of the first region which follows the
+incoming value.  In this way an entire address space can be scanned.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+Region located and information returned.
+.TP 25
+KERN_NO_SPACE
+There is no region at or above 
+.B address
+in the specified task.
+
+.SH SEE ALSO
+.B vm_allocate, vm_deallocate, vm_protect, vm_inherit
+
+
+
+
+

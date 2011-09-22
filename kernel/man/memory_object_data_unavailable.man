@@ -1,0 +1,114 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	memory_object_data_unavailable.man,v $
+.\" Revision 2.5  93/05/10  19:33:40  rvb
+.\" 	updated
+.\" 	[93/04/21  16:08:24  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:09:18  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:12:54  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:13:23  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:40:26  rpd
+.\" 	Created.
+.\" 
+.TH memory_object_data_unavailable 2 12/18/89
+.CM 4
+.SH NAME
+.nf
+memory_object_data_unavailable  \-  indicates non-existent data
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t memory_object_data_unavailable(memory_control,
+				offset, size);
+	mach_port_t
+			memory_control;
+	vm_offset_t	offset;
+	vm_size_t	size;
+
+
+.fi
+.ft P
+.SH DESCRIPTION
+
+.B memory_object_data_unavailable
+indicates that the memory object does not
+have data for the given region and that the kernel should provide the
+data for this range. The memory manager may use this call in three different
+situations. 1) The object was created by 
+.B memory_object_create
+and the kernel
+has not yet provided data for this range (either via a 
+.B memory_object_data_initialize
+or a 
+.B memory_object_data_write
+. In this case the kernel should supply zero-filled pages
+for the object. 2) The object was created by an 
+.B memory_object_data_copy
+and the kernel should copy this region from the original memory object. 3) The object
+is a normal user-created memory object and the kernel should supply unlocked zero-filled
+pages for the range.
+
+.SH ARGUMENTS
+.TP 15
+.B
+memory_control
+The port, provided by the kernel 
+in a 
+.B memory_object_init
+call, to which cache management requests may be issued.
+.TP 15
+.B
+offset
+An offset within a memory object, in bytes.  This must be
+page aligned.
+.TP 15
+.B
+size
+The amount of cached data (starting at 
+.B offset
+) to be handled. This
+must be an integral multiple of the memory object page size.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+This routine does not receive a reply message (and consequently
+has no return value), so only message transmission errors apply.
+
+.SH SEE ALSO
+.B memory_object_create, memory_object_data_request, memory_object_data_error
+

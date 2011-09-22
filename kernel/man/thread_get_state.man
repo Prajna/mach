@@ -1,0 +1,202 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	thread_get_state.man,v $
+.\" Revision 2.2  93/03/18  15:15:44  mrt
+.\" 	corrected types
+.\" 	[93/03/12  16:54:08  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:14:39  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:15:40  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:16:31  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:46:38  rpd
+.\" 	Created.
+.\" 
+.TH thread_get_state 2 1/20/88
+.CM 4
+.SH NAME
+.nf
+thread_get_state  \-  return  machine dependent state
+thread_set_state  \-  set  machine dependent state
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t thread_get_state(target_thread, flavor, old_state,
+				old_stateCnt)
+	mach_port_t 		target_thread;
+	int 			flavor;
+	thread_state_t  	old_state;	/* in and out */
+	mach_msg_type_number_t 	*old_stateCnt;  /* in and out */
+
+
+.fi
+.ft P
+.nf
+.ft B
+kern_return_t thread_set_state(target_thread, flavor, new_state,
+				new_stateCnt)
+	mach_port_t 		target_thread;
+	int 			flavor;
+	thread_state_t  	new_state;
+	mach_msg_type_number_t 	new_stateCnt;
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+target_thread
+thread to get or set the state for.
+.TP 15
+.B
+flavor
+The type of state that is to be manipulated. Currently must
+be one of the following values: 
+.B VAX_THREAD_STATE
+, 
+.B ROMP_THREAD_STATE
+,
+
+.B SUN_THREAD_STATE_REGS
+, 
+.B SUN_THREAD_STATE_FPA
+.TP 15
+.B
+new_state
+an array of state information
+.TP 15
+.B
+old_state
+an array of state information
+.TP 15
+.B
+new_stateCnt
+the size of the state information array. Currently must
+be one of the following values: 
+.B VAX_THREAD_STATE_COUNT
+,
+.B ROMP_THREAD_STATE_COUNT
+, 
+.B SUN_THREAD_STATE_REGS_COUNT
+,
+.B SUN_THREAD_STATE_FPA_COUNT
+.TP 15
+.B
+old_stateCnt
+same as 
+.B new_stateCnt
+
+.SH DESCRIPTION
+
+.B thread_get_state
+returns the state component (e.g. the machine registers)
+of 
+.B target_thread
+as specified by 
+.B flavor
+.
+The 
+.B old_state
+is an array of integers that is provided by the
+caller and returned filled with the specified information. 
+.B old_stateCnt
+
+is input set to the maximum number of integers in 
+.B old_state
+and
+returned equal to the actual 
+number of integers in 
+.B old_state
+.
+
+.B thread_set_state
+sets the state component (e.g. the machine registers)
+of 
+.B target_thread
+as specified by 
+.B flavor
+.
+The 
+.B new_state
+is an array of integers. 
+.B new_stateCnt
+is the 
+number of elements in 
+.B new_state
+. The entire set of registers
+is reset. This will do unpredictable things if 
+.B target_thread
+is not suspended.
+
+.B target_thread
+may not be 
+.B thread_self
+for either of
+these calls.
+
+The definition of the state structures can be found in
+<machine/thread_status.h>
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The state has been set or returned
+.TP 25
+MIG_ARRAY_TOO_LARGE
+Returned state is too large for the
+.B new_state
+array. 
+.B new_state
+is filled in as much
+as possible and 
+.B new_stateCnt
+is set to the 
+number of elements that would be returned if there were
+enough room.
+.TP 25
+KERN_INVALID_ARGUMENT
+.B target_thread
+is not a thread or
+is 
+.B thread_self
+or 
+.B flavor
+is unrecogized for this machine.
+
+.SH SEE ALSO
+.B task_info, thread_info
+
+

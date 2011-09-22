@@ -1,0 +1,147 @@
+/* 
+ * Mach Operating System
+ * Copyright (c) 1991 Carnegie Mellon University
+ * All Rights Reserved.
+ * 
+ * Permission to use, copy, modify and distribute this software and its
+ * documentation is hereby granted, provided that both the copyright
+ * notice and this permission notice appear in all copies of the
+ * software, derivative works or modified versions, and any portions
+ * thereof, and that both notices appear in supporting documentation.
+ * 
+ * CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+ * CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+ * ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+ * 
+ * Carnegie Mellon requests users of this software to return to
+ * 
+ *  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+ *  School of Computer Science
+ *  Carnegie Mellon University
+ *  Pittsburgh PA 15213-3890
+ * 
+ * any improvements or extensions that they make and grant Carnegie Mellon
+ * the rights to redistribute these changes.
+ */
+/*
+ * HISTORY
+ * $Log:	norma_internal.defs,v $
+ * Revision 2.3  92/03/10  16:28:47  jsb
+ * 	Merged in norma branch changes as of NORMA_MK7.
+ * 	[92/03/09  12:52:25  jsb]
+ * 
+ * Revision 2.2.2.2  92/02/21  11:25:21  jsb
+ * 	Added norma_xmm_object_release.
+ * 	[92/02/16  14:30:43  jsb]
+ * 
+ * 	Added norma_xmm_object_by_memory_object.
+ * 	[92/02/10  17:04:44  jsb]
+ * 
+ * Revision 2.2.2.1  92/01/03  16:38:34  jsb
+ * 	In norma_ipc_pull_receive, seqno and qlimit are shorts, not ints.
+ * 	[91/12/26  18:27:24  jsb]
+ * 
+ * 	Replaced simpleroutines norma_ipc_start_migrating_messages and
+ * 	norma_ipc_all_messages_migrated with routine norma_ipc_pull_receive.
+ * 	[91/12/25  16:46:19  jsb]
+ * 
+ * 	Added norma_ipc_no_local_senders and norma_ipc_stransit_request.
+ * 	Removed norma_token_deliver.
+ * 	[91/12/24  14:30:01  jsb]
+ * 
+ * Revision 2.2  91/12/13  14:10:54  jsb
+ * 	First checkin. Split off from mach/mach_norma.defs.
+ * 
+ */
+
+subsystem
+#if	KERNEL_USER
+	  KernelUser
+#endif	KERNEL_USER
+#if	KERNEL_SERVER
+	  KernelServer
+#endif	KERNEL_SERVER
+		       norma_internal 556000;
+#ifdef	KERNEL_USER
+userprefix r_;
+#endif	KERNEL_USER
+
+#include <mach/std_types.defs>
+#include <mach/mach_types.defs>
+
+/*
+ * Create a task with no inherited address space on the given node.
+ * Used between per-node kernels to implement task_create_remote,
+ * when there is no parent task available (otherwise we could just
+ * use norma_task_create with inherit_memory=FALSE).
+ */
+routine norma_task_allocate(
+		host_priv	: host_priv_t;
+	out	task		: task_t);
+
+/*
+ * Returns the current value of all inherited ports in task.
+ * XXX should name port0, etc. as exception, etc.
+ */
+routine task_get_inherited_ports(
+		task		: task_t;
+	out	port0		: mach_port_t;
+	out	port1		: mach_port_t;
+	out	port2		: mach_port_t;
+	out	port3		: mach_port_t;
+	out	exception	: mach_port_t;
+	out	bootstrap	: mach_port_t);
+
+/*
+ * Returns the current value of all inherited ports in task.
+ */
+routine task_set_inherited_ports(
+		task		: task_t;
+		port0		: mach_port_t;
+		port1		: mach_port_t;
+		port2		: mach_port_t;
+		port3		: mach_port_t;
+		exception	: mach_port_t;
+		bootstrap	: mach_port_t);
+
+/*
+ * Create a memory object representing given range of memory
+ * in given task. Useful for lazy address space copies.
+ */
+routine norma_copy_create(
+		task		: vm_task_t;
+		start		: vm_offset_t;
+		size		: vm_size_t;
+	out	memory_object	: mach_port_make_send_t);
+
+routine norma_ipc_pull_receive(
+		host_priv	: host_priv_t;
+		uid		: int;
+		dest_node	: int;
+	out	stransit	: int;
+	out	sotransit	: int;
+	out	nsrequest	: mach_port_move_send_once_t;
+	out	pdrequest	: mach_port_move_send_once_t;
+	out	dnrequest_list	: int;	/* XXX */
+	out	dnrequest_count	: int;	/* XXX */
+	out	seqno		: short;
+	out	qlimit		: short);
+
+simpleroutine norma_ipc_no_local_senders(
+		host_priv	: host_priv_t;
+		uid		: int;
+		stransit	: int);
+
+routine norma_ipc_stransit_request(
+		host_priv	: host_priv_t;
+		uid		: int;
+	out	stransit	: int);
+
+routine	norma_xmm_object_by_memory_object(
+		host_priv	: host_priv_t;
+		memory_object	: mach_port_copy_send_t;
+	out	xmm_object	: mach_port_move_send_t);
+
+simpleroutine	norma_xmm_object_release(
+		host_priv	: host_priv_t;
+		memory_object	: mach_port_copy_send_t);

@@ -1,0 +1,10 @@
+#!/bin/csh -f
+#
+# HISTORY
+# $Log:	rmaouthdr,v $
+# Revision 2.2  92/04/04  11:36:01  rpd
+# 	From 2.5 boot
+# 	[92/03/30            mg32]
+# 
+#
+dd if=$1 of=$2 ibs=32 skip=1 obs=1024b

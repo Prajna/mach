@@ -1,0 +1,113 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	task_priority.man,v $
+.\" Revision 2.5  93/03/18  15:14:53  mrt
+.\" 	corrected types
+.\" 	[93/03/12  16:52:52  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:12:45  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:14:38  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:15:27  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:43:57  rpd
+.\" 	Created.
+.\" 
+.TH task_priority 2 8/13/89
+.CM 4
+.SH NAME
+.nf
+task_priority  \-  set scheduling priority for a task
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t task_priority(task, priority, change_threads)
+	mach_port_t	task;
+	int		priority;
+	boolean_t	change_threads;
+
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+task
+Task to set priority for.
+.TP 15
+.B
+priority
+New priority.
+.TP 15
+.B
+change_threads
+Change priority of existing threads if TRUE.
+
+.SH DESCRIPTION
+The priority of a task is used only for creation of new threads; a new thread's
+priority is set to the enclosing task's priority. 
+.B task_priority
+changes this task priority.  It also sets the priorities of all threads
+in the task to this new priority if 
+.B change_threads
+is TRUE.  Existing threads are not affected otherwise.  If this priority
+change violates the maximum priority of some threads, as many threads as
+possible will be changed and an error code will be returned.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The call succeeded.
+.TP 25
+KERN_INVALID_ARGUMENT
+.B task
+is not a task, or
+.B priority
+is not a valid priority.
+.TP 25
+KERN_FAILURE
+.B change_threads
+was TRUE and the attempt to change the priority of at least one existing
+thread failed because the new priority would have exceeded that thread's
+maximum priority.
+
+.SH BUGS
+Availability limited.
+
+.SH SEE ALSO
+.B thread_priority, processor_set_max_priority
+
+
+

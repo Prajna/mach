@@ -1,0 +1,92 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	task_suspend.man,v $
+.\" Revision 2.5  93/03/18  15:15:23  mrt
+.\" 	corrected types
+.\" 	[93/03/12  16:53:32  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:13:12  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:14:49  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:15:42  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:44:37  rpd
+.\" 	Created.
+.\" 
+.TH task_suspend 2 9/19/86
+.CM 4
+.SH NAME
+.nf
+task_suspend  \-  suspends specified task
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t task_suspend(target_task)
+	mach_port_t		target_task;
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+target_task
+The task to be suspended.
+
+.SH DESCRIPTION
+Increments the task's suspend count and stops all
+threads in the task. As long as the suspend count is
+positive newly created threads will not run.
+This call does not return until all threads are suspended.
+
+The count
+may become greater than one, with the effect that it
+will take more than one resume call to restart the task.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The task has been suspended.
+.TP 25
+KERN_INVALID_ARGUMENT
+.B target_task
+is not a task.
+
+.SH SEE ALSO
+.B task_create, task_terminate, task_resume, task_info,
+.B thread_suspend
+
+
+
+

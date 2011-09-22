@@ -1,0 +1,122 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	mach_port_get_receive_status.man,v $
+.\" Revision 2.6  93/05/10  19:31:16  rvb
+.\" 	updated
+.\" 	[93/04/21  16:03:26  lli]
+.\" 
+.\" Revision 2.5  91/12/11  08:42:55  jsb
+.\" 	Updated for MK62 (sequence numbers).
+.\" 	[91/11/26  11:01:25  rpd]
+.\" 
+.\" 	Changed <mach/mach.h> to <mach.h>.
+.\" 	[91/11/25  10:55:24  rpd]
+.\" 
+.\" Revision 2.4  91/05/14  17:06:23  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:11:15  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:11:27  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:36:50  rpd
+.\" 	Created.
+.\" 
+.TH mach_port_get_receive_status 2 1/13/87
+.CM 4
+.SH NAME
+.nf
+mach_port_get_receive_status \- returns the status of a receive right
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+kern_return_t
+mach_port_get_receive_status(task, name, status)
+	mach_port_t task;
+	mach_port_t name;
+	mach_port_status_t *status;	/* out */
+
+typedef unsigned int mach_port_seqno_t;
+typedef unsigned int mach_port_mscount_t;
+typedef unsigned int mach_port_msgcount_t;
+typedef unsigned int mach_port_rights_t;
+
+typedef struct mach_port_status {
+    mach_port_t          mps_pset;       /* containing port set */
+    mach_port_seqno_t    mps_seqno;      /* sequence number */
+    mach_port_mscount_t  mps_mscount;    /* make-send count */
+    mach_port_msgcount_t mps_qlimit;     /* queue limit */
+    mach_port_msgcount_t mps_msgcount;   /* number in the queue */
+    mach_port_rights_t   mps_sorights;   /* how many send-once rights */
+    boolean_t            mps_srights;    /* do send rights exist? */
+    boolean_t            mps_pdrequest;  /* port-deleted requested? */
+    boolean_t            mps_nsrequest;  /* no-senders requested? */
+} mach_port_status_t;
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 12
+.B
+task
+The task holding the receive right.
+.TP 12
+.B
+name
+The task's name for the receive right.
+.TP 12
+.B
+status
+The status information for the receive right.
+.SH DESCRIPTION
+\fBmach_port_get_receive_status\fR
+returns the current status of the specified receive right.
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The call succeeded.
+.TP 25
+KERN_INVALID_TASK
+\fBtask\fR was invalid.
+.TP 25
+KERN_INVALID_NAME
+\fBname\fR did not denote a right.
+.TP 25
+KERN_INVALID_RIGHT
+\fBname\fR denoted a right, but not a receive right.
+.PP
+The \fBmach_port_get_receive_status\fR call is actually an RPC to \fBtask\fR,
+normally a send right for a task port, but potentially any send right.
+In addition to the normal diagnostic
+return codes from the call's server (normally the kernel),
+the call may return \fBmach_msg(2)\fR return codes.
+.SH SEE ALSO
+mach_port_set_qlimit(2),
+mach_port_set_mscount(2),
+mach_port_set_seqno(2).

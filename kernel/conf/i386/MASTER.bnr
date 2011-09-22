@@ -1,0 +1,441 @@
+/*
+ * Mach Operating System
+ * Copyright (c) 1994-1989 Carnegie Mellon University
+ * All Rights Reserved.
+ * 
+ * Permission to use, copy, modify and distribute this software and its
+ * documentation is hereby granted, provided that both the copyright
+ * notice and this permission notice appear in all copies of the
+ * software, derivative works or modified versions, and any portions
+ * thereof, and that both notices appear in supporting documentation.
+ * 
+ * CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS" 
+ * CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+ * ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+ * 
+ * Carnegie Mellon requests users of this software to return to
+ * 
+ *  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+ *  School of Computer Science
+ *  Carnegie Mellon University
+ *  Pittsburgh PA 15213-3890
+ * 
+ * any improvements or extensions that they make and grant Carnegie Mellon
+ * the rights to redistribute these changes.
+ *  
+ *
+ * HISTORY
+ * 11-Aug-94  David Golub (dbg) at Carnegie-Mellon University
+ *	MK83-A
+ *
+ * Revision 2.4  93/12/23  10:02:37  dbg
+ * 	Added 174x driver (dherity@cs.tcd.ie & ralf@chpc.org)
+ * 	[93/10/06            af]
+ * 
+ * 	Added PS2 ethernet driver, from Zon Williamson.
+ * 	[93/09/13            dbg]
+ * 
+ * 	Integrate PS2 code from IBM. - by prithvi, rvb
+ * 
+ * $Log:	MASTER.bnr,v $
+ * Revision 2.3  93/05/14  13:44:11  rvb
+ * 	.cf->.bnr
+ * 
+ * Revision 2.2  93/05/10  17:45:31  rvb
+ * 	Revised for bsdss
+ * 	[93/05/04  16:49:20  rvb]
+ * 
+ * Revision 2.2  93/02/04  14:46:01  mrt
+ * 	Flush blit and par; add dlink ethernet de device.
+ * 	lineno is now defined in MI MASTER
+ * 		Integrate PS2 code from IBM. - by prithvi, rvb
+ * 	[93/01/21            danner]
+ * 
+ * Revision 2.25  93/01/14  17:22:52  danner
+ * 	Added ipc_compat to all configs.
+ * 	[92/12/10            af]
+ * 
+ * Revision 2.24  92/02/19  16:29:12  elf
+ * 	Add lpr and par devices.  (taken from 2.5)
+ * 	[92/02/13            rvb]
+ * 
+ * Revision 2.23  92/02/19  15:06:20  elf
+ * 	Simplified, condensed history.
+ * 	[92/02/13            rpd]
+ * 
+ *
+ * Condensed history:
+ *	Sequent support (dbg).
+ *	iPSC support (jsb).
+ *	Created (af).
+ *
+ *  Master I386 configuration file (see the master machine independent
+ *  configuration file for a description of the file format).
+ *
+ *	
+ *	 
+ *	
+ *	  I386 (PSEUDO-)DEVICES (select any combination)
+ *	
+ *	fpe	floating-point emulation support
+ * 
+ *	  CPU TYPE (select exactly one)
+ *	AT	ISA/EISA bus
+ *	PS2     PS/2 w/ MCA bus
+ *	MBII	multibus II bus
+ *	iPSC	Intel Hypercube
+ *	SQT	Sequent Symmetry
+ *	
+ *	#####################################################################
+ * 
+ *	I386 Devices
+ * 
+ *	for an ISA bus:
+ * 
+ *		hd		Hard Disk
+ *		fd		Floppy Disk
+ *		blit		Blit Screen
+ *		pc586		PC 586 Ethernet card
+ *		3c		3Com Ethernet card
+ *		com		Serial Lines 0 and 1 (DOS 1 and 2)
+ *		wt		Streamer Tape	<<< not supported >>>
+ *		scsi		Adaptec and/or SCSI boards
+ *		de		Dlink pocket ethernet adapter
+ * 
+ *	for a PS/2 w/ MCA bus:
+ * 
+ *		hd		Hard Disk
+ *		fd		Floppy Disk
+ *		kd		console
+ *		tr		Token Ring
+ *		en		Ethernet
+ * 
+ *	for an Intel Hypercube:
+ * 
+ *		sd		Disk
+ *		usm
+ *		dcm
+ *		cnp
+ * 
+ *	for a Sequent Symmetry:
+ * 
+ *		mbad		Multibus devices:
+ *		    xy		Xylogics disk
+ *		    zt		Xylogics tape
+ *		    st		Systech terminal board
+ *		    sl		Systech line printer board
+ * 
+ *		sec		SCSI/Ethernet devices:
+ *		    se		Ethernet
+ *		    sc		SCSI disk
+ *		    ts		SCSI streamer tape
+ *		    sm		SCSI shared memory (not needed on Symmetry)
+ * 
+ *		zd		ZDC disk
+ * 
+ *	#####################################################################
+ *	
+ *	  Standard Mach Research Configurations:
+ *	  -------- ---- -------- ---------------
+ * 
+ *	  WS	   = [ ipc_compat 3c at com de fd fpe hd lpr pc586 scsi wd ]
+ * 
+ *	  PS2      = [ ipc_compat ps2 ps2hd ps2fd ps2tr en abios mouse fpe ]
+ * 
+ *	  iPSC     = [ ipc_compat ipsc sd usm dcm cnp md ]
+ * 
+ *	  SQT	   = [ ipc_compat sqt sec sc se zd timing multi32 host ]
+ * 
+ *	#####################################################################
+ */
+
+#if	defined(AT) || defined(WS)
+conftype	"i386"
+platform	"AT386"
+
+#define	IPC_COMPAT
+#endif
+
+#if	defined(PS2)
+conftype	"ps2"
+platform        "PS2"
+
+#define IPC_COMPAT
+#endif
+
+#if	defined(SQT)
+conftype	"sqt"
+platform	SYMMETRY
+
+#define IPC_COMPAT
+#define MULTI32
+#define HOST
+#endif
+
+#if	defined(IPSC)
+conftype	"i386"
+platform	"iPSC386"
+options		"iPSC386"
+
+#define IPC_COMPAT
+#endif
+
+
+config		mach_kernel
+
+options		MACH_MACHINE_ROUTINES
+
+#if	defined(FPE) || defined(WS) || defined(PS2)
+options		FPE
+#endif
+
+
+#if	defined(SQT)
+makevariables	TEXTORG="c0000000"
+#else
+makevariables	TEXTORG="c0100000"
+#endif
+
+/*
+ *  Devices for PS/2 w/ MCA bus
+ */
+#if	defined(PS2)
+controller      mc0     at nexus ?
+#endif
+#if	defined(PS2HD) || defined(PS2)
+controller      hdc0    at mc0 csr 0xffffffff priority 14
+disk            hd0     at hdc0 drive 0
+disk            hd1     at hdc0 drive 1
+#endif
+#if	defined(PS2FD) || defined(PS2)
+controller      fdc0    at mc0 csr 0xffffffff priority 6
+device          fd0     at fdc0 drive 0
+device          fd1     at fdc0 drive 1
+#endif
+#if	defined(PS2UN)
+device          un0     at mc0 csr 0x00001550 irq 3 spl5
+#endif
+#if	defined(PS2TR) || defined(PS2)
+device          tr0     at mc0 csr 0x00000a20 irq 9
+device          tr1     at mc0 csr 0x00000a24 irq 10
+#endif
+#if	defined(EN) || defined(PS2)
+device		en0	at mc0 csr 0x000C0000 irq 12
+#endif
+#if	defined(MOUSE) || defined(PS2)
+pseudo-device	mouse
+#endif
+#if	!(defined(SQT)||!defined(CONS))
+pseudo-device   kd
+#endif
+#if	defined(CONS)
+options		IBM_CONSOLE
+pseudo-device	cons
+device		mouse0
+device		xga0
+device		vga0
+device		ibmeff0
+options		XEMUL
+#endif
+
+/*
+ *  Devices for ISA bus
+ */
+#if	defined(BLIT)
+pseudo-device	blit
+#endif
+#if	defined(HD) || defined(WS)
+device		hd0
+device		hd1
+device		hd2
+device		hd3
+#endif
+#if	defined(FD) || defined(WS)
+device		fd0
+device		fd1
+device		fd2
+device		fd3
+#endif
+#if	defined(FP)
+pseudo-device	fp
+#endif
+#if	defined(PC586) || defined(WS)
+pseudo-device	"pc586"
+#endif
+#if	defined(ELI) || defined(WS)
+pseudo-device	"at3c501"
+#endif
+#if	defined(ELII) || defined(WS)
+pseudo-device	"ns8390"
+#endif
+#if	defined(DE) || defined(WS)
+pseudo-device	"de6c"
+#endif
+#if	defined(PAR)
+pseudo-device	par
+#endif
+#if	defined(COM) || defined(WS)
+device		com0
+device		com1
+device		com2
+device		com3
+#endif
+#if	defined(LPR) || defined(WS)
+device		lpr0
+#endif
+/*device		wt0		# <wt>*/
+#if	defined(SCSI) || defined(WS)
+/*
+ * SCSI driver: total HBAs
+ */
+pseudo-device	scsi	2
+/*
+ * Adaptec
+ */
+pseudo-device	aha	1
+pseudo-device	eaha    1
+	/* scsi-special */
+pseudo-device	cendata 0
+#endif
+
+/*
+ *	Devices for iPSC
+ */
+#if	defined(SD) || defined(IPSC)
+device		sd0
+#endif
+#if	defined(USM) || defined(IPSC)
+device		usm0
+#endif
+#if	defined(DCM) || defined(IPSC)
+device		dcm0
+#endif
+#if	defined(CNP) || defined(IPSC)
+device		cnp0
+#endif
+#if	defined(MD) || defined(IPSC)
+device		md0
+#endif
+
+/*
+ *	Devices for Sequent Symmetry
+ */
+
+/*
+ * Multibus Adapters
+ */
+#if	defined(MBAD)
+controller	mbad0	at slot ?
+/*controller	mbad1	at slot ?*/
+#endif
+#if	defined(SEC) || defined(SQT)
+/*
+ * SCSI/Ether Controllers
+ */
+controller	sec0	at slot ?
+controller	sec1	at slot ?
+/*
+ * Console devices on SEC
+ */
+device		co0	at sec0 req 4 doneq 4 bin 4 unit 0
+device		co0	at sec0 req 4 doneq 4 bin 4 unit 1
+device		co1	at sec0 req 4 doneq 4 bin 4 unit 2
+device		co1	at sec0 req 4 doneq 4 bin 4 unit 3
+/*
+device		co2	at sec1 req 4 doneq 4 bin 4 unit 0
+device		co2	at sec1 req 4 doneq 4 bin 4 unit 1
+device		co3	at sec1 req 4 doneq 4 bin 4 unit 2
+device		co3	at sec1 req 4 doneq 4 bin 4 unit 3
+*/
+#endif
+#if	defined(ZD) || defined(SQT)
+/*
+ * ZDC Controllers
+ */
+controller	zdc0	at slot ?
+/*controller	zdc1	at slot ?*/
+/*
+ * ZDC Drives
+ */
+device		zd0	at zdc? drive ? drive_type ?
+device		zd1	at zdc? drive ? drive_type ?
+device		zd2	at zdc? drive ? drive_type ?
+device		zd3	at zdc? drive ? drive_type ?
+/*
+device		zd4	at zdc? drive ? drive_type ?
+device		zd5	at zdc? drive ? drive_type ?
+device		zd6	at zdc? drive ? drive_type ?
+device		zd7	at zdc? drive ? drive_type ?
+*/
+#endif
+/*
+ * Multibus Xylogics 450 Disk Controllers
+ */
+#if	defined(XY)
+/*
+device		xy0	at mbad? csr 0x100 maps 34 bin 5 intr 0
+device		xy1	at mbad? csr 0x110 maps 34 bin 5 intr 1
+device		xy2	at mbad? csr 0x120 maps 34 bin 5 intr 2
+*/
+#endif
+/*
+ * Systech multibus terminal boards
+ */
+#if	defined(ST)
+device		st0	at mbad? csr 0x200 maps  0 bin 4 intr 3
+device		st1	at mbad? csr 0x210 maps  0 bin 4 intr 4
+/*
+device		st2	at mbad? csr 0x220 maps  0 bin 4 intr 5
+device		st3	at mbad? csr 0x230 maps  0 bin 4 intr 3
+device		st4	at mbad? csr 0x240 maps  0 bin 4 intr 4
+device		st5	at mbad? csr 0x250 maps  0 bin 4 intr 5
+*/
+#endif
+/*
+ * Multibus Xylogics 472 Tape Controllers
+ */
+#if	defined(ZT)
+/*device		zt0	at mbad? csr 0x300 maps 34 bin 5 intr 7*/
+#endif
+/*
+ * Systech multibus line printer boards
+ */
+#if	defined(SL)
+/*device		sl0	at mbad? csr 0x400 maps  8 bin 5 intr 6*/
+#endif
+/*
+ * Ether devices on SEC
+ */
+#if	defined(SE) || defined(SQT)
+/*device		se0	at sec0 req 200 doneq 200 bin 6 unit 0*/
+device		se0	at sec0 req  20 doneq  20 bin 6 unit 0
+device		se0	at sec0 req  10 doneq  10 bin 6 unit 1
+/*
+device		se1	at sec1 req 200 doneq 200 bin 6 unit 0
+device		se1	at sec1 req  10 doneq  10 bin 6 unit 1
+*/
+#endif
+/*
+ * SCSI disk on SEC
+ */
+#if	defined(SC) || defined(SQT)
+device		sd0	at sec? req 4 doneq 4 bin 5 unit ? targsec ?
+device		sd1	at sec? req 4 doneq 4 bin 5 unit ? targsec ?
+#endif
+/*
+ * SCSI streamer tape on SEC
+ */
+#if	defined(TS)
+device		ts0	at sec? req 4 doneq 4 bin 5 unit ? targsec 4
+#endif
+/*
+ * SCSI memory driver on SEC
+ */
+#if	defined(SM)
+device		sm0	at sec0 req 3 doneq 3 bin 4 unit 0
+/*device		sm1	at sec1 req 3 doneq 3 bin 4 unit 0*/
+#endif
+
+#include <i386/MASTER.local.bnr>
+
+#include <MASTER.bnr>

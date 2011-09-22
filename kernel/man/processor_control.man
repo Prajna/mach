@@ -1,0 +1,132 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	processor_control.man,v $
+.\" Revision 2.5  93/03/18  14:46:40  mrt
+.\" 	corrected types
+.\" 	[93/03/11  12:51:02  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:10:59  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:13:43  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:14:26  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:42:03  rpd
+.\" 	Created.
+.\" 
+.TH processor_control 2 8/13/89
+.CM 4
+.SH NAME
+.nf
+processor_control  \-  do something to a processor
+processor_exit  \-  exit a processor
+processor_start  \-  start a processor
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t processor_start(processor)
+	mach_port_t		processor;
+
+
+.fi
+.ft P
+.nf
+.ft B
+kern_return_t processor_exit(processor)
+	mach_port_t		processor;
+
+
+.fi
+.ft P
+.nf
+.ft B
+kern_return_t processor_control(processor, cmd, count)
+	mach_port_t		processor;
+	processor_info_t	*cmd;  /* array of ints */
+	mach_msg_type_number_t	count; 
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+.B processor
+Specifies the processor.
+.TP 15
+.B
+.B cmd
+Contains the command to be applied to the processor.
+.TP 15
+.B
+.B count
+Specifies the length of the command as a number of ints.
+
+.SH DESCRIPTION
+Some multiprocessors may allow privileged software to control processors.
+The
+.B processor_start, processor_exit
+, and 
+.B processor_control
+operations implement this.  The interpretation of the command in
+.B cmd
+is machine dependent.  A newly started processor is assigned to the
+default processor set.  An exited processor is removed from the
+processor set to which it was assigned and ceases to be active.
+
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The operation was performed.
+.TP 25
+KERN_FAILURE
+The operation was not performed.  A likely reason is that it
+is not supported on this processor.
+.TP 25
+KERN_INVALID_ARGUMENT
+.B processor
+is not a processor.
+.TP 25
+KERN_INVALID_ADDRESS
+.B data
+points to inaccessible memory.
+
+.SH SEE ALSO
+.B processor_info, host_processors
+
+.SH BUGS
+Availability limited.
+All of these operations are machine-dependent.  They may do nothing.
+The ability to restart an exited processor is also machine-dependent.
+

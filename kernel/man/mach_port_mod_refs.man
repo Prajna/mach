@@ -1,0 +1,146 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	mach_port_mod_refs.man,v $
+.\" Revision 2.6  93/05/10  19:31:28  rvb
+.\" 	updated
+.\" 	[93/04/21  16:03:42  lli]
+.\" 
+.\" Revision 2.5  91/12/11  08:43:05  jsb
+.\" 	Changed <mach/mach.h> to <mach.h>.
+.\" 	[91/11/25  10:55:40  rpd]
+.\" 
+.\" Revision 2.4  91/05/14  17:06:54  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:11:35  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:11:47  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:37:17  rpd
+.\" 	Created.
+.\" 
+.TH mach_port_mod_refs 2 9/19/86
+.CM 4
+.SH NAME
+.nf
+mach_port_mod_refs \-  changes the number of user refs for a right
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+kern_return_t
+mach_port_mod_refs(task, name, right, delta)
+	mach_port_t task;
+	mach_port_t name;
+	mach_port_right_t right;
+	mach_port_delta_t delta;
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 12
+.B
+task
+The task holding the right.
+.TP 12
+.B
+name
+The task's name for the right.
+.TP 12
+.B
+right
+The type of right being modified.
+.TP 12
+.B
+delta
+Signed change to the number of user references.
+.SH DESCRIPTION
+\fBmach_port_mod_refs\fR requests that the number of user references
+a task has for a right be changed.  This results in the right
+being destroyed, if the number of user references is changed to zero.
+
+The \fBright\fR argument takes the following values:
+.nf
+.in +5n
+MACH_PORT_RIGHT_SEND
+MACH_PORT_RIGHT_RECEIVE
+MACH_PORT_RIGHT_SEND_ONCE
+MACH_PORT_RIGHT_PORT_SET
+MACH_PORT_RIGHT_DEAD_NAME
+.fi
+.in -5n
+The \fBname\fR should denote the specified right.
+
+The number of user
+references for the right is changed by the amount \fBdelta\fR,
+subject to the following restrictions: port sets, receive rights,
+and send-once rights may only have one user reference.  The resulting
+number of user references can't be negative.  If the resulting number
+of user references is zero, the effect is to deallocate the right.
+For dead names and send rights, there is an implementation-defined
+maximum number of user references.
+
+If the call destroys the right, then the effect is as described for
+\fBmach_port_destroy\fR, with the exception that \fBmach_port_destroy\fR
+simultaneously destroys all the rights denoted by a name, while
+\fBmach_port_mod_refs\fR can only destroy one right.  The name will
+be available for reuse if it only denoted the one right.
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The call succeeded.
+.TP 25
+KERN_INVALID_TASK
+\fBtask\fR was invalid.
+.TP 25
+KERN_INVALID_VALUE
+\fBright\fR was invalid.
+.TP 25
+KERN_INVALID_NAME
+\fBname\fR did not denote a right.
+.TP 25
+KERN_INVALID_RIGHT
+\fBname\fR denoted a right, but not the specified right.
+.TP 25
+KERN_INVALID_VALUE
+The user-reference count would become negative.
+.TP 25
+KERN_INVALID_VALUE
+For port sets, receive rights, and send-once rights,
+the user-reference count would exceed one.
+.TP 25
+KERN_UREFS_OVERFLOW
+The user-reference count would overflow.
+.PP
+The \fBmach_port_mod_refs\fR call is actually an RPC to \fBtask\fR,
+normally a send right for a task port, but potentially any send right.
+In addition to the normal diagnostic
+return codes from the call's server (normally the kernel),
+the call may return \fBmach_msg(2)\fR return codes.
+.SH SEE ALSO
+mach_port_destroy(2), mach_port_get_refs(2).

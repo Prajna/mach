@@ -1,0 +1,65 @@
+# 
+# Mach Operating System
+# Copyright (c) 1993 Carnegie Mellon University
+# All Rights Reserved.
+# 
+# Permission to use, copy, modify and distribute this software and its
+# documentation is hereby granted, provided that both the copyright
+# notice and this permission notice appear in all copies of the
+# software, derivative works or modified versions, and any portions
+# thereof, and that both notices appear in supporting documentation.
+# 
+# CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+# CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+# ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+# 
+# Carnegie Mellon requests users of this software to return to
+# 
+#  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+#  School of Computer Science
+#  Carnegie Mellon University
+#  Pittsburgh PA 15213-3890
+# 
+# any improvements or extensions that they make and grant Carnegie Mellon 
+# the rights to redistribute these changes.
+#
+#
+# HISTORY
+# $Log:	mkshadow,v $
+# Revision 2.1.1.1  94/06/01  10:24:18  rvb
+# 	From BSDSS
+# 
+# Revision 2.2  93/05/11  11:56:45  rvb
+# 	Build an empty shadow tree
+# 	[93/05/05            rvb]
+# 
+#
+#
+set tree = $0
+set tree = ${tree:h}
+set tree = ${tree:h}
+#set tree = /usr/src/mach
+set here = $cwd
+
+if ${here:t} == mach then
+    set there = ${here:h}
+    if	${there:t} == src then
+	echo ok;
+    else
+	echo eh?
+    endif
+else
+   if ${here:t} != src then
+	test -d src || mkdir src
+	cd src
+   endif
+   test -d mach || mkdir mach
+   cd mach
+   set here = $cwd
+endif
+
+pwd
+
+cd $tree
+
+tar cf - `find Makefile [a-z]* -name Makefile -print` | (cd $here; tar xvf -)

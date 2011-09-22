@@ -1,0 +1,125 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	mach_port_type.man,v $
+.\" Revision 2.6  93/05/10  19:31:53  rvb
+.\" 	updated
+.\" 	[93/04/21  16:04:08  lli]
+.\" 
+.\" Revision 2.5  91/12/11  08:43:25  jsb
+.\" 	Changed <mach/mach.h> to <mach.h>.
+.\" 	[91/11/25  10:56:03  rpd]
+.\" 
+.\" Revision 2.4  91/05/14  17:07:50  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:12:11  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:12:19  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:38:28  rpd
+.\" 	Created.
+.\" 
+.TH mach_port_type 2 4/13/87
+.CM 4
+.SH NAME
+.nf
+mach_port_type \-  return information about a task's name 
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+kern_return_t
+mach_port_type(task, name, ptype)
+	mach_port_t task;
+	mach_port_t name;
+	mach_port_type_t *ptype;		/* out */
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 12
+.B
+task
+The task whose port name space is queried.
+.TP 12
+.B
+name
+The name being queried.
+.TP 12
+.B
+ptype
+The type of the name.  Indicates what kind
+of right the task holds for the port, port set, or dead name.
+.SH DESCRIPTION
+\fBmach_port_type\fR returns information about \fBtask\fR's rights for
+a specific name in its port name space.  The returned \fBptype\fR
+is a bitmask indicating what rights \fBtask\fR holds with this name.
+The bitmask is composed of the following bits:
+.TP 12
+MACH_PORT_TYPE_SEND
+The name denotes a send right.
+.TP 12
+MACH_PORT_TYPE_RECEIVE
+The name denotes a receive right.
+.TP 12
+MACH_PORT_TYPE_SEND_ONCE
+The name denotes a send-once right.
+.TP 12
+MACH_PORT_TYPE_PORT_SET
+The name denotes a port set.
+.TP 12
+MACH_PORT_TYPE_DEAD_NAME
+The name is a dead name.
+.TP 12
+MACH_PORT_TYPE_DNREQUEST
+A dead-name request has been registered for the right.
+.TP 12
+MACH_PORT_TYPE_MAREQUEST
+A msg-accepted request for the right is pending.
+.TP 12
+MACH_PORT_TYPE_COMPAT
+The port right was created in the compatibility mode.
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The call succeeded.
+.TP 25
+KERN_INVALID_TASK
+\fBtask\fR was invalid.
+.TP 25
+KERN_INVALID_NAME
+\fBname\fR did not denote a right.
+.PP
+The \fBmach_port_type\fR call is actually an RPC to \fBtask\fR,
+normally a send right for a task port, but potentially any send right.
+In addition to the normal diagnostic
+return codes from the call's server (normally the kernel),
+the call may return \fBmach_msg(2)\fR return codes.
+.SH SEE ALSO
+mach_port_names(2), mach_port_get_receive_status(2),
+mach_port_get_set_status(2).

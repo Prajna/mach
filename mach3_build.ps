@@ -1,0 +1,2274 @@
+%!PS-Adobe-2.0
+%%Title: mach3_build.mss
+%%DocumentFonts: (atend)
+%%Creator: Mary Thompson and Scribe 7(1700)
+%%CreationDate: 18 June 1993 17:07
+%%Pages: (atend)
+%%EndComments
+% PostScript Prelude for Scribe.
+/BS {/SV save def 0.0 792.0 translate .01 -.01 scale} bind def
+/ES {showpage SV restore} bind def
+/SC {setrgbcolor} bind def
+/FMTX matrix def
+/RDF {WFT SLT 0.0 eq 
+  {SSZ 0.0 0.0 SSZ neg 0.0 0.0 FMTX astore}
+  {SSZ 0.0 SLT neg sin SLT cos div SSZ mul SSZ neg 0.0 0.0 FMTX astore}
+  ifelse makefont setfont} bind def
+/SLT 0.0 def
+/SI { /SLT exch cvr def RDF} bind def
+/WFT /Courier findfont def
+/SF { /WFT exch findfont def RDF} bind def
+/SSZ 1000.0 def
+/SS { /SSZ exch 100.0 mul def RDF} bind def
+/AF { /WFT exch findfont def /SSZ exch 100.0 mul def RDF} bind def
+/MT /moveto load def
+/XM {currentpoint exch pop moveto} bind def
+/UL {gsave newpath moveto dup 2.0 div 0.0 exch rmoveto
+   setlinewidth 0.0 rlineto stroke grestore} bind def
+/LH {gsave newpath moveto setlinewidth
+   0.0 rlineto
+   gsave stroke grestore} bind def
+/LV {gsave newpath moveto setlinewidth
+   0.0 exch rlineto
+   gsave stroke grestore} bind def
+/BX {gsave newpath moveto setlinewidth
+   exch
+   dup 0.0 rlineto
+   exch 0.0 exch neg rlineto
+   neg 0.0 rlineto
+   closepath
+   gsave stroke grestore} bind def
+/BX1 {grestore} bind def
+/BX2 {setlinewidth 1 setgray stroke grestore} bind def
+/PB {/PV save def newpath translate
+    100.0 -100.0 scale pop /showpage {} def} bind def
+/PE {PV restore} bind def
+/GB {/PV save def newpath translate rotate
+    div dup scale 100.0 -100.0 scale /showpage {} def} bind def
+/GE {PV restore} bind def
+/FB {dict dup /FontMapDict exch def begin} bind def
+/FM {cvn exch cvn exch def} bind def
+/FE {end /original-findfont /findfont load def  /findfont
+   {dup FontMapDict exch known{FontMapDict exch get} if
+   original-findfont} def} bind def
+/BC {gsave moveto dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto closepath clip} bind def
+/EC /grestore load def
+/SH /show load def
+/MX {exch show 0.0 rmoveto} bind def
+/W {0 32 4 -1 roll widthshow} bind def
+/WX {0 32 5 -1 roll widthshow 0.0 rmoveto} bind def
+/RC {100.0 -100.0 scale
+612.0 0.0 translate
+-90.0 rotate
+.01 -.01 scale} bind def
+/URC {100.0 -100.0 scale
+90.0 rotate
+-612.0 0.0 translate
+.01 -.01 scale} bind def
+/RCC {100.0 -100.0 scale
+0.0 -792.0 translate 90.0 rotate
+.01 -.01 scale} bind def
+/URCC {100.0 -100.0 scale
+-90.0 rotate 0.0 792.0 translate
+.01 -.01 scale} bind def
+%%EndProlog
+%%Page: 0 1
+BS
+0 SI
+15 /Helvetica-Bold AF
+24222 8294 MT
+(Building Mach 3.0)SH
+10 /Helvetica AF
+26488 10647 MT
+(Mary R.Thompson)SH
+27570 12330 MT
+(18 June 1993)SH
+12 /Helvetica-Bold AF
+7200 16085 MT
+(1. Introduction)SH
+10 /Helvetica AF
+8312 17511 MT
+(We have now switched our Makefiles to use)
+112 W( the OSF/ODE make program and OSF style Makefiles.)111 W
+7200 18937 MT
+(This make program is basically the one by Adam De)
+49 W( Boor that was released on the BSD 4.3-Reno tape.)50 W
+7200 20363 MT
+(The OSF modified it to support CMU style object and shadow directories. The version we are)
+20 W( using came)19 W
+7200 21789 MT
+(from the OSF DCE v 2.1 tape. The programs are)
+52 W( all available without license restrictions and have been)53 W
+7200 23215 MT
+(placed in the)73 W
+/Helvetica-Oblique SF
+13367 XM
+(buildtools/ode)SH
+/Helvetica SF
+19888 XM
+(directory. Currently they are used to build themselves, the mk, ux, user and)73 W
+7200 24641 MT
+(BNR-server \050bsdss\051. We have also switched to use gcc 2.3.3 for)
+132 W( all our compilations. Sources for this)133 W
+7200 26067 MT
+(compiler are)
+26 W( in)25 W
+/Helvetica-Oblique SF
+14111 XM
+(buildtools/gnu)SH
+/Helvetica SF
+(. You can build it yourself and install it where you want it or you can use the)25 W
+7200 27493 MT
+(binary version we provide)
+568 W( in the mach3.release collection.  External users need to setenv)569 W
+7200 28919 MT
+(GCC_EXEC_PREFIX <your_installation_dir>/@sys/lib/lib-gcc/, since otherwise gcc will try to find it's)271 W
+7200 30345 MT
+(components in)
+1789 W( /afs/cs.cmu.edu/project/mach3/latest/release/@sys/lib/lib-gcc/, followed by)1790 W
+7200 31771 MT
+(/usr/local/lib/gcc-lib and /usr/lib/gcc.)SH
+8312 34338 MT
+(Once all the tools are installed, the procedure for building components of the system is)
+62 W( to run a script)61 W
+7200 35764 MT
+(that sets a number of environment variables that the Makefiles depend on, then switch to)
+111 W( the directory)112 W
+7200 37190 MT
+(containing the sources of the target to be built, and type)SH
+/Helvetica-Oblique SF
+32104 XM
+(odemake)SH
+/Helvetica SF
+(.)SH
+8312 39757 MT
+(There are several documents to)
+119 W( help you understand how this process works.  There are OSF man)118 W
+7200 41183 MT
+(pages on make.1 and makefiles.5, a man page on the additional makefiles for the)
+52 W( mach3 project, a man)53 W
+7200 42609 MT
+(page for setvar.1 and a postscript tutorial by Adam de Boor on the make program.)SH
+12 /Helvetica-Bold AF
+7200 46364 MT
+(2. Bootstraping the ODE tools)SH
+10 /Helvetica AF
+8312 47790 MT
+(This section can be skipped if binary versions of the following tools)
+115 W( are already available:)114 W
+/Helvetica-Oblique SF
+49550 XM
+(gcc 2.3.3,)114 W
+7200 49216 MT
+(odemake, genpath, makepath, md, release, wh)722 W
+/Helvetica SF
+32655 XM
+(and)SH
+/Helvetica-Oblique SF
+35324 XM
+(setvar)SH
+/Helvetica SF
+(. At CMU these files are in)723 W
+7200 50642 MT
+(/afs/cs/project/mach3/{latest,alpha}/release/@sys. External to CMU they can be obtained)
+71 W( by supping the)70 W
+7200 52068 MT
+(mach3.release collection.)SH
+8312 54635 MT
+(The ODE tools were designed by the OSF to be portable to different machines and versions of Unix.)85 W
+7200 56061 MT
+(The first step in this process is to build the tools themselves. A script \050or set of scripts\051)
+17 W( has been provided)16 W
+7200 57487 MT
+(for this purpose.  The)
+32 W( first script is)33 W
+/Helvetica-Oblique SF
+22743 XM
+(setup.sh)SH
+/Helvetica SF
+26834 XM
+(which we have placed in the)33 W
+/Helvetica-Oblique SF
+39816 XM
+(buildtools/ode/setup)SH
+/Helvetica SF
+49021 XM
+(directory. It)33 W
+7200 58913 MT
+(is called with a)217 W
+/Helvetica-Oblique SF
+14848 XM
+(context)SH
+/Helvetica SF
+18567 XM
+(argument which defines the machine)
+217 W( and host OS, in our case it is one of)216 W
+/Helvetica-Oblique SF
+7200 60339 MT
+(i386_mach, i386_bnr, pmax_mach, sun3_mach, sun4_mach, vax_mach, luna88k_mach)953 W
+/Helvetica SF
+53111 XM
+(or)SH
+/Helvetica-Oblique SF
+7200 61765 MT
+(pmax_mach_X_alpha)SH
+/Helvetica SF
+(. The)350 W
+/Helvetica-Oblique SF
+19814 XM
+(setup.sh)SH
+/Helvetica SF
+23908 XM
+(script runs a sub-script,)36 W
+/Helvetica-Oblique SF
+34666 XM
+(<context>/setup.sh)SH
+/Helvetica SF
+43430 XM
+(which is)
+36 W( used to set the)35 W
+7200 63191 MT
+(machine and OS specific variables.)
+87 W( If you are trying to build the tools on a platform other than Mach or)88 W
+7200 64617 MT
+(BNR you should create a customized script for your new context.)SH
+8312 67184 MT
+(The location and procedure for running)
+118 W( the setup script is pretty inflexible since it needs to set up a)117 W
+7200 68610 MT
+(directory structure and know where the sources are. The directory)
+262 W( structure \050which may be rooted)263 W
+7200 70036 MT
+(wherever you wish\051 that it assumes is as follows:)SH
+/Courier SF
+9424 71614 MT
+(src/{buildtools,mk,ux,user,bsdss}/...)SH
+ES
+%%Page: 1 2
+BS
+0 SI
+10 /Helvetica-Bold AF
+30322 4329 MT
+(1)SH
+/Courier SF
+9424 7824 MT
+(src/buildtools/ode/{setup,mk,bin,lib})SH
+9424 8967 MT
+(obj/<context>/{buildtools,mk,ux,user,bsdss}/...)SH
+9424 10110 MT
+(release/<context>/{bin,lib,include,etc,man,special}/...)SH
+9424 11253 MT
+(export/<context>/{bin,include,lib,special}/...)SH
+/Helvetica SF
+8312 13820 MT
+(Actually the)101 W
+/Helvetica-Oblique SF
+13960 XM
+(setup.sh)SH
+/Helvetica SF
+18118 XM
+(script only cares about the source directory names in the ode subdirectory and)100 W
+7200 15246 MT
+(the location of the object directory.  There must be a)157 W
+/Helvetica-Oblique SF
+32272 XM
+(Makeconf)SH
+/Helvetica SF
+37042 XM
+(file in the)157 W
+/Helvetica-Oblique SF
+41793 XM
+(src/buildtools)SH
+/Helvetica SF
+48063 XM
+(directory that)157 W
+7200 16672 MT
+(specifies)SH
+/Helvetica-Oblique SF
+11368 XM
+(MAKEOBJDIR)SH
+/Helvetica SF
+18147 XM
+(to match where)SH
+/Helvetica-Oblique SF
+25261 XM
+(setup.sh)SH
+/Helvetica SF
+29319 XM
+(believes it is.)SH
+8312 19239 MT
+(To run the setup script you should)SH
+/Courier SF
+9600 20645 MT
+(cd src/buildtools/ode/setup)SH
+9600 21676 MT
+(sh -x setup.sh <context> >& log &)SH
+/Helvetica SF
+8312 24243 MT
+(The script will create all the)582 W
+/Helvetica-Oblique SF
+24141 XM
+(obj, release)582 W
+/Helvetica SF
+30752 XM
+(and)SH
+/Helvetica-Oblique SF
+33280 XM
+(export)SH
+/Helvetica SF
+36919 XM
+(directories that it)
+582 W( needs, use the)581 W
+/Helvetica-Oblique SF
+7200 25669 MT
+(bin/make/bootstrap.sh)SH
+/Helvetica SF
+17467 XM
+(script to build)
+151 W( make, install make in)152 W
+/Helvetica-Oblique SF
+34312 XM
+(export/<context>/bin/odemake)SH
+/Helvetica SF
+(, which it has)152 W
+7200 27095 MT
+(added to)163 W
+/Helvetica-Oblique SF
+11696 XM
+(PATH)SH
+/Helvetica SF
+(. The)163 W
+/Helvetica-Oblique SF
+17246 XM
+(bootstrap.sh)SH
+/Helvetica SF
+23190 XM
+(script defines some variables dependent on the)163 W
+/Helvetica-Oblique SF
+45564 XM
+(context)SH
+/Helvetica SF
+(. If)
+163 W( you are)162 W
+7200 28521 MT
+(building in a new)46 W
+/Helvetica-Oblique SF
+15111 XM
+(context)SH
+/Helvetica SF
+18660 XM
+(you will need to modify this script. It then uses this)47 W
+/Helvetica-Oblique SF
+41631 XM
+(odemake)SH
+/Helvetica SF
+46069 XM
+(and the Makefiles)47 W
+7200 29947 MT
+(in)SH
+/Helvetica-Oblique SF
+8876 XM
+(ode/setup/mk)SH
+/Helvetica SF
+15777 XM
+(to build)620 W
+/Helvetica-Oblique SF
+20518 XM
+(genpath, makepath, release, md)619 W
+/Helvetica SF
+37613 XM
+(and)SH
+/Helvetica-Oblique SF
+40178 XM
+(wh)SH
+/Helvetica SF
+42353 XM
+(and to install them in)619 W
+/Helvetica-Oblique SF
+7200 31373 MT
+(export/<context>/bin)SH
+/Helvetica SF
+(.)SH
+8312 33940 MT
+(The version of gcc 2.3.3 we provide is the)
+62 W( standard gnu release, with some configuration changes for)63 W
+7200 35366 MT
+(Mach. The)
+278 W( gnu directory contains scripts and instructions on how to do build it.)SH
+8312 37933 MT
+(At this point you have the bootstrap tools that are needed to build the rest of the system. You still need)22 W
+7200 39359 MT
+(to have the standard Unix tools:)147 W
+/Helvetica-Oblique SF
+22423 XM
+(csh, sed, yacc, lex, awk, tar)147 W
+/Helvetica SF
+35810 XM
+(and an assembler and)
+147 W( loader available.)148 W
+7200 40785 MT
+(Now you should run the setvar script and build the)
+138 W( complete buildtools directory.  This will rebuild the)137 W
+7200 42211 MT
+(odetools plus a few additional things depending on what platform you are building on.)SH
+12 /Helvetica-Bold AF
+7200 45966 MT
+(3. Setting the environment for odemake)SH
+11 SS 
+7200 49648 MT
+(3.1. setvar)SH
+10 /Helvetica AF
+8312 51074 MT
+(The ODE make and makefiles)
+452 W( depend on certain environment variables.  A set of scripts,)453 W
+/Helvetica-Oblique SF
+7200 52500 MT
+(buildtools/ode/setup/{setvar.csh,<context>/setvar.csh})SH
+/Helvetica SF
+31510 XM
+(have been provided which)
+130 W( make sure that all the)129 W
+7200 53926 MT
+(necessary target directories exist, exec a shell and set the necessary variables.)SH
+8312 56493 MT
+(There are three different situations in which the build may take place.)SH
+9424 57894 MT
+(1.)SH
+10536 XM
+(Everything is in the local source, export or release area. This includes all the)
+200 W( tools we)201 W
+10536 59037 MT
+(provide and whatever exported includes or libs are needed.)SH
+9424 60852 MT
+(2.)SH
+10536 XM
+(The local area contains all the sources of)
+105 W( the programs that are to be built, but tools and)104 W
+10536 61995 MT
+(includes or libraries from other areas are to be found in a complete system release area.)SH
+9424 63810 MT
+(3.)SH
+10536 XM
+(The local)
+125 W( area is a shadow of some system release area, and contains only the sources)126 W
+10536 64953 MT
+(that are different from the originals. In this case sources as well as tools, libs and includes)66 W
+10536 66096 MT
+(are to come from the system release area, unless they exist in the local area.)SH
+8312 68663 MT
+(setvar can be called with a variety of arguments to deal with these cases.)SH
+ES
+%%Page: 2 3
+BS
+0 SI
+10 /Helvetica-Bold AF
+30322 4329 MT
+(2)SH
+/Courier SF
+9600 7824 MT
+(setvar.csh [-basedir <dir>] [-masterbase <dir> ])SH
+16200 8855 MT
+([-systembase <dir> ] [-makesyspath <dir>])SH
+16200 9886 MT
+([-target <machine>] <host_context>)SH
+/Helvetica SF
+8312 12453 MT
+(The options are:)SH
+7200 14325 MT
+(-basedir <dir>:)SH
+16096 XM
+(the base of the tree which contains the local src,)
+59 W( obj and export directories. Defaults)60 W
+16096 15468 MT
+(to the parent of a superior)SH
+/Helvetica-Oblique SF
+27825 XM
+(src)SH
+/Helvetica SF
+29436 XM
+(directory.)SH
+7200 17094 MT
+(-masterbase <dir>:)SH
+16096 XM
+(when shadowing set this to the)
+30 W( base of the source and release directory that is being)29 W
+16096 18237 MT
+(shadowed.)SH
+7200 19863 MT
+(-systembase <dir>:)SH
+16096 XM
+(is the base of the tree)
+146 W( that contains a current system release. When shadowing a)147 W
+16096 21006 MT
+(fully built)
+18 W( release area this variable does not need to be set, since anything that is not)17 W
+16096 22149 MT
+(in the local)
+84 W( area should be found in either the master/release area or on the default)85 W
+16096 23292 MT
+(PATH. If)
+306 W( not shadowing and this variable is not set,)
+14 W( then a bootstrap script should be)13 W
+16096 24435 MT
+(run to get)
+21 W( the the system tools and include files generated and released into the local)22 W
+16096 25578 MT
+(export directory.)SH
+7200 27204 MT
+(-makesyspath <dir>:)SH
+16096 28347 MT
+(is a list of directories \050separated by ':'s\051 that)
+62 W( is searched by odemake to find the .mk)63 W
+16096 29490 MT
+(rules files.  Defaults to)
+675 W( <basedir>/export/<host_context>/lib/mk, followed by)674 W
+16096 30633 MT
+(masterbase/release if shadowing, and systembase if it was given.)SH
+7200 32259 MT
+(-target <machine>:)SH
+16096 XM
+(should only)
+22 W( be used when cross-building and the target_machine is different from the)23 W
+16096 33402 MT
+(host_machine. Otherwise)
+278 W( target_machine is set from the host_context)SH
+7200 35028 MT
+(-savepath:)SH
+16096 XM
+(if set, the current PATH will be added to the end)
+133 W( of the PATH that is set here. By)132 W
+16096 36171 MT
+(default PATH will only contain the minimum necessary to build.)SH
+7200 37797 MT
+(-help:)SH
+16096 XM
+(prints a brief help message)SH
+7200 39423 MT
+(host_context:)SH
+16096 XM
+(is host_machine_os specification that)
+345 W( selects sub setvar.csh that sets machine)346 W
+16096 40566 MT
+(specific variables such as HOST_MACHINE, target_machine,)
+49 W( target_cpu and default)48 W
+16096 41709 MT
+(search paths.)SH
+8312 44276 MT
+(For example:)SH
+8312 46843 MT
+(Case 1: where everything is local in the directory /mach3/{src,export,release})SH
+/Courier SF
+9600 48249 MT
+(cd /mach3/src)SH
+9600 49280 MT
+(/mach3/export/i386_mach/etc/setup/setvar i386_mach)SH
+/Helvetica SF
+8312 51847 MT
+(Case 2: /usr/mrt/mach3 is contains all the sources for a kernel build but)
+64 W( other tools are to be found in)65 W
+7200 53273 MT
+(the system release area, /afs/cs/project/mach3/latest/release.)SH
+/Courier SF
+9600 54679 MT
+(cd /usr/mrt/mach3/src)SH
+9600 55710 MT
+(alias sv `/afs/cs/project/mach3/latest/release/@sys/etc/setup/setvar`)SH
+9600 56741 MT
+(sv -systembase /afs/cs/project/mach3/latest/release/@sys i386_mach)SH
+/Helvetica SF
+8312 59308 MT
+(Case 3: /mach3 is a local shadow area for a)
+664 W( kernel build and the master area is)663 W
+7200 60734 MT
+(/afs/cs/project/mach3/latest.)SH
+/Courier SF
+9600 62140 MT
+(alias sv `/afs/cs/project/mach3/latest/release/@sys/etc/setup/setvar`)SH
+9600 63171 MT
+(sv -basedir /mach3 -masterbase /afs/cs/project/mach3/latest i386_mach)SH
+11 /Helvetica-Bold AF
+7200 66853 MT
+(3.2. Environment variables)SH
+10 /Helvetica AF
+8312 68279 MT
+(The following environment variables are set by)SH
+/Helvetica-Oblique SF
+29209 XM
+(context)SH
+/Helvetica SF
+(/setvar.csh)SH
+7200 70151 MT
+(HOST_MACHINE,TARGET_MACHINE,target_machine,TARGET_CPU,target_cpu)SH
+16096 71294 MT
+(type of machine)SH
+ES
+%%Page: 3 4
+BS
+0 SI
+10 /Helvetica-Bold AF
+30322 4329 MT
+(3)SH
+/Helvetica SF
+7200 7929 MT
+(TARGET_OS,target_os)SH
+16096 9072 MT
+(set to mach)SH
+7200 10698 MT
+(DEFCPATH)SH
+16096 XM
+(Default path to search for include files.)SH
+7200 12324 MT
+(OBJECT_FORMAT)SH
+16096 XM
+(format objects are to be built-in. e.g A_OUT, COFF, MACH_O)SH
+7200 13950 MT
+(ARCHIVE_FORMAT)SH
+16096 15093 MT
+(format of archive files. e.g. BSDARCH,)SH
+7200 16719 MT
+(Some flags for porting the ODE tools)SH
+8312 19286 MT
+(The following environment variables are set by setvar.csh)SH
+7200 21158 MT
+(PATH)SH
+16096 XM
+(Path to be searched for binaries. This is the export directory, the release directory)141 W
+16096 22301 MT
+(and whatever DEFPATH was set for this system.)SH
+7200 23927 MT
+(CPATH)SH
+16096 XM
+(Path to be searched for include files. Used by the C preprocessor.)SH
+7200 25553 MT
+(LPATH)SH
+16096 XM
+(Path to be searched to find crt0.o and migcom.)SH
+7200 27179 MT
+(INCDIRS)SH
+16096 XM
+(a list of -Idirs to be passed to the pre-processor instead of relying on)SH
+/Helvetica-Oblique SF
+46499 XM
+(CPATH)SH
+/Helvetica SF
+7200 28805 MT
+(LIBDIRS)SH
+16096 XM
+(a list of -Ldirs to be passed to the loader instead of relying on)SH
+/Helvetica-Oblique SF
+43388 XM
+(LPATH)SH
+/Helvetica SF
+7200 30431 MT
+(PROJECT_NAME,project_name)SH
+16096 31574 MT
+(Selects the project)
+890 W( specific make rules by causing the inclusion of)889 W
+16096 32717 MT
+(osf.<project_name>.mk into the makefiles.)
+378 W( Set to mach3 for all the Mach 3.0)379 W
+16096 33860 MT
+(collections.)SH
+7200 35486 MT
+(RULES_MK)SH
+16096 XM
+(the name of the stardard make rules file to start the includes in. It is)
+36 W( set to osf.std.mk)35 W
+16096 36629 MT
+(which is looked for in the MAKESYSPATH directory.)
+18 W( This)
+316 W( is used instead of the BSD)19 W
+16096 37772 MT
+(standard sys.mk.)SH
+7200 39398 MT
+(EXPORTBASE, SOURCEBASE, OBJECTDIR)SH
+16096 40541 MT
+(bases of)
+4 W( the respective trees. SOURCEBASE and OBJECTDIR are used by)5 W
+/Helvetica-Oblique SF
+50108 XM
+(genpath)SH
+/Helvetica SF
+(.)SH
+16096 41684 MT
+(OBJECTDIR is also used by Makeconf.)SH
+7200 43310 MT
+(SOURCEDIR)SH
+16096 XM
+(Can be set to define a backing directory)
+204 W( for the sources.  Used by genpath and)203 W
+16096 44453 MT
+(Makeconf)SH
+8312 47020 MT
+(In an OSF environment, the)SH
+/Helvetica-Oblique SF
+20874 XM
+(setvar.csh)SH
+/Helvetica SF
+25709 XM
+(script is replaced by rc-files and the)SH
+/Helvetica-Oblique SF
+41659 XM
+(workon)SH
+/Helvetica SF
+45160 XM
+(program.)SH
+12 /Helvetica-Bold AF
+7200 50775 MT
+(4. Building from a set of sources)SH
+10 /Helvetica AF
+8312 52201 MT
+(The basic procedure for building from a set of Mach 3.0 sources is to execute)
+40 W( the)41 W
+/Helvetica-Oblique SF
+45082 XM
+(setvar.csh)SH
+/Helvetica SF
+49958 XM
+(script, cd)41 W
+7200 53627 MT
+(to the directory in which the sources are to be found and type)SH
+/Helvetica-Oblique SF
+34548 XM
+(odemake)SH
+/Helvetica SF
+(.)SH
+/Helvetica-Oblique SF
+8312 56194 MT
+(odemake)SH
+/Helvetica SF
+12778 XM
+(will descend down)
+75 W( the subtree as specified in the)74 W
+/Helvetica-Oblique SF
+35401 XM
+(EXP{BIN,INC,LIB}_SUBDIRS)SH
+/Helvetica SF
+48869 XM
+(variables in)74 W
+7200 57620 MT
+(the Makefile, first)
+79 W( building and exporting any export targets, and then into the)80 W
+/Helvetica-Oblique SF
+42423 XM
+(SUBDIRS)SH
+/Helvetica SF
+47226 XM
+(list building the)80 W
+7200 59046 MT
+(rest of the targets.  Once all the exported targets are)
+56 W( in place, individual targets can be built by)55 W
+/Helvetica-Oblique SF
+50221 XM
+(cd)SH
+/Helvetica SF
+('ing to)55 W
+7200 60472 MT
+(the source directory and typing)SH
+/Helvetica-Oblique SF
+21151 XM
+(odemake <target>)SH
+/Helvetica SF
+(.)SH
+8312 63039 MT
+(The target)38 W
+/Helvetica-Oblique SF
+13224 XM
+(export_all)SH
+/Helvetica SF
+17875 XM
+(will do only the exporting passes, and the target)38 W
+/Helvetica-Oblique SF
+39617 XM
+(export_<file>)SH
+/Helvetica SF
+45714 XM
+(will export a single)39 W
+7200 64465 MT
+(file or program.  The target)91 W
+/Helvetica-Oblique SF
+19862 XM
+(install_all)SH
+/Helvetica SF
+24343 XM
+(along with a)91 W
+/Helvetica-Oblique SF
+30229 XM
+(TOSTAGE)SH
+/Helvetica SF
+35376 XM
+(argument will release everything that has)90 W
+7200 65891 MT
+(been previously built to the)SH
+/Helvetica-Oblique SF
+19373 XM
+(TOSTAGE)SH
+/Helvetica SF
+24430 XM
+(area. See)
+278 W( the man page makefiles\0505\051 for more possible targets.)SH
+8312 68458 MT
+(The following sections describe in detail the build steps for the micro-kernel \050mk)
+132 W( tree\051 and the unix-)133 W
+7200 69884 MT
+(server \050ux tree\051. You do not really need to understand this unless you want to modify these programs.)SH
+ES
+%%Page: 4 5
+BS
+0 SI
+10 /Helvetica-Bold AF
+30322 4329 MT
+(4)SH
+11 SS 
+7200 8002 MT
+(4.1. Make variables)SH
+10 /Helvetica AF
+8312 9428 MT
+(The)SH
+/Helvetica-Oblique SF
+10451 XM
+(odemake)SH
+/Helvetica SF
+14980 XM
+(envrionment uses a set of)
+138 W( standard rules files that define lots of variables as well as)137 W
+7200 10854 MT
+(standard rules.)
+423 W( These files are included by the)424 W
+/Courier SF
+31323 XM
+(.include <${RULES_MK}>)424 W
+/Helvetica SF
+45649 XM
+(in each Makefile.)424 W
+/Helvetica-Oblique SF
+7200 12280 MT
+(${RULES_MK})SH
+/Helvetica SF
+14512 XM
+(is defined as)419 W
+/Helvetica-Oblique SF
+21661 XM
+(osf.rules.mk)SH
+/Helvetica SF
+27748 XM
+(and is found on the)419 W
+/Helvetica-Oblique SF
+38627 XM
+($MAKESYSPATH)SH
+/Helvetica SF
+47382 XM
+(path which is)419 W
+/Helvetica-Oblique SF
+7200 13706 MT
+({export,release}/<context>/lib/mk)SH
+/Helvetica SF
+(. The)
+450 W( majority of variables are defined in)86 W
+/Helvetica-Oblique SF
+40878 XM
+(osf.<projectname>.mk)SH
+/Helvetica SF
+(, in our)86 W
+7200 15132 MT
+(case)SH
+/Helvetica-Oblique SF
+9669 XM
+(osf.mach3.mk)SH
+/Helvetica SF
+16250 XM
+(and)SH
+/Helvetica-Oblique SF
+18275 XM
+(osf.std.mk)SH
+/Helvetica SF
+(. The rest of the)79 W
+/Helvetica-Oblique SF
+30509 XM
+(.mk)SH
+/Helvetica SF
+32477 XM
+(files are)
+79 W( rules. In general, these)78 W
+/Helvetica-Oblique SF
+47175 XM
+(.mk)SH
+/Helvetica SF
+49142 XM
+(files define)78 W
+7200 16558 MT
+(variables only if they have not been previously defined which)
+149 W( allows you to overide these values with)150 W
+7200 17984 MT
+(environment variables or by setting them in Makefiles. The)
+18 W( values are often fuctions of other variables set)17 W
+7200 19410 MT
+(in the environment or Makefiles.)SH
+8312 21977 MT
+(Variables are defined for most programs that might be used by rules:  e.g. _CC_, _LD_, RM, RANLIB)59 W
+7200 23403 MT
+(etc, and for default flags used by the rules. Many of the flags follow the pattern of combining)SH
+7200 25275 MT
+(DEF_xFLAGS)SH
+16096 XM
+(set conditionally in)SH
+/Helvetica-Oblique SF
+24544 XM
+(osf.mach3.mk)SH
+/Helvetica SF
+7200 26901 MT
+(${.TARGET}_xFLAGS or xFLAGS)SH
+16096 28044 MT
+(set in the Makefile)SH
+7200 29670 MT
+(${.TARGET}_xENV or xENV)SH
+16096 30813 MT
+(set in the environment)SH
+7200 32439 MT
+(${.TARGET}_xARGS or xARGS)SH
+16096 33582 MT
+(set on the command line)SH
+11 /Helvetica-Bold AF
+7200 37264 MT
+(4.2. Makeconf)SH
+10 /Helvetica AF
+8312 38690 MT
+(The)SH
+/Helvetica-Oblique SF
+10401 XM
+(Makeconf)SH
+/Helvetica SF
+15102 XM
+(file is read by)88 W
+/Helvetica-Oblique SF
+21623 XM
+(odemake)SH
+/Helvetica SF
+26102 XM
+(before any other Makefiles and)
+88 W( sets a few basic variables. Its)89 W
+7200 40116 MT
+(location is used by)SH
+/Helvetica-Oblique SF
+15704 XM
+(odemake)SH
+/Helvetica SF
+20095 XM
+(to determine two other variables.)SH
+7200 41988 MT
+(CONFIG)SH
+16096 XM
+(Selects what)
+10 W( configuration options are chosen for the kernel and Unix server. Defined)9 W
+16096 43131 MT
+(in)SH
+/Helvetica-Oblique SF
+17152 XM
+(Makeconf)SH
+/Helvetica SF
+(.)SH
+7200 44757 MT
+(MAKEOBJDIR)SH
+16096 XM
+(The directory)
+44 W( in which the objects are placed.  If this is undefined the objects are put)45 W
+16096 45900 MT
+(in the source directory. Defined in)SH
+/Helvetica-Oblique SF
+31269 XM
+(Makeconf)SH
+/Helvetica SF
+35882 XM
+(as a function of)SH
+/Helvetica-Oblique SF
+42942 XM
+(OBJECTDIR)SH
+/Helvetica SF
+7200 47526 MT
+(MAKESRCPATH)SH
+16096 XM
+(The base of the Master sources if you are shadowing.  Set)
+401 W( in)400 W
+/Helvetica-Oblique SF
+48487 XM
+(Makeconf)SH
+/Helvetica SF
+53500 XM
+(if)SH
+/Helvetica-Oblique SF
+16096 48669 MT
+(SOURCEDIR)SH
+/Helvetica SF
+22374 XM
+(is defined.)SH
+7200 50295 MT
+(MAKECONF)SH
+16096 XM
+(Defined by)94 W
+/Helvetica-Oblique SF
+21343 XM
+(odemake)SH
+/Helvetica SF
+25829 XM
+(as the absolute pathname of the)95 W
+/Helvetica-Oblique SF
+40964 XM
+(Makeconf)SH
+/Helvetica SF
+45672 XM
+(file that it is using.)95 W
+16096 51438 MT
+(This value is used in our Makefiles to determine the base of the source)
+250 W( and/or)249 W
+16096 52581 MT
+(object,release trees. Exported to the environment.)SH
+7200 54207 MT
+(MAKETOP)SH
+16096 XM
+(Defined by)97 W
+/Helvetica-Oblique SF
+21348 XM
+(odemake)SH
+/Helvetica SF
+25836 XM
+(as the relative pathname from the directory in)
+97 W( which)98 W
+/Helvetica-Oblique SF
+49887 XM
+(odemake)SH
+/Helvetica SF
+16096 55350 MT
+(was invoked to the directory containing the)SH
+/Helvetica-Oblique SF
+35272 XM
+(Makeconf)SH
+/Helvetica SF
+39885 XM
+(file.)SH
+11 /Helvetica-Bold AF
+7200 59032 MT
+(4.3. Search path variables)SH
+10 /Helvetica-Oblique AF
+8312 60458 MT
+(odemake)SH
+/Helvetica SF
+12753 XM
+(uses an agumented version of $VPATH to search for source files.  It gives)
+50 W( -I flags to)49 W
+/Helvetica-Oblique SF
+51005 XM
+(cc)SH
+/Helvetica SF
+52332 XM
+(and)SH
+/Helvetica-Oblique SF
+7200 61884 MT
+(mig)SH
+/Helvetica SF
+9230 XM
+(to search for header files, -I)
+141 W( flags to)142 W
+/Helvetica-Oblique SF
+26313 XM
+(md)SH
+/Helvetica SF
+28122 XM
+(to shorten dependencies and -L flags to)142 W
+/Helvetica-Oblique SF
+46960 XM
+(ld)SH
+/Helvetica SF
+48158 XM
+(to search for)142 W
+7200 63310 MT
+(libraries. The variables that are used to set these values are:)SH
+7200 65182 MT
+(VPATH)SH
+16096 XM
+(The search path that)32 W
+/Helvetica-Oblique SF
+25674 XM
+(odemake)SH
+/Helvetica SF
+30097 XM
+(uses to find)
+32 W( the prerequisite files when it is evaluating)31 W
+16096 66325 MT
+(a dependency rule. This may be)
+115 W( set by individual Makefiles, but)116 W
+/Helvetica-Oblique SF
+45713 XM
+(odemake)SH
+/Helvetica SF
+50220 XM
+(expands)SH
+16096 67468 MT
+(any given names to include the)
+183 W( same names in the source tree and any backing)182 W
+16096 68611 MT
+(source areas. \050See)
+SH( Shadowing\051 If a file name starts with "./" only the current directory,)1 W
+16096 69754 MT
+(which is normally in the object tree, is searched.)SH
+7200 71380 MT
+(INCDIRS and LIBDIRS)SH
+ES
+%%Page: 5 6
+BS
+0 SI
+10 /Helvetica-Bold AF
+30322 4329 MT
+(5)SH
+/Helvetica SF
+16096 7929 MT
+(set by)142 W
+/Helvetica-Oblique SF
+19326 XM
+(setvar)SH
+/Helvetica SF
+22470 XM
+(to the local export directory and and master or system release area.)143 W
+16096 9072 MT
+(These directories are not expanded.)SH
+7200 10698 MT
+(INCFLAGS and LIBFLAGS)SH
+16096 11841 MT
+(set in Makefiles and expanded by)63 W
+/Helvetica-Oblique SF
+31593 XM
+(genpath)SH
+/Helvetica SF
+35548 XM
+(relative to the local source area,)
+63 W( and any)64 W
+16096 12984 MT
+(master source area.)SH
+11 /Helvetica-Bold AF
+7200 16666 MT
+(4.4. Building the mk tree)SH
+10 /Helvetica AF
+8312 18092 MT
+(The make procedure for the)136 W
+/Helvetica-Oblique SF
+21609 XM
+(mk)SH
+/Helvetica SF
+23356 XM
+(tree is more complicated than a build of a tree of simple)
+136 W( unrelated)135 W
+7200 19518 MT
+(programs. The)SH
+/Helvetica-Oblique SF
+13980 XM
+(mk/Makefile)SH
+/Helvetica SF
+19592 XM
+(has been set up to build and install the pieces of this tree in the order in)
+SH( which)1 W
+7200 20944 MT
+(they are needed.  If you are not absolutely sure of what you are doing you should)
+196 W( always start the)195 W
+/Helvetica-Oblique SF
+7200 22370 MT
+(odemake)SH
+/Helvetica SF
+11635 XM
+(in the directory)44 W
+/Helvetica-Oblique SF
+18603 XM
+(mk)SH
+/Helvetica SF
+(. If you start off in one)
+44 W( of the subdirectories you may either find that files are)45 W
+7200 23796 MT
+(missing or you are getting incorrect versions of files from incorrect directories.  The building)
+43 W( of the kernel)42 W
+7200 25222 MT
+(itself is also complicated)
+166 W( by the fact that it needs to be dynamically configured for different hardware)167 W
+7200 26648 MT
+(platforms and configurations. This is accomplished following the tradition)
+45 W( of BSD 4.3 of having the)44 W
+/Helvetica-Oblique SF
+51332 XM
+(config)SH
+/Helvetica SF
+7200 28074 MT
+(program write the Makefile, named)SH
+/Helvetica-Oblique SF
+22872 XM
+(Makefile.internal)SH
+/Helvetica SF
+(, that will be used to build the kernel.)SH
+8312 30641 MT
+(Mach has the added complication that the bootable kernel is built in two)
+16 W( pieces: the kernel itself named)17 W
+/Helvetica-Oblique SF
+7200 32067 MT
+(mach_kernel)SH
+/Helvetica SF
+13361 XM
+(and the default pager named)158 W
+/Helvetica-Oblique SF
+27215 XM
+(bootstrap)SH
+/Helvetica SF
+(. Another program,)158 W
+/Helvetica-Oblique SF
+40473 XM
+(makeboot)SH
+/Helvetica SF
+(, binds the two files)158 W
+7200 33493 MT
+(together into a single load image named)SH
+/Helvetica-Oblique SF
+25265 XM
+(mach.boot)SH
+/Helvetica SF
+30212 XM
+(as the final step of the kernel build.)SH
+8312 36060 MT
+(The layout of the mk source tree is as follows:)SH
+/Courier SF
+7200 37932 MT
+(bootstrap)SH
+/Helvetica SF
+16096 XM
+(Makefile and sources to build the default pager.)SH
+/Courier SF
+7200 39558 MT
+(conf)SH
+/Helvetica SF
+16096 XM
+(a link to)SH
+/Courier SF
+19820 XM
+(kernel/conf)SH
+/Helvetica SF
+(.)SH
+/Courier SF
+7200 41184 MT
+(include)SH
+/Helvetica SF
+16096 XM
+(contains the)
+93 W( Makefiles to build, export and install the)94 W
+/Helvetica-Oblique SF
+40397 XM
+(mk)SH
+/Helvetica SF
+42102 XM
+(collection include files that)94 W
+16096 42327 MT
+(are used outside of kernel builds.)SH
+/Courier SF
+7200 43953 MT
+(user/libmach)SH
+/Helvetica SF
+16096 XM
+(Makefile and sources to build crt0.o, libmach.a and libmach_sa.a)SH
+/Courier SF
+7200 45579 MT
+(user/threads)SH
+/Helvetica SF
+16096 XM
+(Makefile and sources to build libthreads.a)SH
+/Courier SF
+7200 47205 MT
+(kernel/src/{config,doconf,makeboot,mig})SH
+/Helvetica SF
+16096 48348 MT
+(Makefiles and sources to build each of)
+23 W( these programs which are needed to build the)24 W
+16096 49491 MT
+(kernel)SH
+/Courier SF
+7200 51117 MT
+(kernel/conf)SH
+/Helvetica SF
+16096 XM
+(The Makefile templates and configuration files that)37 W
+/Helvetica-Oblique SF
+38921 XM
+(config)SH
+/Helvetica SF
+41904 XM
+(uses to create)
+37 W( the Makefile)36 W
+16096 52260 MT
+(for the kernel,)SH
+/Helvetica-Oblique SF
+22488 XM
+(Makefile.internal)SH
+/Helvetica SF
+(.)SH
+/Courier SF
+7200 53886 MT
+(kernel)SH
+/Helvetica SF
+16096 XM
+(The Makefile that starts off the building of the kernel and all)
+144 W( the kernel sources. It)145 W
+16096 55029 MT
+(ends up switching to the configuration directory and calling)88 W
+/Helvetica-Oblique SF
+43067 XM
+(odemake)SH
+/Helvetica SF
+47546 XM
+(with the newly)87 W
+16096 56172 MT
+(created)SH
+/Helvetica-Oblique SF
+19709 XM
+(Makefile.internal)SH
+/Helvetica SF
+27267 XM
+(as the Makefile that actually compiles files for the kernel.)SH
+8312 58739 MT
+(When you do a)11 W
+/Helvetica-Oblique SF
+15360 XM
+(odemake)SH
+/Helvetica SF
+19762 XM
+(in the)11 W
+/Helvetica-Oblique SF
+22508 XM
+(mk)SH
+/Helvetica SF
+24130 XM
+(directory, it will proceed to make and export all of)
+11 W( the export targets)12 W
+7200 60165 MT
+(in each of the subdirectories in the)6 W
+/Helvetica-Oblique SF
+22750 XM
+(EXPDIRS)SH
+/Helvetica SF
+27424 XM
+(list in each Makefile in)
+6 W( the order in which they appear. If you)5 W
+7200 61591 MT
+(wish to start the make at any other place in this tree, you need)
+71 W( to be sure that all the prerequisite tools,)72 W
+7200 63017 MT
+(libraries and includes have been exported.)SH
+8312 65584 MT
+(In case you are curious what all the steps are doing this a summary of the major ones:)SH
+/Symbol SF
+9242 67515 MT
+(\267)SH
+/Helvetica-Bold SF
+9980 XM
+(cd kernel/src/mig/include; odemake MAKEFILE_PASS=FIRST)SH
+9980 68646 MT
+(build_all)SH
+/Helvetica SF
+9980 70506 MT
+(exports the include files that are needed to build mig.)SH
+ES
+%%Page: 6 7
+BS
+0 SI
+10 /Helvetica-Bold AF
+30322 4329 MT
+(6)SH
+/Symbol SF
+9242 8000 MT
+(\267)SH
+/Helvetica-Bold SF
+9980 XM
+(kernel/src/mig)SH
+/Helvetica SF
+9980 9860 MT
+(builds and exports mig.)SH
+/Symbol SF
+9242 11791 MT
+(\267)SH
+/Helvetica-Bold SF
+9980 XM
+(cd include; odemake MAKEFILE_PASS=FIRST build_all)SH
+/Helvetica SF
+9980 13651 MT
+(exports all the kernel include files that are needed by external programs)SH
+/Symbol SF
+9242 15582 MT
+(\267)SH
+/Helvetica-Bold SF
+9980 XM
+(cd user/libmach; odemake MAKEFILE_PASS=FIRST build_all)SH
+/Helvetica SF
+9980 17442 MT
+(builds and exports crt0.o, libmach.a and libmach_sa.a)SH
+/Symbol SF
+9242 19373 MT
+(\267)SH
+/Helvetica-Bold SF
+9980 XM
+(cd user/threads; odemake MAKEFILE_PASS=FIRST build_all)SH
+/Helvetica SF
+9980 21233 MT
+(builds and exports libthreads.a)SH
+/Symbol SF
+9242 23164 MT
+(\267)SH
+/Helvetica-Bold SF
+9980 XM
+(cd makeboot; odemake MAKEFILE_PASS=SECOND build_all)SH
+/Helvetica SF
+9980 25024 MT
+(builds and exports the default pager,)SH
+/Symbol SF
+9242 26955 MT
+(\267)SH
+/Helvetica-Bold SF
+9980 XM
+(cd mk/kernel/src/makeboot; make  MAKEFILE_PASS=SECOND build_all)SH
+/Helvetica SF
+9980 28815 MT
+(build and exports makeboot program)SH
+/Symbol SF
+9242 30746 MT
+(\267)SH
+/Helvetica-Bold SF
+9980 XM
+(cd mk/kernel/src/config; make  MAKEFILE_PASS=SECOND build_all)SH
+/Helvetica SF
+9980 32606 MT
+(build and exports config program)SH
+/Symbol SF
+9242 34537 MT
+(\267)SH
+/Helvetica-Bold SF
+9980 XM
+(cd mk/kernel/src/doconf; make  MAKEFILE_PASS=SECOND build_all)SH
+/Helvetica SF
+9980 36397 MT
+(exports doconf script)SH
+/Symbol SF
+9242 38328 MT
+(\267)SH
+/Helvetica-Bold SF
+9980 XM
+(cd kernel/conf; odemake MAKEFILE_PASS=BASIC  build_all)SH
+/Helvetica SF
+9980 40188 MT
+(Runs the Makefile that is in the conf directory,)
+93 W( which runs doconf to generate the <CONF>)92 W
+9980 41331 MT
+(file from)
+1056 W( MASTER, MASTER.local, <target_cpu>/{MASTER,MASTER.local} Then)1057 W
+9980 42474 MT
+(cds<CONFIG>; runs the config program which)
+562 W( reads the <CONF> file, conf/files,)561 W
+9980 43617 MT
+(conf/<target_cpu>/files. conf/template.mk, conf/<target_cpu>/template.mk)
+54 W( and generates the)55 W
+9980 44760 MT
+(options .h files and the Makefile.internal in the object directory.)SH
+/Symbol SF
+9242 46691 MT
+(\267)SH
+/Helvetica-Bold SF
+9980 XM
+(cd <CONFIG>; make MAKEFILE_PASS=BASIC  build_all)SH
+/Helvetica SF
+9980 48551 MT
+(runs the generated Makefile that builds the kernel.)SH
+8312 51118 MT
+(There are several shortcut targets that can be used)SH
+/Helvetica-Oblique SF
+31268 XM
+(carefully)SH
+/Helvetica SF
+35269 XM
+(during repetitive kernel builds.)SH
+/Symbol SF
+9242 53049 MT
+(\267)SH
+/Helvetica-Bold SF
+9980 XM
+(cd mk/kernel; odemake kernel)SH
+/Helvetica SF
+9980 54909 MT
+(exports any kernel headers you might have changed and rebuilds the kernel.)SH
+/Symbol SF
+9242 56840 MT
+(\267)SH
+/Helvetica-Bold SF
+9980 XM
+(cd mk/kernel; odemake kernel_only)SH
+/Helvetica SF
+9980 58700 MT
+(only builds the kernel, does not worry about changes to header files.)SH
+/Symbol SF
+9242 60631 MT
+(\267)SH
+/Helvetica-Bold SF
+9980 XM
+(cd mk/kernel/<CONFIG>; odemake file.o)SH
+/Helvetica SF
+9980 62491 MT
+(Can be)
+101 W( used after you create an empty directory with the CONFIG name to recompile one)100 W
+9980 63634 MT
+(file.)SH
+/Symbol SF
+9242 65565 MT
+(\267)SH
+/Helvetica-Bold SF
+9980 XM
+(cd mk/kernel/<CONFIG>; odemake relink)SH
+/Helvetica SF
+9980 67425 MT
+(Can be used after recompiling a few)
+440 W( .o files. Does not check for any out-of-date)441 W
+9980 68568 MT
+(dependencies.)SH
+ES
+%%Page: 7 8
+BS
+0 SI
+10 /Helvetica-Bold AF
+30322 4329 MT
+(7)SH
+12 SS 
+7200 8075 MT
+(5. Configurations)SH
+10 /Helvetica AF
+8312 9501 MT
+(Both the mach kernel and)
+184 W( Unix server use a modified version of the BSD)183 W
+/Helvetica-Oblique SF
+43281 XM
+(config)SH
+/Helvetica SF
+46410 XM
+(program to write)183 W
+/Helvetica-Oblique SF
+7200 10927 MT
+(Makefile.internal)SH
+/Helvetica SF
+14806 XM
+(which is used to)
+48 W( build the kernel/server. There are three types of files that provide input)49 W
+7200 12353 MT
+(to)SH
+/Helvetica-Oblique SF
+8312 XM
+(config)SH
+/Helvetica SF
+(:)SH
+/Helvetica-Oblique SF
+11536 XM
+(MASTER)SH
+/Helvetica SF
+(,)SH
+/Helvetica-Oblique SF
+16259 XM
+(template.mk)SH
+/Helvetica SF
+21983 XM
+(and)SH
+/Helvetica-Oblique SF
+23929 XM
+(files)SH
+/Helvetica SF
+(.)SH
+8312 14920 MT
+(The)SH
+/Helvetica-Oblique SF
+10442 XM
+(MASTER)SH
+/Helvetica SF
+15016 XM
+(files define the various)
+129 W( individual configuration options and a few macro configuration)128 W
+7200 16346 MT
+(names that are combinations of individual options. For each machine type the options from)143 W
+/Helvetica-Oblique SF
+49555 XM
+(MASTER,)SH
+7200 17772 MT
+(MASTER.local, <traget_cpu>/MASTER)237 W
+/Helvetica SF
+25347 XM
+(and)SH
+/Helvetica-Oblique SF
+27530 XM
+(<target_cpu>/MASTER.local)SH
+/Helvetica SF
+40716 XM
+(are combined by the)236 W
+/Helvetica-Oblique SF
+50998 XM
+(doconf)SH
+/Helvetica SF
+7200 19198 MT
+(script into)
+240 W( a file in the object directory with the name)241 W
+/Helvetica-Oblique SF
+33082 XM
+(conf/<CONFIG>)SH
+/Helvetica SF
+(. Thus)
+760 W( if you are building a)241 W
+/Helvetica-Oblique SF
+7200 20624 MT
+(STD+WS)SH
+/Helvetica SF
+11677 XM
+(configuration of the kernel, the file)4 W
+/Helvetica-Oblique SF
+26987 XM
+(obj/@sys/mk/kernel/conf/STD+WS)SH
+/Helvetica SF
+42649 XM
+(will contain)
+4 W( all the options)3 W
+7200 22050 MT
+(selected for this configuration.)SH
+8312 24617 MT
+(The)SH
+/Helvetica-Oblique SF
+10365 XM
+(files)SH
+/Helvetica SF
+12473 XM
+(files simply list each file, conditionalized by the options that will select it, that is to be used in)53 W
+7200 26043 MT
+(the kernel)
+38 W( or server.  Again the)37 W
+/Helvetica-Oblique SF
+21411 XM
+(files)SH
+/Helvetica SF
+23504 XM
+(and)SH
+/Helvetica-Oblique SF
+25487 XM
+(<target_cpu>/files)SH
+/Helvetica SF
+33751 XM
+(are combined. The lines)37 W
+/Helvetica-Oblique SF
+44848 XM
+(OPTIONS/foo)SH
+/Helvetica SF
+51332 XM
+(cause)SH
+7200 27469 MT
+(a file)19 W
+/Helvetica-Oblique SF
+9628 XM
+(foo.h)SH
+/Helvetica SF
+12149 XM
+(to be written into the object directory which contains)
+19 W( a)20 W
+/Helvetica-Oblique SF
+36352 XM
+(#define FOO 1|0)20 W
+/Helvetica SF
+44065 XM
+(depending on whether)20 W
+7200 28895 MT
+(the option foo was selected or not.)SH
+8312 31462 MT
+(The)SH
+/Helvetica-Oblique SF
+10332 XM
+(template.mk)SH
+/Helvetica SF
+16075 XM
+(and)SH
+/Helvetica-Oblique SF
+18040 XM
+(<target_cpu>/template.mk)SH
+/Helvetica SF
+29954 XM
+(contain definitions)
+19 W( and template rules for)18 W
+/Helvetica-Oblique SF
+48294 XM
+(config)SH
+/Helvetica SF
+51258 XM
+(to use)18 W
+7200 32888 MT
+(in writing)SH
+/Helvetica-Oblique SF
+11423 XM
+(Makefile.internal)SH
+/Helvetica SF
+(.)SH
+8312 35455 MT
+(The)SH
+/Helvetica-Oblique SF
+10358 XM
+(Makeconf)SH
+/Helvetica SF
+15016 XM
+(file defines the)45 W
+/Helvetica-Oblique SF
+21877 XM
+(CONFIG)SH
+/Helvetica SF
+26089 XM
+(variable which is used to chose the)
+45 W( configuration to build. This)46 W
+7200 36881 MT
+(can be overridden by setting it on the)
+13 W( command line to odemake.  For example the)12 W
+/Helvetica-Oblique SF
+44139 XM
+(odemake)SH
+/Helvetica SF
+48542 XM
+(command in)12 W
+7200 38307 MT
+(the)SH
+/Helvetica-Oblique SF
+8868 XM
+(ux)SH
+/Helvetica SF
+10202 XM
+(directory could be)SH
+/Courier SF
+10200 39713 MT
+(odemake CONFIG=STDVICE+WS)SH
+/Helvetica SF
+7200 41224 MT
+(which would cause)
+130 W( the non-AFS/NFS configuration of the Unix server to be built. It is also possible to)131 W
+7200 42650 MT
+(select or remove specific options in the following manner: for example in)SH
+/Helvetica-Oblique SF
+39379 XM
+(mk)SH
+/Courier SF
+10200 44056 MT
+(odemake CONFIG=STD+WS-debug-ipc_debug)SH
+/Helvetica SF
+7200 45567 MT
+(would disable the)
+212 W( kernel debugging interfaces. Note:  we do not expect that most randomly chosen)211 W
+7200 46993 MT
+(configurations would either build or work. There are several drivers for various machines which)
+104 W( are not)105 W
+7200 48419 MT
+(usually built and are likely to require some work before they will compile or run.)SH
+12 /Helvetica-Bold AF
+7200 52174 MT
+(6. Building the)SH
+/Helvetica-BoldOblique SF
+15803 XM
+(uk)SH
+/Helvetica-Bold SF
+17537 XM
+(collection)SH
+10 /Helvetica AF
+8312 53600 MT
+(Building in the)18 W
+/Helvetica-Oblique SF
+14925 XM
+(ux)SH
+/Helvetica SF
+16277 XM
+(tree has some of the same complications as)
+18 W( the)17 W
+/Helvetica-Oblique SF
+37891 XM
+(mk)SH
+/Helvetica SF
+39519 XM
+(tree. Again you should start your)17 W
+7200 55026 MT
+(make from the)82 W
+/Helvetica-Oblique SF
+14115 XM
+(ux)SH
+/Helvetica SF
+15531 XM
+(directory, to ensure that things are done in the proper order. Here it is only important)82 W
+7200 56452 MT
+(that the)SH
+/Helvetica-Oblique SF
+10814 XM
+(include/Makefile)SH
+/Helvetica SF
+18261 XM
+(installs the)SH
+/Helvetica-Oblique SF
+23263 XM
+(.h)SH
+/Helvetica SF
+24375 XM
+(files before the emulator and server try to use them for building.)SH
+8312 59019 MT
+(The)SH
+/Helvetica-Oblique SF
+10350 XM
+(config)SH
+/Helvetica SF
+13333 XM
+(program is used to write the)36 W
+/Helvetica-Oblique SF
+26165 XM
+(Makefile.internal)SH
+/Helvetica SF
+33759 XM
+(file that directs the building of the Unix server)36 W
+7200 60445 MT
+(just as)
+58 W( it did for the kernel. Configurations are again specified by the files in the)59 W
+/Helvetica-Oblique SF
+43271 XM
+(ux/server/conf)SH
+/Helvetica SF
+49888 XM
+(directory.)SH
+7200 61871 MT
+(Because of license)
+184 W( restrictions on the Unix server sources, you may not be able to build the default)183 W
+7200 63297 MT
+(configuration that we build)
+177 W( at CMU. This configuration,)178 W
+/Helvetica-Oblique SF
+32909 XM
+(STDAFS+WS)SH
+/Helvetica SF
+(, requires sources for the kernel)178 W
+7200 64723 MT
+(support for)
+191 W( NFS and AFS. If you do not have source liceses for these, you will need to change the)190 W
+/Helvetica-Oblique SF
+7200 66149 MT
+(CONFIG)SH
+/Helvetica SF
+11439 XM
+(variable to)72 W
+/Helvetica-Oblique SF
+16474 XM
+(STDVICE+WS)SH
+/Helvetica SF
+(.)SH
+/Helvetica-Oblique SF
+23631 XM
+(CONFIG)SH
+/Helvetica SF
+27870 XM
+(is defined in)72 W
+/Helvetica-Oblique SF
+33700 XM
+(ux/Makeconf)SH
+/Helvetica SF
+(. It)
+424 W( can either be changed there)73 W
+7200 67575 MT
+(or defined on the command line to)SH
+/Helvetica-Oblique SF
+22597 XM
+(odemake)SH
+/Helvetica SF
+(.)SH
+ES
+%%Page: 8 9
+BS
+0 SI
+10 /Helvetica-Bold AF
+30322 4329 MT
+(8)SH
+12 SS 
+7200 8075 MT
+(7. Special files)SH
+10 /Helvetica AF
+8312 9501 MT
+(A release area contains several primary subdirectories.)
+212 W( Most)
+700 W( of these,)211 W
+/Helvetica-Oblique SF
+42151 XM
+(bin, lib, include, etc, man)211 W
+/Helvetica SF
+7200 10927 MT
+(should be familiar to you.  The)SH
+/Helvetica-Oblique SF
+20873 XM
+(special)SH
+/Helvetica SF
+24263 XM
+(subdirectory is where the following binaries are installed:)SH
+/Courier SF
+9424 12505 MT
+(mach.boot.<version>.<config>)SH
+9424 13648 MT
+(emulator.<version>)SH
+9424 14791 MT
+(vmunix.<version>.<config>)SH
+/Helvetica SF
+7200 16474 MT
+(where)SH
+/Helvetica-Oblique SF
+10201 XM
+(<version>)SH
+/Helvetica SF
+14870 XM
+(is a string like)SH
+/Helvetica-Oblique SF
+21205 XM
+(MK69)SH
+/Helvetica SF
+24095 XM
+(or)SH
+/Helvetica-Oblique SF
+25262 XM
+(UX31)SH
+/Helvetica SF
+(, and)SH
+/Helvetica-Oblique SF
+30265 XM
+(<config>)SH
+/Helvetica SF
+34379 XM
+(is a string like)SH
+/Helvetica-Oblique SF
+40714 XM
+(STD+ANY)SH
+/Helvetica SF
+45632 XM
+(or)SH
+/Helvetica-Oblique SF
+46799 XM
+(STDAFS+WS)SH
+/Helvetica SF
+(.)SH
+8312 19041 MT
+(These files should be copied from the special directory when)
+3 W( installing them in)4 W
+/Helvetica-Oblique SF
+43147 XM
+(/)SH
+/Helvetica SF
+43707 XM
+(or)SH
+/Helvetica-Oblique SF
+44878 XM
+(/mach_servers)SH
+/Helvetica SF
+(. The)286 W
+7200 20467 MT
+(files in the object directory are NOT stripped. For all kernels MK68 and later,)
+56 W( you should install and boot)55 W
+/Helvetica-Oblique SF
+7200 21893 MT
+(mach.boot)SH
+/Helvetica SF
+(, NOT)342 W
+/Helvetica-Oblique SF
+15499 XM
+(mach_kernel)SH
+/Helvetica SF
+(.)SH
+/Helvetica-Oblique SF
+22743 XM
+(mach.boot)SH
+/Helvetica SF
+28033 XM
+(is produced from)343 W
+/Helvetica-Oblique SF
+36787 XM
+(bootstrap)SH
+/Helvetica SF
+41577 XM
+(and)SH
+/Helvetica-Oblique SF
+43866 XM
+(mach_kernel)SH
+/Helvetica SF
+50211 XM
+(with the)343 W
+/Helvetica-Oblique SF
+7200 23319 MT
+(makeboot)SH
+/Helvetica SF
+11949 XM
+(program. What)
+438 W( name you give)80 W
+/Helvetica-Oblique SF
+26379 XM
+(mach.boot)SH
+/Helvetica SF
+31406 XM
+(in /)
+80 W( or /../..  is of course a matter for you and your)79 W
+7200 24745 MT
+(boot loader to decide.  For more detailed information)
+170 W( on installing these programs see the document)171 W
+/Helvetica-Bold SF
+7200 26171 MT
+(Setup for Mach 3.0)SH
+/Helvetica SF
+(.)SH
+12 /Helvetica-Bold AF
+7200 29926 MT
+(8. Shadowing)SH
+10 /Helvetica AF
+8312 31352 MT
+(The Makefiles also support shadowing.)
+61 W( With)
+398 W( shadowing, you can have a "system source area" which)60 W
+7200 32778 MT
+(contains most source files, and a "local source area")
+31 W( which only contains files that you have changed.  In)32 W
+7200 34204 MT
+(the extreme, the only file you need in your local source area is the top-level)62 W
+/Helvetica-Oblique SF
+41590 XM
+(Makeconf)SH
+/Helvetica SF
+(. \050Each)
+400 W( collection)61 W
+7200 35630 MT
+(contains one)65 W
+/Helvetica-Oblique SF
+13278 XM
+(Makeconf)SH
+/Helvetica SF
+17956 XM
+(now, at top-level.\051  A shadow build)
+65 W( searches your local source area for files and)66 W
+7200 37056 MT
+(directories first, and then)
+50 W( checks the system source area for files and directories.  To do shadowing, you)49 W
+7200 38482 MT
+(should call setvar.csh with -masterbase option.  For example, if your local)
+851 W( area is)852 W
+/Helvetica-Oblique SF
+7200 39908 MT
+(/usr/rvb/mymach3/src/mk)SH
+/Helvetica SF
+18646 XM
+(and the system area is)SH
+/Helvetica-Oblique SF
+28984 XM
+(/afs/cs/project/mach3/latest/src/mk)SH
+/Helvetica SF
+44600 XM
+(then:)SH
+/Courier SF
+11400 41314 MT
+(cd /usr/rvb/mymach3/src/mk/bootstrap)SH
+11400 42345 MT
+(setvar -masterbase /afs/cs/project/mach3/latest i386_mach)SH
+11400 43376 MT
+(odemake)SH
+/Helvetica SF
+7200 44887 MT
+(does a shadow build of)87 W
+/Helvetica-Oblique SF
+18140 XM
+(bootstrap)SH
+/Helvetica SF
+22673 XM
+(in the)86 W
+/Helvetica-Oblique SF
+25569 XM
+(mk)SH
+/Helvetica SF
+27266 XM
+(collection. Any)
+450 W( libraries or include files that are not in your)86 W
+7200 46313 MT
+(local release area will be)
+160 W( found in the system release area,)161 W
+/Helvetica-Oblique SF
+35256 XM
+(/afs/cs/project/mach3/release/latest/@sys)SH
+/Helvetica SF
+(.)SH
+7200 47739 MT
+(The object, export and release files you build will be placed respectivley in)1172 W
+/Helvetica-Oblique SF
+7200 49165 MT
+(/usr/rvb/mymach3/{obj,export,release}/@sys)SH
+/Helvetica SF
+(.)SH
+12 /Helvetica-Bold AF
+7200 52920 MT
+(9. Other Topics)SH
+11 SS 
+7200 56602 MT
+(9.1. Supping)SH
+10 /Helvetica AF
+8312 58028 MT
+(If you are)
+44 W( not at CMU the standard way to get both the sources and the system release area is to use)45 W
+7200 59454 MT
+(our Software Upgrade Protocol program \050)150 W
+/Helvetica-Oblique SF
+(SUP)SH
+/Helvetica SF
+(\051 to copy the)
+150 W( files over the Internet. There is a different)149 W
+7200 60880 MT
+(collection for each source)
+34 W( subtree and one for the system release area. Different licenses are required to)35 W
+7200 62306 MT
+(get permission to)89 W
+/Helvetica-Oblique SF
+15359 XM
+(sup)SH
+/Helvetica SF
+17338 XM
+(the different collections. Your machine must be enabled in our host tables to)88 W
+/Helvetica-Oblique SF
+52388 XM
+(sup)SH
+/Helvetica SF
+7200 63732 MT
+(these collections.  Information on all the details can be found in)111 W
+/Helvetica-Oblique SF
+36659 XM
+(/usr/mach/public/doc/notes/mach3_sup)SH
+/Helvetica SF
+7200 65158 MT
+(which can be FTP'ed from mach.cs.cmu.edu as user anonymous.)SH
+ES
+%%Page: 9 10
+BS
+0 SI
+10 /Helvetica-Bold AF
+30322 4329 MT
+(9)SH
+11 SS 
+7200 8002 MT
+(9.2. m3tree)SH
+10 /Helvetica AF
+8312 9428 MT
+(If you are)
+22 W( at CMU and have read access to the mach3 archive area, you can get a copy of the sources)21 W
+7200 10854 MT
+(by using the)166 W
+/Helvetica-Oblique SF
+13368 XM
+(m3tree)SH
+/Helvetica SF
+16925 XM
+(script. Use of this script is documented by calling it with the -help option and in)167 W
+7200 12280 MT
+(/afs/cs/project/mach/public/doc/notes/mach3_cmu.{ps.doc}.)SH
+11 /Helvetica-Bold AF
+7200 15962 MT
+(9.3. How to run Mach 3.0)SH
+10 /Helvetica AF
+8312 17388 MT
+(See the document)1678 W
+/Helvetica-Bold SF
+21740 XM
+(Setup for Mach 3.0)1678 W
+/Helvetica SF
+37620 XM
+(which can be found in)1677 W
+/Helvetica-Oblique SF
+7200 18814 MT
+(/usr/mach/public/doc/mach3/mach3_setup.{ps,doc})SH
+ES
+%%Page: i 11
+BS
+0 SI
+10 /Helvetica-Bold AF
+30461 4329 MT
+(i)SH
+12 SS 
+25533 8075 MT
+(Table of Contents)SH
+11 SS 
+9036 9319 MT
+(1. Introduction)SH
+53388 XM
+(0)SH
+9036 10563 MT
+(2. Bootstraping the ODE tools)SH
+53388 XM
+(0)SH
+9036 11807 MT
+(3. Setting the environment for odemake)SH
+53388 XM
+(1)SH
+10 SS 
+11092 12956 MT
+(3.1. setvar)SH
+53444 XM
+(1)SH
+11092 14105 MT
+(3.2. Environment variables)SH
+53444 XM
+(2)SH
+11 SS 
+9036 15349 MT
+(4. Building from a set of sources)SH
+53388 XM
+(3)SH
+10 SS 
+11092 16498 MT
+(4.1. Make variables)SH
+53444 XM
+(4)SH
+11092 17647 MT
+(4.2. Makeconf)SH
+53444 XM
+(4)SH
+11092 18796 MT
+(4.3. Search path variables)SH
+53444 XM
+(4)SH
+11092 19945 MT
+(4.4. Building the mk tree)SH
+53444 XM
+(5)SH
+11 SS 
+9036 21189 MT
+(5. Configurations)SH
+53388 XM
+(7)SH
+9036 22433 MT
+(6. Building the)SH
+/Helvetica-BoldOblique SF
+16922 XM
+(uk)SH
+/Helvetica-Bold SF
+18512 XM
+(collection)SH
+53388 XM
+(7)SH
+9036 23677 MT
+(7. Special files)SH
+53388 XM
+(8)SH
+9036 24921 MT
+(8. Shadowing)SH
+53388 XM
+(8)SH
+9036 26165 MT
+(9. Other Topics)SH
+53388 XM
+(8)SH
+10 SS 
+11092 27314 MT
+(9.1. Supping)SH
+53444 XM
+(8)SH
+11092 28463 MT
+(9.2. m3tree)SH
+53444 XM
+(9)SH
+11092 29612 MT
+(9.3. How to run Mach 3.0)SH
+53444 XM
+(9)SH
+ES
+%%Trailer
+%%Pages: 11
+%%DocumentFonts: Helvetica Helvetica-Bold Helvetica-Oblique Courier Symbol Helvetica-BoldOblique

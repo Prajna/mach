@@ -1,0 +1,170 @@
+#
+# Mach Operating System
+# Copyright (c) 1992 Carnegie Mellon University
+# All Rights Reserved.
+# 
+# Permission to use, copy, modify and distribute this software and its
+# documentation is hereby granted, provided that both the copyright
+# notice and this permission notice appear in all copies of the
+# software, derivative works or modified versions, and any portions
+# thereof, and that both notices appear in supporting documentation.
+# 
+# CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS" 
+# CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+# ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+# 
+# Carnegie Mellon requests users of this software to return to
+# 
+#  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+#  School of Computer Science
+#  Carnegie Mellon University
+#  Pittsburgh PA 15213-3890
+# 
+# any improvements or extensions that they make and grant Carnegie Mellon
+# the rights to redistribute these changes.
+#
+#  
+# HISTORY
+# $Log:	MASTER,v $
+# Revision 2.5  93/05/10  19:40:42  rvb
+# 	Made gx driver conditional on dec-lic so that it would be
+# 	easier to build the system without the licensed code.
+# 	[93/05/10            mrt]
+# 
+# Revision 2.4  93/03/26  17:56:49  mrt
+# 	Added audio driver.
+# 	[93/03/17            af]
+# 
+# Revision 2.3  93/03/09  10:52:30  danner
+# 	Changes for Flamingo from jeffreyh. Plus some.
+# 	Cannot yet have a common ADU/Flamingo kernel.
+# 	[93/03/05            af]
+# 
+# Revision 2.2  93/02/04  16:54:08  mrt
+# 	lineno is now in the MI MASTER std defintion.
+# 	[93/01/25            mrt]
+# 
+# Revision 2.2  93/01/14  17:22:42  danner
+# 	Created.
+# 	[92/05/31            af]
+# 
+#
+
+#
+#	#####################################################################
+#	
+#	Standard Mach Research Configurations:
+#	-------- ---- -------- ---------------
+#	
+#	STD	= [ ]
+#
+#	ANY	= [ -ipc_compat anyalpha adu ]
+#	WS	= [ -ipc_compat anyalpha flamingo dec-lic ]
+#	MP	= [ -ipc_compat anyalpha adu multi16 host ]
+#
+#
+#	#####################################################################
+#
+
+conftype	alpha
+
+platform	ADU				# <adu>
+makeoptions	TEXTBASE="fffffc0000050000"	# <adu>
+
+platform	FLAMINGO			# <flamingo>
+makeoptions	TEXTBASE="fffffc00002a0000"	# <flamingo>
+
+config		mach_kernel
+
+# This setting will overide the one in MI MASTER
+#mips compiler: makevariables	LINENO="-g3"			# <lineno>
+#gcc compiler: makevariables	LINENO="-g"			# <lineno>
+makevariables			LINENO="-g3"			# <lineno>
+
+options		BOOTSTRAP_SYMBOLS
+
+#
+#		Common Devices
+#
+# Generic console driver (needs some serial line chip)
+#
+pseudo-device	constty			4	# <anyalpha>
+
+#
+# Bitmapped displays (common code for all screens)
+#
+pseudo-device	bm			0	# <adu>
+pseudo-device   bm                      1	# <flamingo>
+
+#
+# LK201 keyboard driver
+#
+pseudo-device	lk			1	# <anyalpha>
+
+#
+# SCSI driver: total HBAs
+#
+pseudo-device	scsi			5	# <anyalpha>
+
+
+#
+#		ADU DEVICES
+#
+#
+# ADU serial line controller (console)
+#
+pseudo-device	asl			1	# <adu>
+
+#
+# ADU ethernet controller
+#
+pseudo-device	ase			1	# <adu>
+
+#
+# ADU SCSI HBA
+#
+pseudo-device	asz			1	# <adu>
+
+#
+#		FLAMINGO DEVICES
+#
+#
+# Z8530 serial line controller (console)
+#
+pseudo-device	scc			2	# <flamingo>
+
+#
+# Monitors:
+#	fb	is the pmax monochrome/color framebuffer
+#	mfb	is the TC option monchrome framebuffer
+#	cfb	is the TC option simple color framebuffer (needs fb)
+#	gx	is the driver for the 2d/3d graphic engines (TC options)
+#	sfb	is the TC option smart color framebuffer
+#
+pseudo-device	fb			0	# <flamingo>
+pseudo-device	mfb			1	# <flamingo>
+pseudo-device	cfb			1	# <flamingo>
+pseudo-device	gx			2	# <dec-lic>
+pseudo-device	xcfb			0	# <flamingo>
+pseudo-device	sfb			1	# <flamingo>
+
+#
+# MC146818 clock chip
+#
+pseudo-device	mc			1	# <flamingo>
+
+#
+# AMD7990 ethernet controller
+#
+pseudo-device	ln			2	# <flamingo>
+
+#
+# NCR 53C94 SCSI HBA
+#
+pseudo-device	asc			4	# <flamingo>
+
+#
+# AMD73c90 ISDN chip
+#
+pseudo-device	audio			1	# <flamingo>
+pseudo-device	isdn			1	# <flamingo>

@@ -1,0 +1,184 @@
+#
+# Mach Operating System
+# Copyright (c) 1992 Carnegie Mellon University
+# All Rights Reserved.
+# 
+# Permission to use, copy, modify and distribute this software and its
+# documentation is hereby granted, provided that both the copyright
+# notice and this permission notice appear in all copies of the
+# software, derivative works or modified versions, and any portions
+# thereof, and that both notices appear in supporting documentation.
+#
+# CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+# CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+# ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+#
+# Carnegie Mellon requests users of this software to return to
+#
+#  Software Distribution Coordinator   or   Software.Distribution@CS.CMU.EDU
+#  School of Computer Science
+#  Carnegie Mellon University
+#  Pittsburgh PA 15213-3890
+#
+# any improvements or extensions that they make and grant Carnegie Mellon
+# the rights to redistribute these changes.
+#
+#
+# HISTORY
+# $Log:	files,v $
+# Revision 2.6  93/08/10  15:52:47  mrt
+# 	Added scsi/pc_label.c
+# 	[93/08/05            mrt]
+# 
+# Revision 2.5  93/05/20  21:13:24  mrt
+# 	Made additional flags to vm_fault be conditional
+# 	on NOT_USING_GCC2
+# 	[93/05/20            mrt]
+# 
+# Revision 2.4  93/03/26  17:56:45  mrt
+# 	Added audio driver.
+# 	[93/03/17            af]
+# 
+# Revision 2.3  93/03/09  10:52:33  danner
+# 	Flamingo and other new files.  Lint.
+# 	[93/03/06  14:33:28  af]
+# 
+# Revision 2.2  93/02/04  16:54:40  mrt
+# 	Moved from conf/*.alpha
+# 
+# Revision 2.2  93/01/14  17:23:57  danner
+# 	Created.
+# 	[92/05/31            af]
+# 
+#
+
+# vm_fault_page is big, but we want to optimize it anyway.
+vm/vm_fault.c		standard |${NOT_USING_GCC2:D-Wo,-Olimit -Wo,600}
+
+alpha/alpha_cache.s	standard
+alpha/alpha_copyin.s	standard
+alpha/alpha_cpu.s	standard
+alpha/alpha_init.c	standard
+alpha/alpha_instruction.c standard
+alpha/alpha_lock.s	standard
+alpha/alpha_mem_ops.c	standard
+alpha/alpha_misc.c	standard
+alpha/alpha_scb.c	standard
+alpha/alpha_startup.c	standard
+alpha/ast_check.c	standard
+alpha/autoconf.c	standard
+alpha/clock.c		standard
+alpha/conf.c		standard 
+alpha/context.s		standard
+alpha/db_disasm.c	optional mach_kdb
+alpha/db_interface.c	optional mach_kdb
+alpha/db_alpha_aout.c	optional mach_kdb
+alpha/db_alpha_sym.c	optional mach_kdb
+alpha/db_trace.c	optional mach_kdb
+alpha/ffs.s		standard
+alpha/locore.s		standard
+alpha/parse_args.c	standard
+alpha/pcb.c		standard
+alpha/pmap.c		standard
+alpha/prom_interface.s	standard
+alpha/start.s		standard ordered
+alpha/swapgeneric.c	standard
+alpha/trap.c		standard
+
+# Generic devices drivers
+chips/audio.c		optional audio device-driver
+
+chips/bt431.c		optional mfb device-driver
+chips/bt455.c		optional mfb device-driver
+
+chips/bt459.c		optional cfb device-driver
+chips/bt459.c		optional sfb device-driver
+
+chips/bt478.c		optional fb device-driver
+chips/busses.c		standard
+chips/cfb_hdw.c		optional cfb device-driver
+chips/cfb_misc.c	optional cfb device-driver
+chips/dc503.c		optional bm device-driver
+chips/dtop_handlers.c	optional dtop device-driver
+chips/dtop_hdw.c	optional dtop device-driver
+chips/dz_hdw.c		optional dz_ device-driver
+chips/ecc.c		optional ecc device-driver
+chips/fb_hdw.c		optional mfb device-driver
+chips/fb_misc.c		optional mfb device-driver
+chips/fdc_82077_hdw.c	optional fd device-driver
+chips/frc.c		optional frc device-driver
+chips/ims332.c		optional xcfb device-driver
+chips/isdn_79c30_hdw.c	optional isdn device-driver
+chips/kernel_font.c	optional bm device-driver
+chips/isdn_79c30_hdw.c	optional isdn device-driver
+chips/lance.c		optional ln device-driver
+#chips/lance_mapped.c	optional ln device-driver
+chips/lk201.c		optional lk device-driver
+chips/mc_clock.c	optional mc device-driver
+chips/mouse.c		optional bm device-driver
+chips/pm_hdw.c		optional fb device_driver
+
+chips/pm_misc.c		optional fb device-driver
+chips/pm_misc.c		optional cfb device-driver
+chips/pm_misc.c		optional mfb device-driver
+chips/pm_misc.c		optional xcfb device-driver
+chips/pm_misc.c		optional sfb device-driver
+
+chips/scc_8530_hdw.c	optional scc device-driver
+chips/screen.c		optional bm device-driver
+chips/screen_switch.c	optional bm device-driver
+chips/serial_console.c	optional constty device-driver
+chips/sfb_hdw.c		optional sfb device-driver
+chips/sfb_misc.c	optional sfb device-driver
+chips/xcfb_hdw.c	optional xcfb device-driver
+chips/xcfb_misc.c	optional xcfb device-driver
+chips/dec_lic/ga_hdw.c	optional gx device-driver
+chips/dec_lic/ga_misc.c	optional gx device-driver
+chips/dec_lic/gq_hdw.c	optional gx device-driver
+chips/dec_lic/gq_misc.c	optional gx device-driver
+chips/dec_lic/gx_misc.c	optional gx device-driver
+
+# ADU files
+alpha/DEC/adu.c		optional adu
+alpha/DEC/adu_se.c	optional ase
+alpha/DEC/adu_sl.c	optional asl
+alpha/DEC/alpha_box.c	optional adu
+alpha/DEC/model_dep.c	optional adu
+alpha/DEC/scsi_ADU_hdw.c	optional asz device-driver
+alpha/DEC/tvbus.c	optional adu
+
+
+#Flamingo files
+alpha/DEC/ln_copy.c	optional ln
+alpha/DEC/tc.c		optional flamingo
+alpha/DEC/alpha_box.c	optional flamingo
+alpha/DEC/model_dep.c	optional flamingo
+alpha/DEC/flamingo.c	optional flamingo
+alpha/DEC/flamingo_dma.c	optional flamingo
+alpha/DEC/sgmap.c	optional flamingo
+
+# SCSI driver
+#scsi/mapped_scsi.c	optional scsi device-driver
+scsi/rz.c		optional scsi device-driver
+scsi/rz_audio.c		optional scsi device-driver
+scsi/rz_cpu.c		optional scsi device-driver
+scsi/rz_disk.c		optional scsi device-driver
+scsi/rz_disk_bbr.c	optional scsi device-driver
+scsi/rz_host.c		optional scsi device-driver
+scsi/rz_labels.c	optional scsi device-driver
+scsi/pc_label.c		optional scsi device-driver
+scsi/rz_tape.c		optional scsi device-driver
+scsi/scsi.c		optional scsi device-driver
+#scsi/adapters/scsi_ADU_hdw.c	optional asz device-driver
+scsi/adapters/scsi_53C94_hdw.c	optional asc device-driver
+scsi/scsi_alldevs.c	optional scsi device-driver
+scsi/scsi_comm.c	optional scsi device-driver
+scsi/scsi_cpu.c		optional scsi device-driver
+scsi/scsi_disk.c	optional scsi device-driver
+scsi/scsi_jukebox.c	optional scsi device-driver
+scsi/scsi_optical.c	optional scsi device-driver
+scsi/scsi_printer.c	optional scsi device-driver
+scsi/scsi_rom.c		optional scsi device-driver
+scsi/scsi_scanner.c	optional scsi device-driver
+scsi/scsi_tape.c	optional scsi device-driver
+scsi/scsi_worm.c	optional scsi device-driver

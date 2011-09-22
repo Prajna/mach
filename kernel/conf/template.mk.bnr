@@ -1,0 +1,287 @@
+#
+# Mach Operating System
+# Copyright (c) 1994, 1993 Carnegie Mellon University
+# All Rights Reserved.
+# 
+# Permission to use, copy, modify and distribute this software and its
+# documentation is hereby granted, provided that both the copyright
+# notice and this permission notice appear in all copies of the
+# software, derivative works or modified versions, and any portions
+# thereof, and that both notices appear in supporting documentation.
+# 
+# CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+# CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+# ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+# 
+# Carnegie Mellon requests users of this software to return to
+# 
+#  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+#  School of Computer Science
+#  Carnegie Mellon University
+#  Pittsburgh PA 15213-3890
+# 
+# any improvements or extensions that they make and grant Carnegie Mellon
+# the rights to redistribute these changes.
+#  
+#
+# HISTORY
+# 11-Aug-94  David Golub (dbg) at Carnegie-Mellon University
+#	MK83-A
+#
+# $Log:	template.mk.bnr,v $
+# Revision 2.5  93/12/23  10:04:04  dbg
+# 	Upgrade for NetBSD 0.9 and "md".
+# 	[93/12/13            rvb]
+# 
+# Revision 2.4  93/08/10  15:46:15  mrt
+# 	/usr/include/machine/types.h defines vm_offset_t and vm_size_t
+# 	this causes us conflicts.  So substitute in our own types.h:
+# 	 	ln -s ../mach/machine/vm_types.h ${IHDR}machine/types.h
+# 	[93/08/05  12:09:04  rvb]
+# 
+# Revision 2.3  93/05/17  17:12:13  rvb
+# 	Flush version.minor
+# 
+# Revision 2.2  93/05/10  17:45:53  rvb
+# 	Revised for bsdss
+# 	[93/05/04  16:57:58  rvb]
+# 
+
+.SUFFIXES:
+.SUFFIXES: .c .S .b .o .h .defs .sh
+.if	defined(MACH_SRC)
+PATH	!=../../util/shadow_path ${.CURDIR} ${MACH_SRC:S/$/\/kernel/g} -p \
+		chips conf ddb device ipc kern mach mach_debug sys vm \
+		intel i386at ${MACHINE} mach/${MACHINE} scsi
+#		chips conf ddb device ipc kern mach mach_debug man scsi sys vm
+#		intel i386at ${MACHINE} mach/${MACHINE}
+#		alpha emul i386 i386at i386ipsc i386ps2 i860
+#		i860ipsc i860oki intel ipsc luna88k luna88kdev luna88kif m88k
+#		mac2 mac2dev mac2extra mac2if mac2os
+#		mips mon motorola norma pixrect sbusdev
+#		sqt sqtconf sqtmbad sqtsec sqtzdc
+#		sun sun3 sun4 sundev sunif
+#		vax vaxif vaxmba vaxuba
+.PATH: ${PATH}
+ISRC=  -I${.CURDIR} ${MACH_SRC:S/^/-I/g:S/$/\/kernel/g} 
+.else
+ISRC=  -I${.CURDIR}
+.endif
+
+.PRECIOUS: Makefile
+
+DEFINES		= -DMACH -DCMU
+IDIR		= -I. ${ISRC} -I../../include
+ALLOPTS		= ${IDENT} -DKERNEL ${DEFINES} ${IDIR}
+LINTOPTS	= ${ALLOPTS}
+
+CFLAGS		= -O -MD ${MYFLAGS} ${ALLOPTS} -c
+.if defined(PROFILING)
+CFLAGS		+=-DGPROF
+.endif
+CFLAGS_NORMAL	= ${CFLAGS}
+CFLAGS_DRIVER	= ${CFLAGS}
+CFLAGS_PROFIL	= ${CFLAGS}
+DECODE		= uudecode
+
+MACH_MIG	?= ../../mig/mig
+#MACH_MIGFLAGS	?= -DKERNEL ${IDENT} ${DEFINES} ${IDIR}
+MACH_MIGFLAGS	?= -DKERNEL ${IDIR}
+
+MACH_KERNEL	?= ../../mach_servers/mach_kernel
+MACH_LD		?= ../../binutils/ldx
+MACH_LDFLAGS	?= -e _pstart -T ${TEXTORG}
+
+MACH_XSTRIP	?= ../../xstrip/xstrip
+
+
+
+
+
+all: dirs includes netbsd ${MACH_KERNEL}
+
+dirs:
+	-@[ -d device ] || mkdir device
+	-@[ -d mach ] || mkdir mach
+	-@[ -d mach_debug ] || mkdir mach_debug
+	-@[ -d mach/i386 ] || mkdir mach/i386
+
+#		i386/cpu.h
+#		i386/syscall_sw.h
+#		i386/thread_status.h
+
+INCLUDES=
+%IFILES
+
+IHDR	= ../../include/
+includes: ${INCLUDES:S/^/${IHDR}/g}
+${INCLUDES:S/^/${IHDR}/g}: ${.TARGET:S/^${IHDR}//}
+	/bin/rm -f ${.TARGET}
+	/bin/cp -p ${.OODATE} ${.TARGET}
+
+netbsd:
+.if 	exists(/usr/include/machine/types.h)
+. if	!exists(${IHDR}machine/types.h)
+	rm -f ${IHDR}machine/types.h
+	ln -s ../mach/machine/vm_types.h ${IHDR}machine/types.h
+. endif
+.endif
+
+#
+#  These macros are filled in by the config program depending on the
+#  current configuration.  The MACHDEP macro is replaced by the
+#  contents of the machine dependent makefile template and the others
+#  are replaced by the corresponding symbol definitions for the
+#  configuration.
+#
+
+%OBJS
+
+%CFILES
+
+%SFILES
+
+%BFILES
+
+%ORDERED
+
+%RULES
+#  All macro definitions should be before this point,
+#  so that the machine dependent fragment can redefine the macros.
+#  All rules (that use macros) should be after this point,
+#  so that they pick up any redefined macro values.
+
+%MACHDEP
+
+#
+# The machine dependent template.mk may define the load flags
+# so this is only a default value.
+
+vers.c: ${OBJS} conf/newvers.sh
+	sh ${.ALLSRC:M*.sh} \
+		${.ALLSRC:M*sh:H}/copyright \
+		`cat ${.ALLSRC:M*.sh:H}/version.major \
+		     ${.ALLSRC:M*.sh:H}/version.variant \
+		     ${.ALLSRC:M*.sh:H}/version.edit \
+		     ${.ALLSRC:M*.sh:H}/version.patch`
+	${CC} ${CFLAGS_NORMAL} vers.c
+
+
+${MACH_KERNEL}: vers.o
+	@echo loading ${.TARGET}
+	${MACH_LD} ${MACH_LDFLAGS} -o ${.TARGET} ${OBJS} vers.o -z 
+	@echo xstripping ${.TARGET}
+	-${MACH_XSTRIP} -x ${.TARGET}
+
+
+HOST_INCDIRS	= ${INCDIRS}
+HOST_CFLAGS	= ${VOLATILE} ${IDENT} ${DEFINES}
+HOST_LDFLAGS	= ${MACH_LDFLAGS}
+HOST_CC		?= ${CC}
+_host_LPATH_	?= ${LPATH}
+
+xxx_genassym.c: i386/genassym.c
+	${CC} -E ${CFLAGS}  ${.ALLSRC:M*.c} > xxx_genassym.c
+	cat /dev/null >> genassym.d
+	sed 's/^genassym\.o/xxx_genassym.c/' genassym.d > xxx_genassym.c.d;
+	/bin/rm -f genassym.d
+genassym: xxx_genassym.c
+	( LPATH="${_host_LPATH_}"; export LPATH; \
+	 ${HOST_CC}  ${ALLOPTS} -o  genassym.X xxx_genassym.c )
+	/bin/mv genassym.X genassym
+
+#
+#  Special dependencies for locore.
+#
+
+assym.s: genassym
+	./genassym > ${.TARGET}
+
+locore.o: assym.s ${LOCORE_HEADS}
+
+vm_pageout.o: mach/memory_object_user.h mach/memory_object_default.h
+vm_object.o: mach/memory_object_user.h mach/memory_object_default.h
+vm_fault.o: mach/memory_object_user.h
+memory_object.o: mach/memory_object_user.h
+exception.o: mach/exc.h
+dev_pager.o : device/device_pager_server.c mach/mach_user_kernel.h
+ds_routines.o : device/device_reply.h
+
+############################################################################
+MACH_KU_FFILES = \
+	mach/memory_object_data_provided.c mach/memory_object_data_unavailable.c \
+	mach/memory_object_data_error.c mach/memory_object_set_attributes.c \
+	mach/memory_object_data_supply.c mach/memory_object_ready.c \
+	mach/memory_object_change_attributes.c
+
+#
+# MIG user interfaces
+#
+mach/exc.h: mach/exc.defs
+	${MACH_MIG} ${MACH_MIGFLAGS} -DKERNEL_USER  -header mach/exc.h  -user /dev/null  -server /dev/null \
+	${.ALLSRC:M*.defs}
+
+device/device_reply.h device/device_reply_user.c: device/device_reply.defs
+	${MACH_MIG} ${MACH_MIGFLAGS} -DKERNEL_USER  -header device/device_reply.h  -user device/device_reply_user.c \
+	-server /dev/null ${.ALLSRC:M*.defs}
+
+${MACH_KU_FFILES} mach/mach_user_kernel.h: mach/mach.defs
+	${MACH_MIG} ${MACH_MIGFLAGS} -DKERNEL_USER  -header mach/mach_user_kernel.h -i mach/ -user '$(MACH_KU_FFILES)' \
+	-server /dev/null ${.ALLSRC:M*.defs}
+
+mach/memory_object_default.h mach/memory_object_default_user.c: mach/memory_object_default.defs
+	${MACH_MIG} ${MACH_MIGFLAGS} -DKERNEL_USER -DSEQNOS  -header mach/memory_object_default.h  -user mach/memory_object_default_user.c  \
+	-server /dev/null ${.ALLSRC:M*.defs}
+
+mach/memory_object_user.h mach/memory_object_user.c: mach/memory_object.defs
+	${MACH_MIG} ${MACH_MIGFLAGS} -DKERNEL_USER -DSEQNOS  -header mach/memory_object_user.h  -user mach/memory_object_user.c \
+	 -server /dev/null ${.ALLSRC:M*.defs}
+
+#
+# MACH_MIG kernel interrfaces; server code only.
+#
+mach/mach_server.c: mach/mach.defs
+	${MACH_MIG} ${MACH_MIGFLAGS} -DKERNEL_SERVER  -header /dev/null  -user /dev/null \
+		-server ${.TARGET} ${.ALLSRC:M*.defs}
+
+mach/mach4_server.c: mach/mach4.defs
+	${MACH_MIG} ${MACH_MIGFLAGS} -DKERNEL_SERVER  -header /dev/null  -user /dev/null \
+		-server ${.TARGET} ${.ALLSRC:M*.defs}
+
+mach/mach_host_server.c: mach/mach_host.defs
+	${MACH_MIG} ${MACH_MIGFLAGS} -DKERNEL_SERVER  -header /dev/null  -user /dev/null \
+		-server ${.TARGET} ${.ALLSRC:M*.defs}
+
+mach/mach_port_server.c: mach/mach_port.defs
+	${MACH_MIG} ${MACH_MIGFLAGS} -DKERNEL_SERVER  -header /dev/null  -user /dev/null \
+		-server ${.TARGET} ${.ALLSRC:M*.defs}
+
+device/device_pager_server.c: mach/memory_object.defs
+	${MACH_MIG} ${MACH_MIGFLAGS} -DKERNEL_SERVER  -header /dev/null  -user /dev/null \
+		-server ${.TARGET} ${.ALLSRC:M*.defs}
+
+mach_debug/mach_debug_server.c: mach_debug/mach_debug.defs
+	${MACH_MIG} ${MACH_MIGFLAGS} -DKERNEL_SERVER  -header /dev/null  -user /dev/null \
+		-server ${.TARGET} ${.ALLSRC:M*.defs}
+
+device/device_server.c: device/device.defs
+	${MACH_MIG} ${MACH_MIGFLAGS} -DKERNEL_SERVER  -header /dev/null  -user   /dev/null \
+		-server ${.TARGET} ${.ALLSRC:M*.defs}
+
+mach/i386/mach_i386_server.c: mach/i386/mach_i386.defs
+	${MACH_MIG} ${MACH_MIGFLAGS} -DKERNEL_SERVER  -header /dev/null  -user   /dev/null \
+		-server ${.TARGET} ${.ALLSRC:M*.defs}
+############################################################################
+
+.if exists(depend.mk)
+.include "depend.mk"
+.endif
+
+clean:
+	rm -f ${OBJS} ${MACH_KERNEL} core
+	rm -f vers.o vers.c
+	rm -f genassym xxx_genassym.c xxx_genassym.c.d
+	rm -f device_pager_server.o
+
+.END .INTERRUPT:
+	-@../../util/md -u .depend ${ISRC} -d *.d 

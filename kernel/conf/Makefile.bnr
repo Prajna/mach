@@ -1,0 +1,80 @@
+#
+# Mach Operating System
+# Copyright (c) 199 Carnegie Mellon University
+# All Rights Reserved.
+# 
+# Permission to use, copy, modify and distribute this software and its
+# documentation is hereby granted, provided that both the copyright
+# notice and this permission notice appear in all copies of the
+# software, derivative works or modified versions, and any portions
+# thereof, and that both notices appear in supporting documentation.
+# 
+# CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+# CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+# ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+# 
+# Carnegie Mellon requests users of this software to return to
+# 
+#  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+#  School of Computer Science
+#  Carnegie Mellon University
+#  Pittsburgh PA 15213-3890
+# 
+# any improvements or extensions that they make and grant Carnegie Mellon
+# the rights to redistribute these changes.
+#
+#
+# HISTORY
+# $Log:	Makefile.bnr,v $
+# Revision 2.4  93/12/23  10:00:53  dbg
+# 	Upgrade for NetBSD 0.9 and "md".
+# 	[93/12/13            rvb]
+# 
+# Revision 2.3  93/05/14  15:09:13  rvb
+# 	.cf -> .bnr
+# 	[93/05/14            rvb]
+# 
+# Revision 2.2  93/05/10  17:45:25  rvb
+# 	Revised for bsdss
+# 	[93/05/04  16:51:01  rvb]
+# 
+# Revision 2.21  93/01/24  13:55:02  danner
+# 	Created for Reno make
+# 	[91/05/17            mrt]
+# 
+
+.SUFFIXES: .bnr .mk
+
+.if	defined(MACH_SRC)
+.PATH: ${.CURDIR} ${MACH_SRC:S/$/\/kernel\/conf/g}
+ISRC=  -I${.CURDIR} ${MACH_SRC:S/^/-I/g:S/$/\/kernel\/conf/g} 
+.else
+ISRC=  -I${.CURDIR}
+.endif
+
+CONFIG?= STD+WS
+
+all: config_pgm ${CONFIG}/Makefile
+
+config_pgm:
+	@cd ${.CURDIR}/../../config; make
+.if !exists(${CONFIG})
+	mkdir ${CONFIG}
+.endif
+
+
+
+${CONFIG}/Makefile:	template.mk ${MACHINE}/template.mk ${CONFIG}/${CONFIG}
+	cd ${CONFIG}; ../../config/config ${ISRC} -c . ${CONFIG}
+
+${CONFIG}/${CONFIG}:	${MACHINE}/MASTER.bnr ${MACHINE}/MASTER.local.bnr \
+			MASTER.bnr MASTER.local.bnr \
+			files.bnr ${MACHINE}/files.bnr
+
+	cpp -DSTD -DWS ${ISRC} ${.ALLSRC:S/^/XX/:MXX*:S/XX//} \
+			| sed -e '/^$$/d' -e '/^# /d' > ${CONFIG}/${CONFIG}
+	echo >${CONFIG}/vers.config ${CONFIG}
+
+
+clean:
+	rm -f ${CONFIG}/${CONFIG} ${CONFIG}/vers.config

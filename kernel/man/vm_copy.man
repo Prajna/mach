@@ -1,0 +1,113 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	vm_copy.man,v $
+.\" Revision 2.6  93/03/18  15:16:37  mrt
+.\" 	corrected types
+.\" 	[93/03/12  16:55:12  lli]
+.\" 
+.\" Revision 2.5  91/12/13  14:22:32  jsb
+.\" 	Moved alignment restrictions to a BUGS section.
+.\" 	Removed the non-overlapping restriction.
+.\" 	[91/12/11            rpd]
+.\" 
+.\" Revision 2.4  91/05/14  17:15:22  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:16:01  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:16:59  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:47:15  rpd
+.\" 	Created.
+.\" 
+.TH vm_copy 2 9/19/86
+.CM 4
+.SH NAME
+.nf
+vm_copy  \-  copies memory to a destination address
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t vm_copy (target_task, source_address, count, dest_address)
+	mach_port_t	target_task;
+	vm_address_t	source_address;
+	vm_size_t	count;
+	vm_address_t	dest_address;
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+target_task
+Task whose virtual memory is to be affected.
+.TP 15
+.B
+source_address
+Address in \fBtarget_task\fR
+of the start of the source range.
+.TP 15
+.B
+count
+Number of bytes to copy.
+.TP 15
+.B
+dest_address
+Address in \fBtarget_task\fR
+of the start of the destination range.
+.SH DESCRIPTION
+\fBvm_copy\fR causes the source memory range to be copied to
+the destination address.  The source and destination memory ranges
+may overlap.  The destination address range must already be allocated and
+writable; the source range must be readable.
+
+\fBvm_copy\fR is equivalent to vm_read followed by vm_write.
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+Memory copied.
+.TP 25
+KERN_PROTECTION_FAILURE
+Either the destination region was not 
+not writable, or the source region was not readable.
+.TP 25
+KERN_INVALID_ADDRESS
+Illegal or non-allocated address specified or 
+insufficient memory allocated at one of the addresses.
+.SH BUGS
+The current implementation requires that \fBsource_address\fR,
+\fBcount\fR, and \fBdest_address\fR all be page-aligned.
+Otherwise, KERN_INVALID_ARGUMENT is returned.
+.SH SEE ALSO
+vm_read(2),
+vm_write(2),
+vm_protect(2),
+vm_statistics(2).

@@ -1,0 +1,108 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	memory_object_destroy.man,v $
+.\" Revision 2.5  93/05/10  19:33:49  rvb
+.\" 	updated
+.\" 	[93/04/21  16:08:36  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:09:43  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:13:04  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:13:43  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:40:57  rpd
+.\" 	Created.
+.\" 
+.TH memory_object_destroy 2 12/18/89
+.CM 4
+.SH NAME
+.nf
+memory_object_destroy  \-  indicates that the object should be destroyed
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t memory_object_destroy(memory_control, reason);
+	mach_port_t
+			memory_control;
+	kern_return_t	reason;
+
+
+.fi
+.ft P
+.SH DESCRIPTION
+
+.B memory_object_destroy
+tells the kernel to shut down the memory object.
+As a result of this call the kernel will no longer support paging activity
+or any memory_object calls on this object, and all rights 
+to the memory object port, the memory control
+port and the memory name port will be returned to the memory manager in a
+.B memory_object_terminate
+call. If the memory manager is concerned that
+any modified cached data be returned to it before the object is terminated,
+it should call 
+.B memory_object_lock_request
+with 
+.B should_flush
+set
+and a lock value of 
+.B VM_PROT_WRITE
+before making this call.
+
+.SH ARGUMENTS
+.TP 15
+.B
+memory_control
+The port, provided by the kernel 
+in a 
+.B memory_object_init
+call, to which cache management requests may be issued.
+.TP 15
+.B
+reason
+An error code indicating when the object must be destroyed.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+This routine does not receive a reply message (and consequently
+has no return value), so only message transmission errors apply.
+
+.SH SEE ALSO
+.B memory_object_terminate, memory_object_lock_request
+
+.SH BUGS
+
+The error code is currently ingnored.
+

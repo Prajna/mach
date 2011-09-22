@@ -1,0 +1,112 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	processor_set_max_priority.man,v $
+.\" Revision 2.5  93/03/18  15:14:28  mrt
+.\" 	corrected types
+.\" 	[93/03/11  12:54:05  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:11:46  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:14:07  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:14:56  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:42:50  rpd
+.\" 	Created.
+.\" 
+.TH processor_set_max_priority 2 8/13/89
+.CM 4
+.SH NAME
+.nf
+processor_set_max_priority  \-  set maximum priority for a processor_set
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t
+processor_set_max_priority(processor_set, priority, change_threads)
+	mach_port_t		processor_set;
+	int			priority;
+	boolean_t		change_threads;
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+processor_set
+Processor set to set maximum priority for.
+.TP 15
+.B
+priority
+New priority.
+.TP 15
+.B
+change_threads
+Change maximum priority of existing threads if TRUE.
+
+.SH DESCRIPTION
+The priority of a processor set is used only for newly created threads
+(thread's maximum priority is set to processor set's) and the assignment
+of threads to the set (thread's maximum priority is reduced if it exceeds
+the set's maximum priority, thread's priority is similarly reduced).
+.B processor_set_max_priority
+changes this priority.  It also sets the maximum priority of
+all threads assigned to the processor set 
+to this new priority if 
+.B change_threads
+is TRUE.  If this maximum priority is less than the priorities of any
+of these threads, their priorities will also be set to this new value.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The call succeeded.
+.TP 25
+KERN_INVALID_ARGUMENT
+.B task
+is not a task, or
+.B priority
+is not a valid priority.
+
+.SH BUGS
+Availability limited.  This call was referred to as 
+.B processor_set_priority
+in some previous documentation.
+
+.SH SEE ALSO
+.B thread_priority, task_priority, thread_assign
+
+
+
+

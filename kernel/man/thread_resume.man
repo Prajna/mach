@@ -1,0 +1,85 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	thread_resume.man,v $
+.\" Revision 2.4  91/05/14  17:14:26  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:15:29  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:16:22  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:46:22  rpd
+.\" 	Created.
+.\" 
+.TH thread_resume 2 1/22/88
+.CM 4
+.SH NAME
+.nf
+thread_resume  \-  resumes specified thread
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t thread_resume(target_thread)
+	thread_t	target_thread;
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+target_thread
+The thread to be resumed.
+
+.SH DESCRIPTION
+Decrements the threads's suspend count. If the count becomes zero
+the thread is resumed. If it is still positive, the thread
+is left suspended. The suspend count may not become negative.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The thread has been resumed.
+.TP 25
+KERN_FAILURE
+The suspend count is already zero.
+.TP 25
+KERN_INVALID_ARGUMENT
+.B target_thread
+is not a thread.
+
+.SH SEE ALSO
+.B task_suspend, task_resume
+.B thread_info, thread_create, thread_terminate, thread_suspend
+
+
+

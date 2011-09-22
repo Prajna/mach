@@ -1,0 +1,103 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	host_kernel_version.man,v $
+.\" Revision 2.5  93/03/18  15:13:59  mrt
+.\" 	corrected types
+.\" 	[93/03/12  16:51:44  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:04:48  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:10:24  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:10:30  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:34:48  rpd
+.\" 	Created.
+.\" 
+.TH host_kernel_version 2 8/13/89
+.CM 4
+.SH NAME
+.nf
+host_kernel_version  \-  return kernel version information for host
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t host_kernel_version(host, version)
+	mach_port_t host;
+	kernel_version_t *version;		/* out */
+
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+host
+The host for which information is being requested
+.TP 15
+.B
+version
+Character string describing the kernel version executing on 
+.B host.
+
+.SH DESCRIPTION
+.B host_kernel_version
+returns the version string compiled into the kernel executing on
+.B host
+at the time it was built.  This describes the version of the kernel.
+The constant 
+.B KERNEL_VERSION_MAX
+should be used to dimension storage for the returned string if the
+.B kernel_version_t
+declaration is not used.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The call succeeded.
+.TP 25
+KERN_INVALID_ARGUMENT
+.B host
+was not a host.
+.TP 25
+KERN_INVALID_ADDRESS
+.B version
+points to inaccessible memory.
+
+.SH BUGS
+Availability limited.
+
+.SH SEE ALSO
+.B host_info, host_processors, host_ports, processor_info
+

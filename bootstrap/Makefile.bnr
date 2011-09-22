@@ -1,0 +1,114 @@
+# 
+# Mach Operating System
+# Copyright (c) 1993-1991 Carnegie Mellon University
+# All Rights Reserved.
+# 
+# Permission to use, copy, modify and distribute this software and its
+# documentation is hereby granted, provided that both the copyright
+# notice and this permission notice appear in all copies of the
+# software, derivative works or modified versions, and any portions
+# thereof, and that both notices appear in supporting documentation.
+# 
+# CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+# CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+# ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+# 
+# Carnegie Mellon requests users of this software to return to
+# 
+#  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+#  School of Computer Science
+#  Carnegie Mellon University
+#  Pittsburgh PA 15213-3890
+# 
+# any improvements or extensions that they make and grant Carnegie Mellon
+# the rights to redistribute these changes.
+#
+#
+# HISTORY
+# $Log:	Makefile.bnr,v $
+# Revision 2.3  93/12/23  09:57:57  dbg
+# 	Upgrade for NetBSD 0.9 and "md".
+# 
+# Revision 2.2  93/05/10  17:44:18  rvb
+# 	Revised for bsdss.
+# 	[93/05/04  16:29:42  rvb]
+# 
+# Revision 2.14  93/02/04  13:03:02  mrt
+# 	Removed the installation of bootstrap. This file is only
+# 	used during a kernel build when it is found in export.
+# 	[93/02/04            mrt]
+# 
+# Revision 2.13  93/02/04  10:55:30  mrt
+# 	Made xstripping rule explicit again as it has been
+# 	removed from osf.mach3.mk.
+# 	[93/02/02            mrt]
+# 
+# Revision 2.12  93/02/01  08:37:49  danner
+# 	Added -Dsun4c to Sun 4 CFLAGS (after the include of rules.mk).
+# 	It is needed for now to get the right parameters for allocating
+# 	the stack.
+# 	[93/01/29            dlc]
+# 
+# Revision 2.11  93/01/24  13:54:45  danner
+# 	Xstrip rule now implicit.
+# 	[93/01/24            danner]
+# 
+# 	Updated for ODE make.
+# 	[93/01/01            mrt]
+# 
+# 
+
+.SUFFIXES:
+.SUFFIXES: .c .o .S .h
+.if	defined(MACH_SRC)
+.PATH: ${.CURDIR} ${MACH_SRC:S/$/\/bootstrap/g}
+ISRC=  -I${.CURDIR} ${MACH_SRC:S/^/-I/g:S/$/\/bootstrap/g}
+.else
+ISRC=  -I${.CURDIR}
+.endif
+
+
+.S.o:
+	${CC} -c ${CFLAGS} -DASSEMBLER ${.OODATE}
+
+DEFINES		= -DMACH -DCMU
+IDIR		= -I. ${ISRC} -I../include
+CFLAGS		+= -MD ${MYFLAGS} ${DEFINES} ${IDIR}
+
+
+MACH_LD		?= ../binutils/ldx
+MACH_LDFLAGS	?= -e __start -L../lib
+MACH_LIBS	?= -lthreads -lmach_sa
+MACH_CRT0	?= ../lib/crt0.o
+
+MACH_XSTRIP	?= ../xstrip/xstrip
+
+OFILES		 = bootstrap.o def_pager_setup.o default_pager.o \
+		   exec.o file_io.o kalloc.o load.o strfcns.o wiring.o
+
+#
+# Temporary measure for now: need sun4c in machine specific CFLAGS - dlc
+#
+SUN4_CFLAGS += -Dsun4c
+
+all: includes bootstrap
+
+IHDR=../include
+INCLUDES= ${IHDR}/mach/default_pager_types.h ${IHDR}/i386/exec.h
+includes: ${INCLUDES}
+${INCLUDES}: ${.TARGET:S/..\/include\///}
+	/bin/rm -f ${.TARGET}
+	/bin/cp -p ${.OODATE} ${.TARGET}
+
+# We don't want to load with libc.a
+bootstrap: ${OFILES}
+	${MACH_LD} -o ${.TARGET} ${MACH_LDFLAGS} ${MACH_CRT0} -z ${OFILES} \
+		${MACH_LIBS}
+
+exec.o:		${MACHINE}/exec.c
+
+clean:
+	rm -f ${OFILES} bootstrap core
+
+.END .INTERRUPT:
+	-@../util/md -u .depend ${ISRC} -d *.d 

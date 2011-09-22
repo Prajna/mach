@@ -1,0 +1,115 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	vm_deallocate.man,v $
+.\" Revision 2.5  93/03/18  15:16:41  mrt
+.\" 	corrected types
+.\" 	[93/03/12  16:55:15  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:15:29  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:16:09  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:17:03  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:47:22  rpd
+.\" 	Created.
+.\" 
+.TH vm_deallocate 2 9/19/86
+.CM 4
+.SH NAME
+.nf
+vm_deallocate  \-  releases a region of a task's address space
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t vm_deallocate(target_task, address, size)
+	mach_port_t	target_task;
+	vm_address_t    address;
+	vm_size_t	size;
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+target_task
+Task whose virtual memory is to be affected.
+.TP 15
+.B
+address
+Starting address (will be rounded down to a page boundary).
+.TP 15
+.B
+size
+Number of bytes to deallocate (will be rounded up to give a 
+page boundary).
+
+.SH DESCRIPTION
+.B vm_deallocate
+relinquishes access to a region of a task's
+address space, causing further access to that memory to fail.
+This address range will be available for reallocation.
+Note, that because of the rounding to virtual page boundaries, more
+than 
+.B size
+bytes may be deallocated. Use 
+.B vm_page_size
+or
+.B vm_statistics
+to
+find out the current virtual page size.
+
+This call may be used to deallocte memory that was passed to a task
+in a message (via out of line data). In that case, the rounding should
+cause no trouble, since the region of memory was allocated as a set
+of pages.
+
+The 
+.B vm_deallocate
+call affects only the task specified by the 
+.B target_task
+.
+Other tasks which may have access to this memory may continue to reference it.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+Memory deallocated.
+.TP 25
+KERN_INVALID_ADDRESS
+Illegal or non-allocated address specified.
+
+.SH SEE ALSO
+.B vm_allocate, vm_statistics, msg_receive
+

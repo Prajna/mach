@@ -1,0 +1,277 @@
+/*
+ * Mach Operating System
+ * Copyright (c) 1993-1986 Carnegie Mellon University
+ * All Rights Reserved.
+ * 
+ * Permission to use, copy, modify and distribute this software and its
+ * documentation is hereby granted, provided that both the copyright
+ * notice and this permission notice appear in all copies of the
+ * software, derivative works or modified versions, and any portions
+ * thereof, and that both notices appear in supporting documentation.
+ * 
+ * CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS" 
+ * CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+ * ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+ * 
+ * Carnegie Mellon requests users of this software to return to
+ * 
+ *  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+ *  School of Computer Science
+ *  Carnegie Mellon University
+ *  Pittsburgh PA 15213-3890
+ * 
+ * any improvements or extensions that they make and grant Carnegie Mellon
+ * the rights to redistribute these changes.
+ *  
+ * 
+ * HISTORY
+ * $Log:	MASTER.bnr,v $
+ * Revision 2.5.1.1  94/03/12  10:23:05  rvb
+ * 	Typo
+ * 
+ * Revision 2.5  93/08/10  15:52:51  mrt
+ * 	Added NET_ATM option for the new atm kernel traps.
+ * 	[93/08/06            rvb]
+ * 
+ * Revision 2.4  93/05/14  13:44:04  rvb
+ * 	.cf->.bnr
+ * 
+ * Revision 2.3  93/05/11  09:40:17  rvb
+ * 	Added TTD teledebug i386 optional files.
+ * 	[93/05/11            grm]
+ * 
+ * Revision 2.2  93/05/10  17:45:20  rvb
+ * 	Revised for bsdss.
+ * 	[93/05/04  16:44:12  rvb]
+ * 
+ * Revision 2.24  93/02/04  17:13:25  mrt
+ * 	Defined LINENO which is now selected by default. It can be
+ * 	overridden in the machine dependent MASTER files.
+ * 	Changed ident from mach to mach_kernel.
+ * 	[93/02/04            mrt]
+ * 
+ * Revision 2.23  93/01/24  13:14:39  danner
+ * 	Add mach_pcsampling option from C. Maeda.
+ * 	[93/01/15  16:56:04  rvb]
+ * 
+ * 	turn on by default.
+ * 	[93/01/11            rvb]
+ * 
+ * Revision 2.22  93/01/21  12:20:58  danner
+ * 	Enable fixpri by default.
+ * 	[93/01/20            bershad]
+ * 
+ * Revision 2.21  93/01/14  17:22:37  danner
+ * 	Dropped ipc_compat from MI official defines.
+ * 	If you have 2.5 code to support define it
+ * 	in the machdep file.
+ * 	[92/12/10            af]
+ * 
+ * Revision 2.20  92/08/05  18:05:55  jfriedl
+ * 	Added power_save option to trigger machine dependent ways
+ * 	of conserving power when machine (or parts of it) are idle.
+ * 	[92/08/05            mrt]
+ * 
+ * Revision 2.19  92/07/20  13:32:30  cmaeda
+ * 	Added fast_tas option.
+ * 	[92/05/11  14:32:25  cmaeda]
+ * 
+ * Revision 2.18  92/03/10  16:25:00  jsb
+ * 	Added pm (MACH_PAGEMAP) to STD.
+ * 	[92/03/10  14:58:32  jsb]
+ * 
+ * Revision 2.17  92/02/19  15:06:16  elf
+ * 	Simplified, condensed history.
+ * 	[92/02/17            rpd]
+ * 
+ * 
+ * Condensed history:
+ * 	NORMA support (jsb).
+ * 	MACH_KERNEL version (dbg).
+ * 	Changes for cleanup (gm0w).
+ * 	Made STD config be small (mrt).
+ * 
+ * #######################################################################
+ * 
+ * 	Master machine independent configuration file.
+ * 
+ * 	Specific configuration files are created based on this and
+ * 	the machine specific master file using the doconf script.
+ * 
+ * 	Any changes to the master configuration files will affect all
+ * 	other configuration files based upon it.
+ * 
+ * #######################################################################
+ * #######################################################################
+ * 
+ *  STANDARD CONFIGURATION OPTIONS (select any combination)
+ * 
+ * 	debug   = kernel level debugging support
+ * 	mdebug	= enable debugging kernel calls
+ * 	ldebug	= check use of simple locks on uniprocessors
+ * 	assert	= enable assertions
+ * 	lineno	= generate filename and line number debugging info
+ * 
+ *  EXPERIMENTAL CONFIGURATION OPTIONS (select any combination, carefully)
+ * 
+ * 	simple  = non-rollover clock support
+ * 	timing  = precision timing support
+ * 	host	= host resource control support
+ * 	pm	= paged-out page map hints
+ * 	fixpri	= fixed priority threads
+ * 
+ *  MULTI-PROCESSOR CONFIGURATION (select at most one)
+ * 
+ * 	multi16 = enable 16 multi-processors
+ * 	multi32 = enable 32 multi-processors
+ * 	multi64 = enable 64 multi-processors
+ * 
+ *  MULTICOMPUTER OPTIONS (each option requires all previous options,
+ * 			  for example, norma_vm requires norma_ipc.
+ * 			  Except that norma_device and norma_ether both
+ * 			  only need norma_ipc.)
+ * 
+ * 
+ * 	norma_ipc  = NORMA internode ipc
+ * 	norma_vm   = NORMA virtual memory support (distributed virtual memory)
+ * 	norma_task = NORMA task support (remote creation, migration)
+ * 
+ * 	norma_ether  = use ethernet as NORMA interconnect
+ * 	norma_device = support for unified device name space for all nodes
+ * 
+ * #######################################################################
+ *  
+ * 
+ *  Standard CMU CS/RI Production Configuration Components:
+ *  -------- --- -- -- ---------- ------------- ----------
+ * 
+ *  STD       = [ debug mdebug ipc_debug vm_debug pm fixpri pcs ]
+ * 
+ *  (Optional for multi-processor configurations)
+ * 
+ *  N64        = [ multi64 host ]
+ *  N32        = [ multi32 host ]
+ *  N16        = [ multi16 host ]
+ * 
+ *  (Optional for multicomputer configurations)
+ * 
+ *  NORMA     = [ norma_ipc norma_device norma_task norma_vm ]
+ * 
+ *  (Normally not enabled because of correctness or performance concerns)
+ * 
+ *  EXP	     = [ ]
+ * 
+ *  (Useful for testing, but may cause significant performance degradation)
+ * 
+ *  TEST	     = [ assert ldebug ipc_test count lineno ]
+ * 
+ *#######################################################################
+ */
+
+ident		MACH_KERNEL
+
+#if	defined(ASSERT) || defined(TEST)
+options		MACH_ASSERT	# Compile in assertions
+#endif
+#if	defined(MDEBUG) || defined(STD)
+options		MACH_DEBUG	# IPC debugging interface
+#endif
+#if	defined(FIXPRI) || defined(STD)
+options		MACH_FIXPRI	# Fixed priority threads
+#endif
+#if	defined(HOST) || defined(N64) || defined(N32) || defined(N16)
+options		MACH_HOST	# Mach host (resource alloc.)
+#endif
+#if	defined(IPC_COMPAT)
+options		MACH_IPC_COMPAT	# Enable old IPC interface
+#endif
+#if	defined(IPC_DEBUG) || defined(STD)
+options		MACH_IPC_DEBUG	# Enable IPC debugging calls
+#endif
+#if	defined(IPC_TEST) || defined(TEST)
+options		MACH_IPC_TEST	# Testing code/printfs
+#endif
+#if	defined(DEBUG) || defined(STD)
+options		MACH_KDB	# Kernel debugger support
+#endif
+#if	defined(LDEBUG) || defined(TEST)
+options		MACH_LDEBUG	# Sanity-check simple locking
+#endif
+#if	defined(PM) || defined(STD)
+options		MACH_PAGEMAP	# Paged-out page map hints
+#endif
+#if	defined(PCS) || defined(GPROF) || defined(STD)
+options		MACH_PCSAMPLE	# do pc sample histogram
+#endif
+#if	defined(MACH_TTD)
+options		MACH_TTD	# TTD Remote Kernel Debugging
+#endif
+#if	defined(NORMA_IPC) || defined(NORMA)
+options		NORMA_IPC	# NORMA IPC support
+#endif
+#if	defined(NORMA_DEVICE) || defined(NORMA)
+options		NORMA_DEVICE	# NORMA unified device names
+#endif
+#if	defined(NORMA_VM) || defined(NORMA)
+options		NORMA_VM	# NORMA virtual memory support
+#endif
+#if	defined(NORMA_TASK) || defined(NORMA)
+options		NORMA_TASK	# NORMA task support
+#endif
+#if	defined(NORMA_ETHER)
+options		NORMA_ETHER	# NORMA across ethernet
+#endif
+#if	defined(COUNT) || defined(TEST)
+options		MACH_COUNTERS	# counters
+#endif
+#if	defined(VM_DEBUG) || defined(STD)
+options		MACH_VM_DEBUG	# Enable VM debugging calls
+#endif
+#if	defined(FAST_TAS)
+options		FAST_TAS	# restartable atomic sequences
+#endif
+#if	defined(HW_FOOT)
+options		HW_FOOTPRINT	# Cache footprint support
+#endif
+#if	defined(POWER)
+options		POWER_SAVE	# mach-dep power conservation
+#endif
+#if	defined(SIMPLE)
+options		SIMPLE_CLOCK	# no hardware clock rollover
+#endif
+#if	!defined(TIMING)
+options		STAT_TIME	# Use statistical timing
+#endif
+#if	defined(DEBUG) || defined(STD)
+options		XPR_DEBUG	# kernel tracing
+#endif
+#if	defined(NET_ATM)
+options		NET_ATM		# kernel traps for atm nets
+#endif
+
+#if	defined(LINENO) || defined(TEST)
+makevariables	LINENO="-g"
+#endif
+
+/* 
+ *  Multi-processor selection
+ */
+
+#if	defined(MULTI64) || defined(N64)
+pseudo-device	cpus		64
+#endif
+#if	defined(MULTI32) || defined(N32)
+pseudo-device	cpus		32
+#endif
+#if	defined(MULTI16) || defined(N16)
+pseudo-device	cpus		16
+#endif
+#if	defined(LUNA88K)
+pseudo-device	cpus		4
+#endif
+#if	!(defined(MULTI64)||defined(MULTI32)||defined(MULTI16)||defined(LUNA88K)||\
+	  defined(N64)||defined(N32)||defined(N16)||defined(SQT))
+pseudo-device	cpus		1
+#endif
+
+#include <MASTER.local.bnr>

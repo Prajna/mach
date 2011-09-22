@@ -1,0 +1,175 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	task_enable_pc_sampling.man,v $
+.\" Revision 2.3  93/08/10  15:32:20  mrt
+.\" 	Fixed the SEE ALSO reference
+.\" 
+.\" Revision 2.2  93/08/10  15:18:23  mrt
+.\" 	First checkin
+.\" 
+.\" 
+.\" 	Created.
+.\" 
+.TH task_enable_pc_sampling 2 8/8/93
+.CM 4
+.SH NAME
+.nf
+task_enable_pc_sampling  \-  enable PC sampling for task
+task_disable_pc_sampling  \-  disable PC sampling for task
+task_get_sampled_pcs	\- extract PC samples for task
+thread_enable_pc_sampling  \-  enable PC sampling for thread
+thread_disable_pc_sampling  \-  disable PC sampling for thread
+thread_get_sampled_pcs	\- extract PC samples for thread
+
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+#include <mach/pc_sample.h>
+
+.nf
+.ft B
+kern_return_t
+task_enable_pc_sampling(task_t task;
+			int    *ticks;
+			sampled_pc_flavor_t flavor)
+.fi
+.ft P
+
+.nf
+.ft B
+kern_return_t
+task_disable_pc_sampling(task_t task;
+			int 	*sample_cnt);
+			
+.fi
+.ft P			
+
+.nf
+.ft B
+kern_return_t
+task_get_sampled_pcs(task_t task;
+		     unsigned *seqno;
+		     sampled_pc_t sampled_pcs[]
+		     int *sample_cnt);
+.fi
+.ft P			
+
+.nf
+.ft B
+kern_return_t
+thread_enable_pc_sampling(thread_t thread;
+			  int    *ticks;
+			  sampled_pc_flavor_t flavor)
+.fi
+.ft P			
+.nf
+.ft B
+kern_return_t
+thread_disable_pc_sampling(thread_t thread;
+		   	   int 	*sample_cnt);
+			   
+.fi
+.ft P						   
+.nf
+.ft B
+kern_return_t
+task_get_sampled_pcs(task_t task;
+		     unsigned *seqno;
+		     sampled_pc_t sampled_pcs[]
+     		     int *sample_cnt);
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+task_t
+The task on which the operation should be applied.
+.TP 15
+.B
+thread_t
+The thread on which the operation should be applied.
+.TP 15
+.B
+ticks
+The kernel's idea of clock granularity (ticks per second). Don't trust
+this.
+
+.TP 15
+.B
+flavor
+The sampling flavor, which could be any of the flavors defined in
+pc_sample.h.
+
+.TP 15
+.B
+seqno
+The sequence number of the sampled PCs.  This is useful for
+determining when a collector thread has missed a sample.
+
+.TP 15
+.B
+sampled_pcs
+The sampled PCs for the argument task or thread.  A sample contains
+three fields: a thread-specific unique identifier, a pc value, and the
+type of the sample as per flavor.
+
+.TP 15
+.B
+sample_cnt
+The number of sample elements in the kernel for the named task or thread.
+
+
+.SH DESCRIPTION
+These routines control the kernel's PC sampling policy for the named
+task or thread.
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+Operation completed successfully
+.TP 25
+KERN_INVALID_ARGUMENT
+.B task or thread
+is not a valid task or thread.
+.TP 25
+KERN_FAILURE
+.B task or thread
+is not being sampled.
+
+
+.SH BUGS
+Periodic sampling makes only moderate amounts of sense with very fast
+processors.  
+
+You can't mix periodic and non-periodic samples easily.
+
+.SH SEE ALSO
+mach3_profiling(1)
+
+
+	

@@ -1,0 +1,110 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	mach_port_get_set_status.man,v $
+.\" Revision 2.6  93/05/10  19:31:22  rvb
+.\" 	updated
+.\" 	[93/04/21  16:03:32  lli]
+.\" 
+.\" Revision 2.5  91/12/11  08:43:01  jsb
+.\" 	Changed <mach/mach.h> to <mach.h>.
+.\" 	[91/11/25  10:55:30  rpd]
+.\" 
+.\" Revision 2.4  91/05/14  17:06:37  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:11:29  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:11:39  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:37:05  rpd
+.\" 	Created.
+.\" 
+.TH mach_port_get_set_status 2 9/19/86
+.CM 4
+.SH NAME
+.nf
+mach_port_get_set_status \- returns the members of a port set
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+kern_return_t
+mach_port_get_set_status(task, name, members, count)
+	mach_port_t task;
+	mach_port_t name;
+	mach_port_array_t *members;		/* out array */
+	mach_msg_type_number_t *count;		/* out */
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 12
+.B
+task
+The task holding the port set.
+.TP 12
+.B
+name
+The task's name for the port set.
+.TP 12
+.B
+members
+The task's names for the port set's members.
+.TP 12
+.B
+count
+The number of member names returned.
+.SH DESCRIPTION
+\fBmach_port_get_set_status\fR returns the members of a port set.
+\fBmembers\fR is an array that is automatically allocated when the
+reply message is received. The user should \fBvm_deallocate\fR it when
+the data is no longer needed.
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The call succeeded.
+.TP 25
+KERN_INVALID_TASK
+\fBtask\fR was invalid.
+.TP 25
+KERN_INVALID_NAME
+\fBname\fR did not denote a right.
+.TP 25
+KERN_INVALID_RIGHT
+\fBname\fR denoted a right, but not a port set.
+.TP 25
+KERN_RESOURCE_SHORTAGE
+The kernel ran out of memory.
+.PP
+The \fBmach_port_get_set_status\fR call is actually an RPC to \fBtask\fR,
+normally a send right for a task port, but potentially any send right.
+In addition to the normal diagnostic
+return codes from the call's server (normally the kernel),
+the call may return \fBmach_msg(2)\fR return codes.
+.SH SEE ALSO
+mach_port_move_member(2), vm_deallocate(2).

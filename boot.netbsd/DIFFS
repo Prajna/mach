@@ -1,0 +1,144 @@
+diff -r boot/asm.S boot.orig/asm.S
+223,250d222
+< 
+< ENTRY(startmach)
+< 	push	%ebp
+< 	mov	%esp, %ebp
+< 
+< 	/* push some number of args onto the stack */
+< 	movl	0x0c(%ebp), %eax	/* &argv */
+< 	push	0x10(%eax)		/* argv[4] = esym */
+< 	push	0x4(%eax)		/* argv[1] = howto */
+< 	push	0x1c(%eax)		/* argv[7] = cnvmem */
+< 	push	0x20(%eax)		/* argv[8] = extmem */
+< 	push	0x8(%eax)		/* argv[2] = bootdev */
+< 	
+< 	mov	0x8(%ebp), %ecx		/* entry offset  */
+< /*	mov	$0x28, %ebx		/* segment */
+< 	mov	$0x08, %ebx		/* netbsd code segment */
+< 	push	%ebx
+< 	push	%ecx
+< 
+< 	/* set up %ds and %es */
+< /*	mov	$0x20, %ebx */
+< 	mov	$0x10, %ebx 		/* netbsd data segment */
+< 	movw	%bx, %ds
+< 	movw	%bx, %es
+< 
+< 	lret
+< 
+< 
+Only in boot: asm.S~
+diff -r boot/boot.c boot.orig/boot.c
+112d111
+< int MacH = 0;
+128,130c127
+< 	register char *cp;
+< 	register int c;
+< 
+---
+> 	char *t;
+136,137c133
+< 		"3.8");
+< /*
+---
+> 		"1.8");
+139d134
+< */
+158,159c153
+< /*
+< 	if (inode.i_mode&IEXEC)
+---
+> /*	if (inode.i_mode&IEXEC)
+162,172d155
+< 	/*
+< 	 * openrd() has made name point to the name component
+< 	 * after the closing RPAR in the device name.
+< 	 */
+< 	cp = name;
+< 	while ((c = *cp) && c == '/') cp++;
+< 	if (cp[0] == 'm' && cp[1] == 'a' && cp[2] == 'c' &&
+< 	    cp[3] == 'h')
+< 	{
+< 		MacH = 1;
+< 	}
+190,197c173
+< /*	if ( N_BADMAG(head))
+< #define	N_BADMAG(ex) \
+< 	(N_GETMAGIC(ex) != NMAGIC && N_GETMAGIC(ex) != OMAGIC && \
+< 	    N_GETMAGIC(ex) != ZMAGIC && N_GETMAGIC(ex) != QMAGIC)
+< */
+< 	i = N_GETMAGIC(head);
+< 	if (i != NMAGIC && i != OMAGIC && i != ZMAGIC && i != QMAGIC)
+< 	{
+---
+> 	if ( N_BADMAG(head)) {
+247,253c223,227
+< 	printf("data=0x%x ", head.a_data);
+< 	if (head.a_data) {
+< 		/********************************************************/
+< 		/* Load the Initialised data after the text		*/
+< 		/********************************************************/
+< 		while (addr & CLOFSET)
+< 	                *(char *)addr++ = 0;
+---
+> 	/********************************************************/
+> 	/* Load the Initialised data after the text		*/
+> 	/********************************************************/
+> 	while (addr & CLOFSET)
+>                 *(char *)addr++ = 0;
+255,257c229,231
+< 		xread(addr, head.a_data);
+< 		addr += head.a_data;
+< 	}
+---
+> 	printf("data=0x%x ", head.a_data);
+> 	xread(addr, head.a_data);
+> 	addr += head.a_data;
+330,333c304,305
+< 		if (! find("/mach_servers/startup")) {
+< 			printf("\n\nInsert file system \n");
+< 			getchar();
+< 		}
+---
+> 		printf("\n\nInsert file system floppy \n");
+> 		getchar();
+335,337c307
+< 	case 1:
+< 		maj = 4;
+< 		unit = 0;
+---
+> 	case 4:
+340,341d309
+< 	if (MacH && maj)
+< 		maj--;
+350c318
+< 	printf("entry point=0x%x\n" ,((int)startaddr) & 0xfffffff);
+---
+> 	printf("entry point=0x%x\n" ,((int)startaddr) & 0xffffff);
+352,361c320,322
+< 	if (!addr0) {
+< 		pcpy(tmpbuf, addr0, 0x400);
+< 		pcpy(tmpbuf + 0x500, addr0 + 0x500, 4096 - 0x500);
+< 	} else {
+< 		pcpy(tmpbuf        , addr0        , 4096        );
+< 	}
+< 	if (MacH)
+< 		startmach(head.a_entry, argv);
+< 	else
+< 		startprog(((int)startaddr & 0xffffff), argv);
+---
+> 	pcpy(tmpbuf, addr0, 0x400);
+> 	pcpy(tmpbuf + 0x500, addr0 + 0x500, 4096 - 0x500);
+> 	startprog(((int)startaddr & 0xffffff),argv);
+368,370c329
+< 	register char c;
+< 	register char *ptr = namebuf;
+< 
+---
+> 	char c, *ptr = namebuf;
+394d352
+< 
+404a363
+> 
+

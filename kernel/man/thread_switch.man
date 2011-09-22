@@ -1,0 +1,197 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	thread_switch.man,v $
+.\" Revision 2.5  92/02/19  16:07:26  elf
+.\" 	thread_restore_priority does not exist.
+.\" 	[92/01/20            rwd]
+.\" 	Fixed to reflect change in timeout parameter being zero
+.\" 	[92/01/10            rwd]
+.\" 
+.\" Revision 2.4  91/05/14  17:14:56  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:15:48  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:16:41  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:46:52  rpd
+.\" 	Created.
+.\" 
+.TH thread_switch 2 8/13/89
+.CM 4
+.SH NAME
+.nf
+thread_switch  \-  cause context switch with options
+thread_depress_abort  \-  abort priority depression
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t thread_switch(new_thread, option, time)
+	thread_t	new_thread;
+	int		option;
+	int		time;
+
+
+.fi
+.ft P
+.nf
+.ft B
+kern_return_t thread_depress_abort(thread)
+	thread_t	thread;
+
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+new_thread
+Thread to context switch to.
+.TP 15
+.B
+option
+Specifies options associated with context switch.
+.TP 15
+.B
+time
+Time duration for options
+.TP 15
+.B
+thread
+Thread to be affected.
+
+.SH DESCRIPTION
+.B thread_switch
+provides low-level access to the scheduler's context switching code.
+.B new_thread
+is a hint that implements handoff scheduling.  The operating system
+will attempt to switch directly to the new thread (bypassing the normal
+logic that selects the next thread to run) if possible.  Since this
+is a hint, it may be incorrect; it is ignored if it doesn't specify
+a thread on the same host as the current thread or if that thread
+can't be switched to (not runnable or already running on another processor).
+In this case, the normal logic to select the next thread to run is
+used; the current thread may continue running if there is no other
+appropriate thread to run.
+
+Options for 
+.B option
+are defined in <mach/thread_switch.h>.  Three options are recognized:
+.B SWITCH_OPTION_NONE
+No options, the time argument is ignored.
+.B SWITCH_OPTION_WAIT
+The thread is blocked for the specified
+.B time.
+This can be aborted by 
+.B thread_abort.
+.B SWITCH_OPTION_DEPRESS
+The thread's priority is depressed to the lowest possible value for
+.B time.
+This can be aborted by 
+.B thread_depress_abort
+This depression is independent of operations that change the thread's
+priority (e.g. 
+.B thread_priority
+will not abort the depression).
+The minimum time and units of time can be obtained as the min_timeout
+value from 
+.B host_info.  A time value of 0 along with the option
+SWITCH_OPTION_DEPRESS indicates that the depression should last
+until the thread is rescheduled at the depressed priority.
+
+.B thread_switch
+and 
+.B thread_restore_priority
+are optimized traps that affect the current thread.
+.B thread_depress_abort
+is an rpc to the kernel that may affect any thread.
+
+.B thread_switch
+is often called when the current thread can proceed no further for
+some reason; the various options and arguments allow information about
+this reason to be transmitted to the kernel.  The 
+.B new_thread
+argument (handoff scheduling) is useful when the identity of the thread
+that must make progress before the current thread runs again is known.
+The 
+.B WAIT
+option is used when the amount of time that the current thread must wait
+before it can do anything useful can be estimated and is fairly long.
+The 
+.B DEPRESS
+option is used when the amount of time that must be waited is fairly short,
+especially when the identity of the thread that is being waited for is
+not known.
+
+Users should beware of calling 
+.B thread_switch
+with an invalid hint (e.g.
+.B MACH_PORT_NULL
+) and no option.  Because the time-sharing scheduler varies the priority
+of threads based on usage, this may result in a waste of cpu time if the
+thread that must be run is of lower priority.  The use of the DEPRESS
+option in this situation is highly recommended.
+
+.B thread_switch
+ignores policies.  Users relying on the preemption semantics of a fixed
+time policy should be aware that 
+.B thread_switch
+ignores these semantics; it will run the specified 
+.B new_thread
+indepent of its priority and the priority of any other threads that could
+be run instead.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The call succeeded.
+.B thread_restore_priority
+always succeeds, and does not have a defined return value as a result.
+.TP 25
+KERN_INVALID_ARGUMENT
+.B thread
+is not a thread, or 
+.B option
+is not a recognized option.
+.TP 25
+KERN_FAILURE
+.B kern_depress_abort
+failed because the thread was 
+not depressed.
+
+.SH BUGS
+Availability limited.
+
+.SH SEE ALSO
+.B host_info
+

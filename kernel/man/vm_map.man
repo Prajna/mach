@@ -1,0 +1,184 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	vm_map.man,v $
+.\" Revision 2.5  93/03/18  15:16:50  mrt
+.\" 	corrected types
+.\" 	[93/03/12  16:55:28  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:15:56  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:16:22  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:17:21  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:47:44  rpd
+.\" 	Created.
+.\" 
+.TH vm_map 2 10/24/88
+.CM 4
+.SH NAME
+.nf
+vm_map  \-  maps a memory object at specified address
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t vm_map(target_task, address, size, mask, anywhere,
+				memory_object, offset, copy,
+				cur_protection, max_protection,
+				inheritance)
+	mach_port_t	target_task;
+	vm_address_t	*address;	/* in/out */
+	vm_size_t	size;
+	vm_address_t	mask;
+	boolean_t	anywhere;
+	mach_port_t	memory_object;
+	vm_offset_t	offset;
+	boolean_t	copy;
+	vm_prot_t	cur_protection;
+	vm_prot_t	max_protection;
+	vm_inherit_t	inheritance;
+
+
+
+.fi
+.ft P
+.SH DESCRIPTION
+
+.B vm_map
+maps a region of virtual memory at the 
+specified address, for which data is to be supplied by the given memory 
+object, starting at the given offset within that object.
+In addition to the arguments used in 
+.B vm_allocate
+, the 
+.B vm_map
+call allows the specification of an address alignment parameter,
+and of the initial protection and inheritance values.
+[See the descriptions of 
+.B vm_allocate
+, 
+.B vm_protect
+, and
+.B vm_inherit
+.]
+
+If the memory object in question is not currently in use, the kernel will perform a 
+.B memory_object_init
+call at this time.
+If the copy parameter is asserted, the specified region of the memory
+object will be copied to this address space; changes made to this object
+by other tasks will not be visible in this mapping, and changes made in
+this mapping will not be visible to others (or returned to the memory object).
+
+The 
+.B vm_map
+call returns once the mapping is established.  Completion
+of the call does not require any action on the part of the memory manager.
+
+Warning: Only memory objects that are provided by bona fide 
+.B memory managers
+should be used in the 
+.B vm_map
+call.  A memory manager must
+implement the memory object interface described elsewhere in this manual.
+If other ports are used, a thread that accesses the mapped virtual memory
+may become permanently hung or may receive a memory exception.
+
+.SH ARGUMENTS
+.TP 15
+.B
+target_task
+Task to be affected.
+.TP 15
+.B
+address
+Starting address.  If the anywhere option is used, this 
+address is ignored.
+The address actually allocated will be returned in 
+.B address
+.
+.TP 15
+.B
+size
+Number of bytes to allocate (rounded by the system in a 
+machine dependent way).
+.TP 15
+.B
+mask
+Alignment restriction.  Bits asserted in this mask must not
+be asserted in the address returned.
+.TP 15
+.B
+anywhere
+If set, the kernel should find and allocate any region of 
+the specified
+size, and return the address of the resulting region in 
+.B address
+.
+.TP 15
+.B
+memory_object
+Port that represents the memory object: used 
+by user tasks in
+.B vm_map
+; used by the make requests for data or other management actions.
+If this port is 
+.B MEMORY_OBJECT_NULL
+, then zero-filled memory
+is allocated instead.
+.TP 15
+.B
+offset
+An offset within a memory object, in bytes.  This must be
+page aligned.
+.TP 15
+.B
+copy
+If set, the range of the memory object should be copied to the
+target task, rather than mapped read-write.
+
+.SH DIAGNOSTICS
+.TP 25
+.B KERN_SUCCESS
+The object is mapped.
+.TP 25
+.B KERN_NO_SPACE
+No unused region of the task's virtual address space that
+meets the address, size, and alignment criteria could be found.
+.TP 25
+.B KERN_INVALID_ARGUMENT
+An illegal argument was provided.
+
+.SH SEE ALSO
+.B memory_object_server, vm_allocate
+

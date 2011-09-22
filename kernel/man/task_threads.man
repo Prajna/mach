@@ -1,0 +1,106 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	task_threads.man,v $
+.\" Revision 2.5  93/03/18  15:15:31  mrt
+.\" 	corrected types
+.\" 	[93/03/12  16:53:38  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:13:28  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:14:59  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:15:49  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:44:50  rpd
+.\" 	Created.
+.\" 
+.TH task_threads 2 9/19/86
+.CM 4
+.SH NAME
+.nf
+task_threads  \-  gets thread_kernel_ports for a task
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t task_threads(target_task, thread_list, thread_count)
+	mach_port_t	target_task;
+	thread_array_t	*thread_list;	/* out, ptr to array */
+	mach_msg_type_numbe_t	*thread_count;	/* out */
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+target_task
+The task to be affected.
+.TP 15
+.B
+thread_list
+The set of threads contained within 
+.B target_task
+; no
+particular ordering is guaranteed. 
+.TP 15
+.B
+thread_count
+The number of threads in the 
+.B thread_list
+.
+
+.SH DESCRIPTION
+.B task_threads
+gets send rights to  the  kernel port for each thread
+contained in 
+.B target_task
+. 
+.B thread_list
+is an array that is
+created as a result of this call. The caller may wish to 
+.B vm_deallocate
+this array when the data is no longer needed.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The call succeeded.
+.TP 25
+KERN_INVALID_ARGUMENT
+.B target_task
+is not a task.
+
+.SH SEE ALSO
+.B thread_create, thread_terminate, thread_suspend
+
+

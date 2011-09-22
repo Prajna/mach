@@ -1,0 +1,23 @@
+The mach kernel can be built either with the OSF/CMU ODE build tools
+or with a plain DeBoor make program. The first method can be used to
+build on a variety of machines and Unix operating systems, but requires
+that you get a copy of our tools, (odemake, gcc.2.3.3, et. al.) from
+the buildtools directory. This method is documented in the mach3_build
+document in this directory.
+
+The second method only works on NetBSD, FreeBSD, BSDi and such systems.
+It has been tested with NetBSD 0.9 and gcc,2.4.5. It is described
+in the flat/README.2nd file.
+
+This distribution also contains the sources for two boot programs. The standard
+Mach one is in kernel/<machine>/boot and will normally boot a Mach 2.5
+integrated kernel and the Mach 3.0 micro-kernel.  There is also a slight
+modification of the netbsd boot program that will boot either the standard
+netbsd kernel or the Mach 3.0 micro kernel. These sources are in the directory
+boot.netbsd.
+
+Instructions for installing the kernel and the server that it calls can
+be found in the mach3_setup document. The current choices for a OS server
+are POE, UX or LITES. POE and LITES can be FTP'ed from the CMU Mach src
+area. The UX server is based on licensed BSD4.3 code and may only be SUP'ed
+by sites who have Mach licenses.

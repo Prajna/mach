@@ -1,0 +1,144 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	memory_object_create.man,v $
+.\" Revision 2.5  93/05/10  19:33:25  rvb
+.\" 	updated
+.\" 	[93/04/21  16:08:08  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:08:38  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:12:32  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:12:53  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:39:29  rpd
+.\" 	Created.
+.\" 
+.TH memory_object_create 2 12/19/89
+.CM 4
+.SH NAME
+.nf
+memory_object_create  \-  accept ownership of paging object
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t memory_object_create(old_memory_object,new_memory_object,
+			    new_object_size,  new_control,
+			    new_name, new_page_size)
+	mach_port_t	old_memory_object;
+	                memory_object_t 
+	mach_port_t     new_memory_object;
+	vm_size_t	new_object_size;
+	mach_port_t
+			new_control;
+	mach_port_t
+			new_name;
+	vm_size_t	new_page_size;
+
+
+.fi
+.ft P
+.SH DESCRIPTION
+.B memory_object_create
+is a request that the given memory manager accept
+responsibility for the given memory object created by the
+kernel.
+This call will only be made to the system 
+.B default memory manager
+.
+The memory object in question initially consists of
+zero-filled memory; only memory pages that are actually written
+will ever be provided to the memory manager.  When processing
+.B memory_object_data_request
+calls, the default memory manager must
+use 
+.B memory_object_data_unavailable
+for any pages that have not
+previously been written.
+
+No reply is expected after this call. Since this call is directed to
+the default memory manager, the kernel assumes that it will be ready
+to handle data requests to this object and does not need the confirmation
+of a 
+.B memory_object_set_attributes
+call.
+
+.SH ARGUMENTS
+.TP 15
+.B
+.B old_memory_object
+A memory object provided by the default memory
+manager on which the kernel can make 
+.B memory_object_create
+calls.
+.TP 15
+.B
+.B new_memory_object
+A new memory object created by the kernel; see 
+synopsis for further description.  Note that all port rights (including
+receive rights) are included for the new memory object.
+.TP 15
+.B
+.B new_object_size
+Maximum size of the new object.
+.TP 15
+.B
+.B new_control
+A port, created by the kernel,
+on which a memory manager may issue cache management requests for
+the new object.
+.TP 15
+.B
+.B new_name
+A port used by the kernel to refer to the new
+memory object data in response to 
+.B vm_region
+calls.
+.TP 15
+.B
+.B new_page_size
+The page size to be used by this kernel.
+All data sizes in calls involving this kernel must be an integral multiple
+of the page size.  [Note that different kernels, indicated by different
+.B memory_control
+s may have different page sizes.]
+
+.SH DIAGNOSTICS
+.TP 25
+.B KERN_SUCCESS
+Since this routine is called by the kernel, which does not
+wait for a reply message, this value is ignored.
+
+.SH SEE ALSO
+.B memory_object_data_initialize
+

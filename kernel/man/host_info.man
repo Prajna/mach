@@ -1,0 +1,180 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	host_info.man,v $
+.\" Revision 2.5  93/03/18  15:13:55  mrt
+.\" 	corrected types
+.\" 	[93/03/12  16:51:26  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:04:34  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:10:15  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:10:19  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:34:29  rpd
+.\" 	Created.
+.\" 
+.\" 
+.TH host_info 2 8/13/89
+.CM 4
+.SH NAME
+.nf
+host_info   \-   gets information about host
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+/* the definition of host_info_t from mach.h - sys/host_info.h is */
+
+typedef	int	*host_info_t;		/* variable length array of int */
+
+/* two  interpretations of info are: */
+
+   struct host_basic_info {
+	int		max_cpus;	/* maximum possible cpus for
+					   which kernel is configured */
+	int		avail_cpus;	/* number of cpus now available */
+	vm_size_t	memory_size;	/* size of memory in bytes */
+	cpu_type_t	cpu_type;	/* cpu type */
+	cpu_subtype_t	cpu_subtype;	/* cpu subtype */
+   };
+typedef struct host_basic_info		*host_basic_info_t;
+
+
+struct host_sched_info {
+	int		min_timeout;	/* minimum timeout in milliseconds */
+	int		min_quantum;	/* minimum quantum in milliseconds */
+};
+typedef struct host_sched_info *host_sched_info_t
+
+
+.nf
+.ft B
+kern_return_t host_info(host, flavor, host_info, host_infoCnt)
+	mach_port_t	host;
+	int 		flavor;
+	host_info_t 	host_info;	/* in and out */
+	mach_msg_type_number_t 	*host_infoCnt;	/* in and out */
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+host
+The host for which information is to be obtained
+.TP 15
+.B
+flavor
+The type of statistics that are wanted.  Currently
+.B HOST_BASIC_INFO, HOST_PROCESSOR_SLOTS,
+and 
+.B HOST_SCHED_INFO
+are implemented.
+.TP 15
+.B
+host_info
+Statistics about the host specified by 
+.B host.
+.TP 15
+.B
+host_infoCnt
+Size of the info structure. Should be
+.B HOST_BASIC_INFO_COUNT
+for 
+.B HOST_BASIC_INFO.
+Should be the max number of cpus returned by
+.B HOST_BASIC_INFO
+for  
+.B HOST_PROCESSOR_SLOTS.
+Should be  
+.B HOST_SCHED_INFO_COUNT
+for 
+.B HOST_SCHED_INFO.
+
+.SH DESCRIPTION
+
+Returns the selected information array for a host, as specified
+by  
+.B flavor.
+
+.B host_info
+is an array of integers that is supplied
+by the caller, and filled with specified information. 
+.B host_infoCnt
+is supplied as the maximum number of integers in 
+.B host_info.
+On return, it contains the actual number of integers in 
+.B host_info.
+
+Basic information is defined by
+.B HOST_BASIC_INFO.
+The size of this information is defined by 
+.B HOST_BASIC_INFO_COUNT.
+Processor slots of the active (available) processors is defined by
+.B HOST_PROCESSOR_SLOTS.
+The size of this information should be obtained from the 
+.B max_cpus
+field of the structure returned by 
+.B HOST_BASIC_INFO.
+Additional information of interest to schedulers is defined by
+.B HOST_SCHED_INFO.
+The size of this information is defined by 
+.B HOST_SCHED_INFO_COUNT.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The call succeeded.
+.TP 25
+KERN_INVALID_ARGUMENT
+.B host
+is not a host or
+.B flavor
+is not recognized.
+.TP 25
+MIG_ARRAY_TOO_LARGE
+Returned info array is too large for
+.B host_info.
+
+.B host_info
+is filled as much as possible.
+.B host_infoCnt
+is set to the number of elements that would
+be returned if there were enough room.
+
+.SH BUGS
+Availability limited.  Systems without this call support a host_info
+call with an incompatible calling sequence.
+
+.SH SEE ALSO
+.B host_ports, host_kernel_version, host_processors, processor_info
+

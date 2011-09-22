@@ -1,0 +1,126 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	memory_object_data_provided.man,v $
+.\" Revision 2.5  93/05/10  19:33:33  rvb
+.\" 	updated
+.\" 	[93/04/21  16:08:17  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:09:04  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:12:46  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:13:07  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:39:59  rpd
+.\" 	Created.
+.\" 
+.TH memory_object_data_provided 2 12/18/89
+.CM 4
+.SH NAME
+.nf
+memory_object_data_provided  \-  gives kernel data for memory object
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t memory_object_data_provided(memory_control,
+				offset, data, data_count, lock_value)
+	mach_port_t
+			memory_control;
+	vm_offset_t	offset;
+	vm_offset_t	data;
+	vm_size_t	data_count;
+	vm_prot_t	lock_value;
+
+
+
+.fi
+.ft P
+.SH DESCRIPTION
+.B memory_object_data_provided
+supplies the kernel with data for the
+specified memory object.  Ordinarily, memory managers should only provide data in
+reponse to 
+.B memory_object_data_request
+calls from the kernel. 
+The 
+.B lock_value
+specifies what type of access will 
+.B not
+be allowed
+to the data range. The lock values must be one or more of the set: 
+.B VM_PROT_NONE, VM_PROT_READ, VM_PROT_WRITE, VM_PROT_EXECUTE
+and
+.B VM_PROT_ALL
+as defined in 
+.B <mach/vm_prot.h>
+. 
+
+.SH ARGUMENTS
+.TP 15
+.B
+memory_control
+The port, provided by the kernel 
+in a 
+.B memory_object_init
+call, to which cache management requests may be issued.
+.TP 15
+.B
+offset
+An offset within a memory object, in bytes.  This must be
+page aligned.
+.TP 15
+.B
+data
+Data that is being provided to the kernel. This is a pointer
+to the data.
+.TP 15
+.B
+data_count
+The amount of data to be provided.  Must be an integral number
+of memory object pages.
+.TP 15
+.B
+lock_value
+A protection value indicating those forms of access that should
+.B not
+be permitted to the specified cached data.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+This routine does not receive a reply message (and consequently
+has no return value), so only message transmission errors apply.
+
+.SH SEE ALSO
+.B memory_object_data_request, memory_object_data_error, memory_object_lock_request
+

@@ -1,0 +1,116 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	mach_port_destroy.man,v $
+.\" Revision 2.6  93/05/10  19:31:08  rvb
+.\" 	updated
+.\" 	[93/04/21  16:03:19  lli]
+.\" 
+.\" Revision 2.5  91/12/11  08:42:49  jsb
+.\" 	Changed <mach/mach.h> to <mach.h>.
+.\" 	[91/11/25  10:55:18  rpd]
+.\" 
+.\" Revision 2.4  91/05/14  17:06:07  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:11:07  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:11:19  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:36:28  rpd
+.\" 	Created.
+.\" 
+.TH mach_port_destroy 2 9/19/86
+.CM 4
+.SH NAME
+.nf
+mach_port_destroy \-  removes a task's rights for a name
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+kern_return_t
+mach_port_destroy(task, name)
+	mach_port_t task;
+	mach_port_t name;
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 12
+.B
+task
+The task holding the right.
+.TP 12
+.B
+name
+The task's name for the right.
+.SH DESCRIPTION
+\fBmach_port_destroy\fR deallocates all rights denoted by a name.
+The name becomes immediately available for reuse.
+
+For most purposes, \fBmach_port_mod_refs\fR
+and \fBmach_port_deallocate\fR are preferable.
+
+If \fBname\fR denotes a port set, then all members of the port set
+are implicitly removed from the port set.
+
+If \fBname\fR denotes a receive right that is a member of a port set,
+the receive right is implicitly removed from the port set.  If there
+is a port-destroyed request registered for the port, then the receive
+right is not actually destroyed, but instead is sent in a port-destroyed
+notification to the backup port.  If there is no registered
+port-destroyed request, remaining messages queued to the port are destroyed
+and extant send and send-once rights turn into dead names.  If those
+send and send-once rights have dead-name requests registered, then
+dead-name notifications are generated for them.
+
+If \fBname\fR denotes a send-once right, then the send-once right
+is used to produce a send-once notification for the port.
+
+If \fBname\fR denotes a send-once, send, and/or receive right, and it has a
+dead-name request registered, then the registered send-once right
+is used to produce a port-deleted notification for the name.
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The call succeeded.
+.TP 25
+KERN_INVALID_TASK
+\fBtask\fR was invalid.
+.TP 25
+KERN_INVALID_NAME
+\fBname\fR did not denote a right.
+.PP
+The \fBmach_port_destroy\fR call is actually an RPC to \fBtask\fR,
+normally a send right for a task port, but potentially any send right.
+In addition to the normal diagnostic
+return codes from the call's server (normally the kernel),
+the call may return \fBmach_msg(2)\fR return codes.
+.SH SEE ALSO
+mach_port_mod_refs(2), mach_port_deallocate(2),
+mach_port_request_notification(2).

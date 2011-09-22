@@ -1,0 +1,88 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	task_resume.man,v $
+.\" Revision 2.5  93/03/18  15:15:20  mrt
+.\" 	corrected types
+.\" 	[93/03/12  16:52:56  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:12:53  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:14:42  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:15:32  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:44:04  rpd
+.\" 	Created.
+.\" 
+.TH task_resume 2 9/19/86
+.CM 4
+.SH NAME
+.nf
+task_resume  \-  resumes designated task
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t task_resume(target_task)
+	mach_port_t	target_task;
+
+
+.fi
+.ft P
+.SH DESCRIPTION
+Decrements the task's suspend count. If it becomes zero,
+all threads with zero suspend counts in the 
+task are resumed. The count may not become
+negative.
+
+.SH ARGUMENTS
+.TP 15
+.B
+target_task
+The task to be resumed.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The task has been resumed.
+.TP 25
+KERN_FAILURE
+The suspend count is already at zero.
+.TP 25
+KERN_INVALID_ARGUMENT
+.B target_task
+is not a task.
+
+.SH SEE ALSO
+.B task_create, task_terminate, task_suspend, task_info,
+.B thread_suspend, thread_resume, thread_info
+

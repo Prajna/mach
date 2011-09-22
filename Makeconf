@@ -1,0 +1,70 @@
+# 
+# Mach Operating System
+# Copyright (c) 1993,1992 Carnegie Mellon University
+# All Rights Reserved.
+# 
+# Permission to use, copy, modify and distribute this software and its
+# documentation is hereby granted, provided that both the copyright
+# notice and this permission notice appear in all copies of the
+# software, derivative works or modified versions, and any portions
+# thereof, and that both notices appear in supporting documentation.
+# 
+# CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+# CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+# ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+# 
+# Carnegie Mellon requests users of this software to return to
+# 
+#  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+#  School of Computer Science
+#  Carnegie Mellon University
+#  Pittsburgh PA 15213-3890
+# 
+# any improvements or extensions that they make and grant Carnegie Mellon 
+# the rights to redistribute these changes.
+#  
+# HISTORY
+# $Log:	Makeconf,v $
+# Revision 2.8  93/03/30  13:33:24  mrt
+# 	Added configuration for PARISC
+# 	[93/03/30            mrt]
+# 
+# Revision 2.7  93/03/26  17:53:57  mrt
+# 	Changed Alpha default to Workstation config.
+# 	[93/03/22            af]
+# 
+# Revision 2.6  93/02/04  17:22:07  mrt
+# 	Updated for ODE make.
+# 		Set MAKEOBJDIR from OBJECTDIR which is set in
+# 		setup.sh
+# 	[92/12/12            mrt]
+# 
+# 
+
+# This is a temporary file until the whole user tree is converted to
+# the ODE makefiles.
+
+.if defined(OBJECTDIR)
+MAKEOBJDIR=${OBJECTDIR}/mk
+.endif
+
+.if defined(SOURCEDIR)
+MAKESRCDIRPATH=${SOURCEDIR}/mk
+.endif
+
+
+.if exists( ${MAKETOP}Makefile-version)
+.include "${MAKETOP}Makefile-version"
+.endif
+
+
+KERNEL_VAX_CONFIG	?= STD+VAX6bb
+KERNEL_SUN3_CONFIG	?= STD+SWS
+KERNEL_PMAX_CONFIG	?= STD+ANY-dec_lic-mips_code
+KERNEL_I386_CONFIG	?= STD+WS
+KERNEL_SUN4_CONFIG	?= STD+SWS
+KERNEL_ALPHA_CONFIG	?= STD+WS
+KERNEL_PARISC_CONFIG  ?= STD+ANY-debug
+
+KERNEL_CONFIG	?= STD+WS
+VERSION		?= MK

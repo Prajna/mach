@@ -1,0 +1,18 @@
+How to flatten the mk/kernel to use Deboor make to build it:
+
+   1.	run the BSD_TREE script in the mk/flat/ directory.  The
+	mk/kernel tree will be reorganized and rerooted under
+	mach/.  If you may specify an argument to BSD_TREE, it
+	will leave links in mk/kernel to the moved directories.
+	(This is useful if you want to use "sup" later to keep
+	up to date with the official CMU kernels.)
+
+   2.	After Step 1. and after each time you "sup", 
+		cd to mach
+	and execute
+		util/fixtree
+	This script replaces the Makefiles and a few other files
+	with ones appropriate for Deboor's make.
+
+You are done flattening and ready to build; now's the time to read
+README.

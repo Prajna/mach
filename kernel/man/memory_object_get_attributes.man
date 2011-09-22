@@ -1,0 +1,107 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	memory_object_get_attributes.man,v $
+.\" Revision 2.5  93/05/10  19:33:52  rvb
+.\" 	updated
+.\" 	[93/04/21  16:08:40  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:09:50  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:13:07  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:13:49  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:41:03  rpd
+.\" 	Created.
+.\" 
+.TH memory_object_get_attributes 2 12/19/89
+.CM 4
+.SH NAME
+.nf
+memory_object_get_attributes  \-  indicate how kernel should handle object
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t memory_object_get_attributes(memory_control,
+				object_ready, may_cache_object,
+				copy_strategy)
+	mach_port_t
+			memory_control;
+	boolean_t	*object_ready;
+	boolean_t	*may_cache_object;
+	memory_object_copy_strategy_t
+			*copy_strategy;
+
+
+.fi
+.ft P
+.SH DESCRIPTION
+
+.B memory_object_get_attributes
+retrieves the current attributes
+associated with the memory object.  
+
+.SH ARGUMENTS
+.TP 15
+.B
+memory_control
+The port, provided by the kernel 
+in a 
+.B memory_object_init
+call, to which cache management requests may be issued.
+.TP 15
+.B
+object_ready
+When set, the kernel may issue new data and unlock requests on the
+associated memory object.
+.TP 15
+.B
+may_cache_object
+If set, the kernel may keep data 
+associated with this
+memory object, even after virtual memory references to it are gone.
+.TP 15
+.B
+copy_strategy
+How the kernel should copy regions of the associated
+memory object.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+This routine does not receive a reply message (and consequently
+has no return value), so only message transmission errors apply.
+
+.SH SEE ALSO
+.B memory_object_set_attributes, memory_object_copy
+

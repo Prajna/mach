@@ -1,0 +1,131 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	task_create.man,v $
+.\" Revision 2.5  93/03/18  15:14:44  mrt
+.\" 	corrected types
+.\" 	[93/03/12  16:52:23  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:12:28  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:14:30  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:15:21  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:43:31  rpd
+.\" 	Created.
+.\" 
+.TH task_create 2 1/22/88
+.CM 4
+.SH NAME
+.nf
+task_create  \-  creates new task from a parent task
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t task_create(parent_task, inherit_memory,
+				 child_task)
+	mach_port_t	parent_task	
+	boolean_t	inherit_memory;
+	mach_port_t	*child_task;	/* out */
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+target_task
+The task from which the child's capabilities are drawn.
+.TP 15
+.B
+inherit_memory
+If set, the child task's address space is built 
+from the parent task according to its memory inheritance values;
+otherwise, the child task is given an empty address space.
+.TP 15
+.B
+child_task
+The new task.
+
+.SH DESCRIPTION
+.B task_create
+creates a new task from 
+.B parent_task
+; the
+resulting task (
+.B child_task
+)
+acquires shared or copied parts of the parent's address space (see
+.B vm_inherit
+).
+The child task initially contains no threads.
+
+The child task gets the four special ports created or copied for
+it at task creation. The 
+.B task_kernel_port
+is created and
+send rights for it are given to the child and 
+returned to the caller. The 
+.B task_notify_port
+is created and receive, ownership and send rights for it are given to the
+child. The caller has no access to it.  The 
+.B task_bootstrap_port
+and the 
+.B task_exception_port
+are inherited from the parent task.
+The new task can get send rights to these ports with the call 
+.B task_get_special_port
+.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+A new task has been created.
+.TP 25
+KERN_INVALID_ARGUMENT
+.B parent_task
+is  not a valid task port.
+.TP 25
+KERN_RESOURCE_SHORTAGE
+Some critical kernel resource is unavailable.
+
+.SH SEE ALSO
+.B task_terminate, task_suspend, task_resume, task_special_ports,
+.B task_threads, thread_create, thread_resume,
+.B vm_inherit
+
+.SH BUGS
+Not implemented yet. Use 
+.B fork
+.
+

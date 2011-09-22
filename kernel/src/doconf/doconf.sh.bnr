@@ -1,0 +1,132 @@
+#!/bin/sh
+#
+# Mach Operating System
+# Copyright (c) 1991,1990,1989 Carnegie Mellon University
+# All Rights Reserved.
+# 
+# Permission to use, copy, modify and distribute this software and its
+# documentation is hereby granted, provided that both the copyright
+# notice and this permission notice appear in all copies of the
+# software, derivative works or modified versions, and any portions
+# thereof, and that both notices appear in supporting documentation.
+# 
+# CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS" 
+# CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+# ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+# 
+# Carnegie Mellon requests users of this software to return to
+# 
+#  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+#  School of Computer Science
+#  Carnegie Mellon University
+#  Pittsburgh PA 15213-3890
+# 
+# any improvements or extensions that they make and grant Carnegie Mellon
+# the rights to redistribute these changes.
+#
+#
+# HISTORY
+# $Log:	doconf.sh.bnr,v $
+# Revision 2.2  93/05/31  17:30:07  mrt
+# 	Fixed to work with BNR2 version of sed.
+# 	[93/05/19            mrt]
+# 
+# Revision 2.2  93/05/10  17:48:37  rvb
+# 	Sh shell version of Csh script.  Converted by Ian Dall.
+# 	[93/05/10  13:33:32  rvb]
+# 
+# Revision 2.2  92/01/23  15:42:51  rpd
+# 	Moved to kernel/src/doconf/.
+# 
+# Revision 2.3  91/05/14  15:31:19  mrt
+# 	Correcting copyright
+# 
+# Revision 2.2  91/02/05  17:05:36  mrt
+# 	Changed to new copyright
+# 	[91/01/28  14:48:06  mrt]
+# 
+# Revision 2.1  89/08/03  17:38:16  rwd
+# Created.
+# 
+# Revision 2.2  89/04/22  15:24:08  gm0w
+# 	Created from root Makefile.
+# 	[89/04/14            gm0w]
+# 
+
+CONFIG="$1"
+
+shift
+
+echo +${CONFIG} \
+| \
+cat "$@" - "$@" \
+| \
+sed -n \
+    -e "/^+/{" \
+      -e "s;[-+];#&;gp" \
+        -e 't loop' \
+      -e ': loop' \
+	-e 'n' \
+        -e '/^#/b loop' \
+        -e '/^$/b loop' \
+        -e 's;^\([^#]*\).*#[ 	]*<\(.*\)>[ 	]*$;\2#\1;' \
+          -e 't not' \
+        -e 's;\([^#]*\).*;#\1;' \
+          -e 't not' \
+      -e ': not' \
+        -e 's;[ 	]*$;;' \
+        -e 's;^\!\(.*\);\1#\!;' \
+        -e 'p' \
+        -e 't loop' \
+	-e 'b loop' \
+    -e '}' \
+    -e "/^[^#]/d" \
+    -e 's;	; ;g' \
+    -e "s;^# *\([^ ]*\)[ ]*=[ ]*\[\(.*\)\].*;\1#\2;p" | \
+sed -e '/^#[ 	]/d' -e '/^[ 	]*$/d' | uniq | \
+awk '-F#' '\
+part == 0 && $1 != "" {\
+    m[$1]=m[$1] " " $2;\
+    next;\
+}\
+part == 0 && $1 == "" {\
+    for (i=NF;i>1;i--){\
+	s=substr($i,2);\
+	c[++na]=substr($i,1,1);\
+	a[na]=s;\
+    }\
+    while (na > 0){\
+	s=a[na];\
+	d=c[na--];\
+	if (m[s] == "") {\
+	    f[s]=d;\
+	} else {\
+	    nx=split(m[s],x," ");\
+	    for (j=nx;j>0;j--) {\
+		z=x[j];\
+		a[++na]=z;\
+		c[na]=d;\
+	    }\
+	}\
+    }\
+    part=1;\
+    next;\
+}\
+part != 0 {\
+    if ($1 != "") {\
+	n=split($1,x,",");\
+	ok=0;\
+	for (i=1;i<=n;i++) {\
+	    if (f[x[i]] == "+") {\
+		ok=1;\
+	    }\
+	}\
+	if (NF > 2 && ok == 0 || NF <= 2 && ok != 0) {\
+	    print $2; \
+	}\
+    } else { \
+	print $2; \
+    }\
+}' | \
+sed  -e '/^[ 	]*$/d' 
+

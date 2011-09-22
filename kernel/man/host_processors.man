@@ -1,0 +1,114 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	host_processors.man,v $
+.\" Revision 2.5  93/05/10  19:30:56  rvb
+.\" 	updated
+.\" 	[93/04/21  16:03:04  lli]
+.\" 
+.\" Revision 2.1.1.1  93/04/21  16:01:18  lli
+.\" 	updated
+.\" 
+.\" Revision 2.4  91/05/14  17:05:17  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:10:34  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:10:41  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:35:19  rpd
+.\" 	Created.
+.\" 
+.TH host_processors 2 2/2/89
+.CM 4
+.SH NAME
+.nf
+host_processors  \-  gets processor ports for a host
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t host_processors(host_priv, processor_list, processor_count)
+    mach_port_t		host_priv;
+    processor_array_t	*processor_list;	/* out, ptr to array */
+    mach_msg_type_number_t*	*processor_count;	/* out */
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+host_priv
+Privileged host port for the desired host.
+.TP 15
+.B
+processor_list
+The set of processors existing on
+.B host_priv
+, no particular ordering is guaranteed. 
+.TP 15
+.B
+processor_count
+The number of threads in the 
+.B processor_list.
+
+.SH DESCRIPTION
+.B host_processors
+gets send rights to  the processor port for each processor
+existing on 
+.B host_priv.
+This is the privileged port that allows its
+holder to control a processor. 
+.B processor_list
+is an array that is
+created as a result of this call. The caller may wish to 
+.B vm_deallocate
+this array when the data is no longer needed.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The call succeeded.
+.TP 25
+KERN_INVALID_ARGUMENT
+.B host_priv
+is not a privileged host port.
+.TP 25
+KERN_INVALID_ADDRESS
+.B processor_count
+points to inaccessible memory.
+
+.SH SEE ALSO
+.B processor_start, processor_exit, processor_info, processor_control
+
+.SH BUGS
+Availability limited.
+

@@ -1,0 +1,121 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	mach_port_get_refs.man,v $
+.\" Revision 2.6  93/05/10  19:31:19  rvb
+.\" 	updated
+.\" 	[93/04/21  16:03:29  lli]
+.\" 
+.\" Revision 2.5  91/12/11  08:42:57  jsb
+.\" 	Changed <mach/mach.h> to <mach.h>.
+.\" 	[91/11/25  10:55:27  rpd]
+.\" 
+.\" Revision 2.4  91/05/14  17:06:30  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:11:20  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:11:35  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:36:58  rpd
+.\" 	Created.
+.\" 
+.TH mach_port_get_refs 2 9/19/86
+.CM 4
+.SH NAME
+.nf
+mach_port_get_refs \-  retrieves the number of user refs for a right
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+kern_return_t
+mach_port_get_refs(task, name, right, refs)
+	mach_port_t task;
+	mach_port_t name;
+	mach_port_right_t right;
+	mach_port_urefs_t *refs;	/* out */
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 12
+.B
+task
+The task holding the right.
+.TP 12
+.B
+name
+The task's name for the right.
+.TP 12
+.B
+right
+The type of right being examined.
+.TP 12
+.B
+refs
+Number of user references.
+.SH DESCRIPTION
+\fBmach_port_get_refs\fR returns the number of user references
+a task has for a right.
+
+The \fBright\fR argument takes the following values:
+.nf
+.in +5n
+MACH_PORT_RIGHT_SEND
+MACH_PORT_RIGHT_RECEIVE
+MACH_PORT_RIGHT_SEND_ONCE
+MACH_PORT_RIGHT_PORT_SET
+MACH_PORT_RIGHT_DEAD_NAME
+.fi
+.in -5n
+
+If \fBname\fR denotes a right, but not the type
+of right specified, then zero is returned.  Otherwise a positive number
+of user references is returned.  Note a name may simultaneously
+denote send and receive rights.
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The call succeeded.
+.TP 25
+KERN_INVALID_TASK
+\fBtask\fR was invalid.
+.TP 25
+KERN_INVALID_VALUE
+\fBright\fR was invalid.
+.TP 25
+KERN_INVALID_NAME
+\fBname\fR did not denote a right.
+.PP
+The \fBmach_port_get_refs\fR call is actually an RPC to \fBtask\fR,
+normally a send right for a task port, but potentially any send right.
+In addition to the normal diagnostic
+return codes from the call's server (normally the kernel),
+the call may return \fBmach_msg(2)\fR return codes.
+.SH SEE ALSO
+mach_port_mod_refs(2).

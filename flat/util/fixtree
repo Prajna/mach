@@ -1,0 +1,87 @@
+# 
+# Mach Operating System
+# Copyright (c) 1993 Carnegie Mellon University
+# All Rights Reserved.
+# 
+# Permission to use, copy, modify and distribute this software and its
+# documentation is hereby granted, provided that both the copyright
+# notice and this permission notice appear in all copies of the
+# software, derivative works or modified versions, and any portions
+# thereof, and that both notices appear in supporting documentation.
+# 
+# CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+# CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+# ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+# 
+# Carnegie Mellon requests users of this software to return to
+# 
+#  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+#  School of Computer Science
+#  Carnegie Mellon University
+#  Pittsburgh PA 15213-3890
+# 
+# any improvements or extensions that they make and grant Carnegie Mellon 
+# the rights to redistribute these changes.
+#
+#
+# HISTORY
+# $Log:	fixtree,v $
+# Revision 2.1.1.1  94/06/01  10:24:08  rvb
+# 	From BSDSS
+# 
+# Revision 2.4  93/05/21  13:11:47  rvb
+# 	fork.cs->fork.s
+# 
+# Revision 2.3  93/05/14  15:16:25  rvb
+# 	.bsd suffix -> .bnr
+# 	[93/05/14            rvb]
+# 
+# Revision 2.2  93/05/11  11:56:35  rvb
+# 	Fix ups to old fashioned tree
+# 	[93/05/05            rvb]
+# 
+#
+#
+#
+# Overwrite some files with those ending in .bnr suffix
+#
+foreach i (\
+		bootstrap/Makefile \
+		mig/mig.sh	mig/Makefile \
+		makeboot/Makefile \
+		config/mkmakefile.c config/Makefile \
+		libthreads/Makefile \
+		libmach/Makefile \
+		kernel/i386at/boot/Makefile \
+		kernel/conf/template.mk kernel/conf/i386/template.mk \
+		kernel/conf/Makefile \
+	  )
+	if { test -f $i.bnr } then
+		rm -f $i
+		cp -p $i{.bnr,}
+	endif
+end
+#
+# .s -> .S
+#
+foreach i (\
+		libthreads/i386/lock	libthreads/i386/csw \
+		libmach/i386/memcpy	libmach/i386/gcc \
+		libmach/i386/bzero	libmach/i386/bcopy \
+		libmach/i386/fork 	libmach/i386/_setjmp \
+		kernel/i386at/kdasm \
+		kernel/i386at/if_de6s	kernel/i386at/boot/start \
+		kernel/i386at/boot/boot2 kernel/i386at/boot/bios \
+		kernel/i386at/boot/asm \
+		kernel/i386/start	kernel/i386/spl \
+		kernel/i386/ntoh	kernel/i386/locore \
+		kernel/i386/interrupt	kernel/i386/idt \
+		kernel/i386/i386_lock	kernel/i386/gcc \
+		kernel/i386/cswitch	kernel/i386/bzero \
+		kernel/i386/bcopy	kernel/i386/_setjmp \
+	  )
+	if { test -f $i.s } then
+		rm -f $i.S
+		cp -p $i.{s,S}
+	endif
+end

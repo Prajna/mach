@@ -1,0 +1,177 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	vm_machine_attribute.man,v $
+.\" Revision 2.5  93/03/18  15:16:47  mrt
+.\" 	corrected types
+.\" 	[93/03/12  16:55:24  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:15:44  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:16:18  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:17:15  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:47:37  rpd
+.\" 	Created.
+.\" 
+.TH vm_machine_attribute 2 3/15/90
+.CM 4
+.SH NAME
+.nf
+vm_machine_attribute  \-  handle machine-specific VM attributes
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t vm_machine_attribute (task, address, size, attribute, value)
+	mach_port_t				 task;
+	vm_address_t			 address;
+	vm_size_t			 size;
+	vm_machine_attribute_t		 attribute;
+	vm_machine_attribute_val_t	*value;
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+task
+The task whose memory is to be affected
+.TP 15
+.B
+address
+Starting address of the memory segment.
+.TP 15
+.B
+size
+Size of the memory segment
+.TP 15
+.B
+attribute
+Attribute type
+.TP 15
+.B
+value
+Pointer to the attribute's value
+
+.SH DESCRIPTION
+
+.B vm_machine_attribute
+specifies machine-specific attributes for a VM mapping, such as cachability,
+migrability, replicability.  This is used on machines that allow the user
+control over the cache (this is the case for MIPS architectures)
+or placement of memory pages as in NUMA architectures (Non-Uniform Memory
+Access time) such as the IBM ACE multiprocessor.
+
+Machine-specific attributes can be consider additions to the
+machine-independent ones such as protection and inheritance,
+but they are not guaranteed to be supported by any given machine.
+Moreover, implementations of Mach on new architectures might find the need
+for new attribute types and or values besides the ones defined in the
+initial implementation.
+
+The types currently defined are
+
+.B MATTR_CACHE
+Controls caching of memory pages
+
+.B MATTR_MIGRATE
+Controls migrability of memory pages
+
+.B MATTR_REPLICATE
+Controls replication of memory pages
+
+Corresponding values, and meaning of a specific call to
+.B vm_machine_attribute
+
+.B MATTR_VAL_ON
+Enables the attribute.  Being enabled is the default
+value for any applicable attribute.
+
+.B MATTR_VAL_OFF
+Disables the attribute, making memory non-cached,
+or non-migratable, or non-replicatable.
+
+.B MATTR_VAL_GET
+Returns the current value of the attribute for the
+memory segment.  If the attribute does not apply
+uniformly to the given range the value returned
+applies to the initial portion of the segment only.
+
+.B MATTR_VAL_CACHE_FLUSH
+Flush the memory pages from the Cache.
+The 
+.B size
+value in this case might be meaningful
+even if not a multiple of the page size, depending
+on the implementation.
+
+.B MATTR_VAL_ICACHE_FLUSH
+Same as above, applied to the Instruction Cache alone.
+
+.B MATTR_VAL_DCACHE_FLUSH
+Same as above, applied to the Data Cache alone.
+
+
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The call succeeded.
+.TP 25
+KERN_INVALID_ARGUMENT
+.B task
+is not a task, or 
+.B address
+and 
+.B size
+do
+not define a valid address range in 
+.B task
+, or 
+.B attribute
+is not a valid
+attribute type, or it is not implemented, or 
+.B value
+is not a permissible
+value for 
+.B attribute
+.
+
+.SH BUGS
+
+The initial implementation (for MIPS) does not provide for inheritance of
+machine attributes.  This might change if/when the IBM ACE code will be
+merged in the mainline.
+
+

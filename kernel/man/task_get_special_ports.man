@@ -1,0 +1,153 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	task_get_special_ports.man,v $
+.\" Revision 2.2  93/03/18  15:14:47  mrt
+.\" 	corrected types
+.\" 	[93/03/12  16:52:46  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:13:03  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:14:45  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:15:35  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:44:17  rpd
+.\" 	Created.
+.\" 
+.TH task_special_ports 2 1/20/88
+.CM 4
+.SH NAME
+.nf
+task_get_special_port  \-  returns a special port of a task
+task_set_special_port  \-  set a special port of a task
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t task_get_special_port(task, which_port, special_port)
+	mach_port_t	task;
+	int 		which_port;
+	mach_port_t	*special_port;	/* out */
+
+
+.fi
+.ft P
+.nf
+.ft B
+kern_return_t task_set_special_port(task, which_port, special_port)
+	mach_port_t	task;
+	int 		which_port;	
+	mach_port_t	special_port;
+
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+task
+The task for which to get the port
+.TP 15
+.B
+which_port
+the port that is requested. Is one of 
+.B TASK_BOOTSTRAP_PORT
+, 
+.B TASK_EXCEPTION_PORT
+.
+.TP 15
+.B
+special_port
+the value of the port that is being requested or
+being set.
+
+.SH DESCRIPTION
+
+.B get_special_port
+returns send rights to  one of a set of special 
+ports for the task specified by \fBtask\fR.
+
+.B set_special_port
+sets one of a set of special ports for the task specified
+by 
+.B task
+. 
+
+The special ports associated with a task are the 
+.B bootstrap port
+and the 
+.B exception port
+. The bootstrap port is a port to which a thread
+may send a message requesting other system service ports. This port is not
+used by the kernel. The task's
+exception port is the port to which messages are sent by the kernel when an exception
+occurs and the thread causing the exception has no exception port of
+its own.
+
+The following macros to call 
+.B task_set/get_special_port
+for a specific port
+are defined in 
+.B <mach/task_special_ports.h>
+: 
+.B task_get_exception_port
+, 
+.B task_set_exception_port
+,
+.B task_get_bootstrap_port
+and 
+.B task_set_bootstrap_port
+.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The port was returned or set.
+.TP 25
+KERN_INVALID_ARGUMENT
+.B task
+is not a task or 
+.B which_port
+is an invalid port selector.
+
+.SH SEE ALSO
+.B thread_special_ports,task_create
+
+.SH BUGS
+The call on the bootstrap port to get system service ports
+has not been implemented yet.
+
+.B TASK_KERNEL_PORT
+may be added to the set of ports that
+.B task_set_special_port
+accepts.

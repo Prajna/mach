@@ -1,0 +1,267 @@
+# 
+# Mach Operating System
+# Copyright (c) 1994-1990 Carnegie Mellon University
+# All Rights Reserved.
+# 
+# Permission to use, copy, modify and distribute this software and its
+# documentation is hereby granted, provided that both the copyright
+# notice and this permission notice appear in all copies of the
+# software, derivative works or modified versions, and any portions
+# thereof, and that both notices appear in supporting documentation.
+# 
+# CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS" 
+# CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+# ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+# 
+# Carnegie Mellon requests users of this software to return to
+# 
+#  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+#  School of Computer Science
+#  Carnegie Mellon University
+#  Pittsburgh PA 15213-3890
+# 
+# any improvements or extensions that they make and grant Carnegie Mellon
+# the rights to redistribute these changes.
+#
+#
+# HISTORY
+# 11-Aug-94  David Golub (dbg) at Carnegie-Mellon University
+#	MK83-A.
+#
+# 	Added 174x driver.
+# 	[93/10/20  13:08:56  af]
+# 
+# 	Added PS2 Ethernet driver.
+# 	[93/09/13            dbg]
+# 
+# $Log:	files,v $
+# Revision 2.5  93/08/10  15:46:10  mrt
+# 	Renamed i386at/grab_bob_label.c to scsi/pc_label.c
+# 	Made it available for scsi, at386 and ps2
+# 	Added pc_scsi_label.c for scsi only.
+# 	[93/08/05            mrt]
+# 
+# Revision 2.4  93/05/10  23:23:22  rvb
+# 	Moved i386 machdep code into kernel/i386.
+# 	Added TTD teledebug i386 optional files.
+# 	[93/05/10  15:24:25  grm]
+# 
+# Revision 2.3  93/03/09  10:52:51  danner
+# 	Added rz_audio.c
+# 	[93/03/06            af]
+# 
+# Revision 2.2  93/02/04  14:47:08  mrt
+# 	Add dlink support.
+# 	Integrate PS2 code from IBM. -by prithvi
+# 	[93/01/21            danner]
+# 
+# Revision 2.24  92/02/19  15:07:22  elf
+# 	Simplified, condensed history.
+# 	[92/02/13            rpd]
+# 
+#
+# Condensed history:
+#	Created (dbg).
+
+OPTIONS/fpe		optional fpe
+
+chips/busses.c		optional at386
+
+intel/pmap.c		standard
+intel/read_fault.c	standard
+
+./mach/i386/mach_i386_server.c	standard
+
+i386/_setjmp.s		standard
+i386/ast_check.c	standard
+i386/bcopy.s		standard
+i386/bzero.s		standard
+i386/cswitch.s		standard
+i386/db_disasm.c	optional mach_kdb
+i386/db_interface.c	optional mach_kdb
+i386/db_trace.c		optional mach_kdb
+i386/fpe.b		optional fpe
+i386/fpe_linkage.c	optional fpe
+i386/fpu.c		standard
+i386/gcc.s		standard
+i386/gdt.c		standard
+i386/hardclock.c	standard
+i386/idt.s		standard
+i386/interrupt.s	optional ps2
+i386/interrupt.s	optional at386
+i386/interrupt.s	optional ipsc386
+i386/io_emulate.c	standard
+i386/io_map.c		standard
+i386/iopb.c		standard
+i386/ktss.c		standard
+i386/kttd_interface.c	optional mach_ttd
+i386/ldt.c		standard
+i386/locore.s		standard
+i386/loose_ends.c	standard
+i386/mp_desc.c		standard
+i386/ntoh.s		standard
+i386/pc_hd_label.c	optional at386 device-driver
+i386/pc_hd_label.c	optional ps2 device-driver
+i386/pcb.c		standard
+i386/phys.c		standard
+i386/pic.c		optional ps2
+i386/pic.c		optional at386
+i386/pic.c		optional ipsc386
+i386/pit.c		optional ps2
+i386/pit.c		optional at386
+i386/pit.c		optional ipsc386
+i386/setroot.c		optional ps2
+i386/setroot.c		optional at386
+i386/setroot.c		optional ipsc386
+i386/spl.s		optional ps2
+i386/spl.s		optional at386
+i386/spl.s		optional ipsc386
+i386/start.s		standard
+i386/trap.c		standard
+i386/user_ldt.c		standard
+
+# PS/2
+#  devices / model_dep
+OPTIONS/ibm_console	optional ibm_console
+i386ps2/autoconf.c	optional ps2
+i386ps2/conf.c		optional ps2
+i386ps2/model_dep.c	optional ps2
+i386ps2/fd.c		optional fd ps2 device-driver
+i386ps2/hd.c		optional hd ps2 device-driver
+i386ps2/if_en.c		optional en ps2 device-driver
+i386ps2/if_un.c		optional un ps2 device-driver
+i386ps2/if_tr.c		optional tr ps2 device-driver
+i386ps2/kd.c		optional kd ps2 device-driver
+i386ps2/kd_mouse.c	optional mouse ps2 device-driver
+i386ps2/abios.c		optional ps2
+i386ps2/abioscall.s	optional ps2
+i386ps2/nmi.c		optional ps2
+i386ps2/pic_mca.c	optional ps2
+i386ps2/keyboard.c	optional cons
+i386ps2/kdabios.c	optional cons
+i386ps2/screen_conf.c	optional cons
+i386ps2/ibm8514.c	optional ibmeff device-driver
+i386ps2/vga.c		optional vga device-driver
+i386ps2/xga.c		optional xga device-driver
+
+i386at/autoconf.c	optional at386
+i386at/blit.c		optional blit device-driver |-fvolatile
+i386at/com.c		optional com device-driver
+i386at/conf.c		optional at386
+#i386at/if_de6c.b      	optional de6c device-driver
+#i386at/if_de6s.b      	optional de6c device-driver
+i386at/if_de6c.c	optional de6c device-driver
+i386at/if_de6s.s	optional de6c device-driver
+i386at/fd.c		optional fd at386 device-driver
+i386at/hd.c		optional hd at386
+i386at/if_3c501.c	optional at3c501 device-driver
+i386at/if_ns8390.c	optional ns8390 device-driver
+i386at/if_par.c		optional par device-driver
+i386at/if_pc586.c	optional pc586 device-driver
+i386at/if_wd8003.c	optional wd8003 device-driver
+i386at/iopl.c		optional at386
+i386at/iopl.c		optional ps2
+i386at/kd.c		optional at386
+i386at/kdasm.s		optional at386
+i386at/kdasm.s		optional ps2
+i386at/kd_event.c	optional at386
+i386at/kd_event.c	optional ps2
+i386at/kd_mouse.c	optional at386
+i386at/kd_queue.c	optional at386
+i386at/kd_queue.c	optional ps2
+i386at/lpr.c		optional lpr device-driver
+i386at/model_dep.c	optional at386
+i386at/pic_isa.c	optional at386
+i386at/qd.c		optional qd device-driver
+i386at/rtc.c		optional at386
+i386at/rtc.c		optional ps2
+i386at/wt.c		optional wt device-driver
+
+i386orc/ec.c		optional ec device-driver
+i386orc/evc1.c		optional evc device-driver
+i386orc/evc1font.c	optional evc device-driver
+
+i386ipsc/autoconf.c	optional ipsc386
+i386ipsc/conf.c		optional ipsc386
+i386ipsc/dcm_input.c	optional dcm device-driver |-fvolatile
+i386ipsc/dcm_output.c	optional dcm device-driver |-fvolatile
+i386ipsc/dcm_route.s	optional dcm device-driver
+i386ipsc/iopl.c		optional ipsc386
+i386ipsc/led.c		optional ipsc386 device-driver |-fvolatile
+i386ipsc/model_dep.c	optional ipsc386
+i386ipsc/pic_ipsc.c	optional ipsc386
+# sd is qualified by ipsc386 because of name clash with SQT driver
+i386ipsc/sd.c		optional sd ipsc386 device-driver |-fvolatile
+i386ipsc/sdintr.c	optional sd ipsc386 device-driver |-fvolatile
+
+i386ipsc/cnp/if_cnp.c	optional cnp device-driver
+i386ipsc/md.c		optional md device-driver
+
+ipsc/bootenv.c		optional ipsc386
+ipsc/rtc.c		optional ipsc386
+ipsc/dev_forward_name.c	optional ipsc386 norma_device
+ipsc/usm.c		optional usm device-driver |-fvolatile
+
+scsi/adapters/scsi_aha15_hdw.c	optional aha device-driver
+scsi/adapters/scsi_aha17_hdw.c	optional eaha device-driver
+scsi/pc_label.c		optional scsi device-driver
+scsi/pc_label.c		optional at386 device-driver
+scsi/pc_label.c		optional ps2 device-driver
+scsi/pc_scsi_label.c	optional scsi device-driver
+scsi/rz.c		optional scsi device-driver
+scsi/rz_audio.c		optional scsi device-driver
+scsi/rz_cpu.c		optional scsi device-driver
+scsi/rz_disk.c		optional scsi device-driver
+scsi/rz_disk_bbr.c	optional scsi device-driver
+scsi/rz_host.c		optional scsi device-driver
+scsi/rz_labels.c	optional scsi device-driver
+scsi/rz_tape.c		optional scsi device-driver
+scsi/scsi.c		optional scsi device-driver
+scsi/scsi_alldevs.c	optional scsi device-driver
+scsi/scsi_comm.c	optional scsi device-driver
+scsi/scsi_cpu.c		optional scsi device-driver
+scsi/scsi_disk.c	optional scsi device-driver
+scsi/scsi_jukebox.c	optional scsi device-driver
+scsi/scsi_optical.c	optional scsi device-driver
+scsi/scsi_printer.c	optional scsi device-driver
+scsi/scsi_rom.c		optional scsi device-driver
+scsi/scsi_scanner.c	optional scsi device-driver
+scsi/scsi_tape.c	optional scsi device-driver
+scsi/scsi_worm.c	optional scsi device-driver
+
+sqt/_boot.s		optional symmetry ordered
+sqt/autoconf.c		optional symmetry
+sqt/clock.c		optional symmetry
+sqt/consio.c		optional symmetry
+sqt/interrupt.s		optional symmetry
+sqt/memory.c		optional symmetry
+sqt/misc.s		optional symmetry
+sqt/model_dep.c		optional symmetry
+sqt/mutex.s		optional symmetry
+sqt/sema.c		optional symmetry
+sqt/setconf.c		optional symmetry
+sqt/slic.c		optional symmetry
+sqt/spl.s		optional symmetry
+sqt/stubs.c		optional symmetry
+
+sqtconf/conf.c		optional symmetry
+sqtconf/conf_co.c	optional symmetry
+sqtconf/conf_if_se.c	optional se
+sqtconf/conf_led.c	optional symmetry
+sqtconf/conf_sd.c	optional sd symmetry
+sqtconf/conf_vec.c	optional symmetry
+sqtconf/conf_zd.c	optional zd
+sqtconf/sqtparam.c	optional symmetry
+
+sqtsec/co.c		optional sec
+sqtsec/if_se.c		optional se
+# sd is qualified by symmetry because of name clash with iPSC driver
+sqtsec/sd.c		optional sd symmetry
+sqtsec/sec.c		optional sec
+
+sqtzdc/zd.c		optional zd
+sqtzdc/zdinit.c		optional zd
+#
+# Dummy devices for now
+OPTIONS/ln		optional ln
+OPTIONS/ec		optional ec

@@ -1,0 +1,16 @@
+The code is this directory was copied from /usr/src/sys/arch/i386/boot
+in the NetBSD 0.9 release. The files asm.S and boot.c have been modified
+to boot the Mach micro kernel. The diffs are in the file DIFFS.
+
+The boot program builds under a NetBSD system using the standard
+make. The "boot" file can be dd'ed on to a floppy and used from there.
+When it prompts for a file you can specify [hs]d(0,0)netbsd or mach which
+ever you wish to boot. 
+
+The disklabel program needs to be used to install it on the hard disk.
+This program wants the two files "biosboot" and "bootbios".  See the man
+page for disklabel for its usage.
+
+The default file to be booted is "netbsd". The name "mach" must be
+used for a Mach kernel.
+

@@ -1,0 +1,110 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	memory_object_data_error.man,v $
+.\" Revision 2.5  93/05/10  19:33:27  rvb
+.\" 	updated
+.\" 	[93/04/21  16:08:11  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:08:46  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:12:40  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:12:57  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:39:36  rpd
+.\" 	Created.
+.\" 
+.TH memory_object_data_error 2 12/18/89
+.CM 4
+.SH NAME
+.nf
+memory_object_data_error  \-  indicates data retrieval failure
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t memory_object_data_error(memory_control,
+				offset, size, reason);
+	mach_port_t
+			memory_control;
+	vm_offset_t	offset;
+	vm_size_t	size;
+	kern_return_t	reason;
+
+
+.fi
+.ft P
+.SH DESCRIPTION
+
+.B memory_object_data_error
+indicates that the memory manager cannot return
+the data requested for the given region, specifying a reason for the error.
+This is typically used when a hardware error is encountered.
+
+.SH ARGUMENTS
+.TP 15
+.B
+memory_control
+The port, provided by the kernel 
+in a 
+.B memory_object_init
+call, to which cache management requests may be issued.
+.TP 15
+.B
+offset
+An offset within a memory object, in bytes.  This must be
+page aligned.
+.TP 15
+.B
+size
+The amount of cached data (starting at 
+.B offset
+) to be handled.
+This must be an integral multiple of the memory object page size.
+.TP 15
+.B
+reason
+Could be a Unix error code for a hardware error.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+This routine does not receive a reply message (and consequently
+has no return value), so only message transmission errors apply.
+
+.SH SEE ALSO
+.B memory_object_data_request, memory_object_data_provided
+
+.SH BUGS
+
+The error code is currently ignored.
+

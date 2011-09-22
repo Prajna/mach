@@ -1,0 +1,332 @@
+/* 
+ * Mach Operating System
+ * Copyright (c) 1994-1988 Carnegie Mellon University
+ * All Rights Reserved.
+ * 
+ * Permission to use, copy, modify and distribute this software and its
+ * documentation is hereby granted, provided that both the copyright
+ * notice and this permission notice appear in all copies of the
+ * software, derivative works or modified versions, and any portions
+ * thereof, and that both notices appear in supporting documentation.
+ * 
+ * CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+ * CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+ * ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+ * 
+ * Carnegie Mellon requests users of this software to return to
+ * 
+ *  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+ *  School of Computer Science
+ *  Carnegie Mellon University
+ *  Pittsburgh PA 15213-3890
+ * 
+ * any improvements or extensions that they make and grant Carnegie Mellon
+ * the rights to redistribute these changes.
+ */
+/*
+ * HISTORY
+ * $Log:	mach_types.defs,v $
+ * Revision 2.14  93/11/17  17:40:51  dbg
+ * 	Finished the 64-bit cleanup: made host_sched_info_data_t,
+ * 	processor_set_basic_info_data_t, processor_set_sched_info_data_t
+ * 	be structs of integer_t, since they are passed as
+ * 	variable-length arrays of integer_t.
+ * 	[93/11/09            dbg]
+ * 
+ * Revision 2.13  93/01/14  17:44:32  danner
+ * 	64bit cleanup.  All types now based on integer_t/natural_t.
+ * 	[92/12/01            af]
+ * 
+ * Revision 2.12  92/03/10  16:26:58  jsb
+ * 	NORMA_VM: use xmm_kobj_lookup to convert memory_object_control ports.
+ * 	From durriya@ri.osf.org: defined kernel_boot_info_t.
+ * 	[92/03/07  08:30:08  jsb]
+ * 
+ * Revision 2.11  92/01/14  16:45:29  rpd
+ * 	Added translations for memory_object_name_t.
+ * 	[92/01/06  21:49:29  rpd]
+ * 
+ * Revision 2.10  92/01/03  20:46:29  dbg
+ * 	Changed emulation_vector_t to pass data out-of-line.  Renamed
+ * 	old type to xxx_emulation_vector_t for compatibility.
+ * 	Removed vm_page_data_t.
+ * 	[92/01/03            dbg]
+ * 
+ * Revision 2.9  91/08/28  11:15:16  jsb
+ * 	Increased the size of mach_port_status_t, for mps_seqno.
+ * 	Added old_mach_port_status_t, for compatibility purposes.
+ * 	[91/08/09            rpd]
+ * 	Add memory_object_return_t for precious page support.
+ * 	[91/07/03  14:04:25  dlb]
+ * 
+ * Revision 2.8  91/06/25  10:30:10  rpd
+ * 	Changed the port-based type declarations
+ * 	to use mach_port_t as the C type name.
+ * 	[91/05/23            rpd]
+ * 
+ * Revision 2.7  91/06/06  17:08:02  jsb
+ * 	Added emulation_vector_t for new get/set emulation vector calls.
+ * 	[91/05/24  17:45:33  jsb]
+ * 
+ * Revision 2.6  91/05/14  16:55:06  mrt
+ * 	Correcting copyright
+ * 
+ * Revision 2.5  91/02/05  17:33:39  mrt
+ * 	Changed to new Mach copyright
+ * 	[91/02/01  17:18:30  mrt]
+ * 
+ * Revision 2.4  90/08/07  18:00:26  rpd
+ * 	Added processor_set_name_array_t.
+ * 	[90/08/06            rpd]
+ * 
+ * Revision 2.3  90/06/02  14:58:35  rpd
+ * 	Added mach_port_status_t.
+ * 	[90/05/13            rpd]
+ * 	Converted to new IPC.
+ * 	[90/03/26  22:33:34  rpd]
+ * 
+ * Revision 2.2  90/01/22  23:05:44  af
+ * 	Added vm_attribute()'s types.
+ * 	[89/12/09  10:45:16  af]
+ * 
+ * Revision 2.1  89/08/03  17:17:40  rwd
+ * Created.
+ * 
+ * Revision 2.3  89/02/25  18:37:59  gm0w
+ * 	Changes for cleanup.
+ * 
+ * Revision 2.2  89/01/15  16:30:33  rpd
+ * 	Moved from kern/ to mach/.
+ * 	[89/01/15  14:36:47  rpd]
+ * 
+ * Revision 2.6  89/01/12  07:57:37  rpd
+ * 	Moved standard stuff to std_types.defs.  Moved debugging definitions
+ * 	like ipc_statistics_t out to other files.
+ * 	[89/01/12  04:50:24  rpd]
+ * 
+ * Revision 2.5  89/01/04  13:37:11  rpd
+ * 	Increased size of fpa_counters_t.
+ * 	[89/01/03  16:46:38  rpd]
+ * 	
+ * 	Added fpa_counters_t type.
+ * 	[89/01/01  15:03:09  rpd]
+ * 
+ * Revision 2.4  88/09/25  22:15:16  rpd
+ * 	Bumped size of callout_statistics_t to account for the
+ * 	new field, cos_num_untimeout_hit.
+ * 	[88/09/09  23:14:38  rpd]
+ * 	
+ * 	Fixed log.  Changed includes to the new style.
+ * 	Added definitions of callout_info_t,
+ * 	callout_info_array_t, callout_statistics_t.
+ * 	[88/09/09  04:46:31  rpd]
+ * 
+ */
+/*
+ *	Mach kernel interface type declarations
+ */
+
+#ifndef	_MACH_MACH_TYPES_DEFS_
+#define _MACH_MACH_TYPES_DEFS_
+
+/*
+ *	For KernelServer and KernelUser interfaces, Mig will
+ *	automagically use ipc_port_t instead of mach_port_t
+ *	on the kernel side of the interface.  For example,
+ *	convert_task_to_port really returns ipc_port_t.
+ *	Doing this in Mig saves many explicit conditional
+ *	cusertype/cservertype declarations.
+ *
+ *	Mig doesn't translate the components of an array.
+ *	For example, Mig won't use the thread_t translations
+ *	to translate a thread_array_t argument.
+ */
+
+#include <mach/std_types.defs>
+#if	KERNEL_SERVER
+#include <norma_vm.h>
+#endif	/* KERNEL_SERVER */
+
+type mach_port_status_t = struct[9] of integer_t;
+
+type old_mach_port_status_t = struct[8] of integer_t;	/* compatibility */
+
+type task_t = mach_port_t
+		ctype: mach_port_t
+#if	KERNEL_SERVER
+		intran: task_t convert_port_to_task(mach_port_t)
+		outtran: mach_port_t convert_task_to_port(task_t)
+		destructor: task_deallocate(task_t)
+#endif	/* KERNEL_SERVER */
+		;
+
+type thread_t = mach_port_t
+		ctype: mach_port_t
+#if	KERNEL_SERVER
+		intran: thread_t convert_port_to_thread(mach_port_t)
+		outtran: mach_port_t convert_thread_to_port(thread_t)
+		destructor: thread_deallocate(thread_t)
+#endif	/* KERNEL_SERVER */
+		;
+
+type thread_state_t		= array[*:1024] of natural_t;
+
+type task_array_t = ^array[] of task_t;
+type thread_array_t = ^array[] of thread_t;
+
+type vm_task_t = mach_port_t
+		ctype: mach_port_t
+#if	KERNEL_SERVER
+		intran: vm_map_t convert_port_to_map(mach_port_t)
+		destructor: vm_map_deallocate(vm_map_t)
+#endif	/* KERNEL_SERVER */
+		;
+
+type ipc_space_t = mach_port_t
+		ctype: mach_port_t
+#if	KERNEL_SERVER
+		intran: ipc_space_t convert_port_to_space(mach_port_t)
+		destructor: space_deallocate(ipc_space_t)
+#endif	/* KERNEL_SERVER */
+		;
+
+type vm_address_t = natural_t;
+type vm_offset_t = natural_t;
+type vm_size_t = natural_t;
+type vm_prot_t = int;
+type vm_inherit_t = int;
+type vm_statistics_data_t = struct[13] of integer_t;
+type vm_machine_attribute_t = int;
+type vm_machine_attribute_val_t = int;
+
+type thread_info_t		= array[*:1024] of natural_t;
+type thread_basic_info_data_t	= struct[11] of integer_t;
+type thread_sched_info_data_t	= struct[7] of integer_t;
+
+type task_info_t		= array[*:1024] of natural_t;
+type task_basic_info_data_t	= struct[8] of integer_t;
+type task_events_info		= struct[7] of natural_t;
+type task_thread_times_info_data_t = struct[4] of integer_t;
+
+
+type memory_object_t = mach_port_t
+		ctype: mach_port_t
+#if	KERNEL_SERVER
+		intran: ipc_port_t null_conversion(mach_port_t)
+#endif	/* KERNEL_SERVER */
+		;
+
+type memory_object_control_t = mach_port_t
+		ctype: mach_port_t
+#if	KERNEL_SERVER
+#if	NORMA_VM
+		intran: mach_xmm_obj_t xmm_kobj_lookup(mach_port_t)
+#else	/* NORMA_VM */
+		intran: vm_object_t vm_object_lookup(mach_port_t)
+#endif	/* NORMA_VM */
+#endif	/* KERNEL_SERVER */
+		;
+
+type memory_object_name_t = mach_port_t
+		ctype: mach_port_t
+#if	KERNEL_SERVER
+		intran: vm_object_t vm_object_lookup_name(mach_port_t)
+		destructor: vm_object_deallocate(vm_object_t)
+#endif	/* KERNEL_SERVER */
+		;
+
+type memory_object_copy_strategy_t = int;
+type memory_object_return_t = int;
+
+type machine_info_data_t = struct[5] of integer_t;
+type machine_slot_data_t = struct[8] of integer_t;
+
+type host_t = mach_port_t
+		ctype: mach_port_t
+#if	KERNEL_SERVER
+		intran: host_t convert_port_to_host(mach_port_t)
+		outtran: mach_port_t convert_host_to_port(host_t)
+#endif	/* KERNEL_SERVER */
+		;
+
+type host_priv_t = mach_port_t
+		ctype: mach_port_t
+#if	KERNEL_SERVER
+		intran: host_t convert_port_to_host_priv(mach_port_t)
+#endif	/* KERNEL_SERVER */
+		;
+
+type host_info_t 			= array[*:1024] of natural_t;
+type host_basic_info_data_t		= struct[5] of integer_t;
+type host_sched_info_data_t		= struct[2] of integer_t;
+type host_load_info_data_t		= struct[6] of integer_t;
+
+
+type processor_t = mach_port_t
+		ctype: mach_port_t
+#if	KERNEL_SERVER
+		intran: processor_t convert_port_to_processor(mach_port_t)
+		outtran: mach_port_t convert_processor_to_port(processor_t)
+#endif	/* KERNEL_SERVER */
+		;
+
+type processor_array_t 		= ^array[] of processor_t;
+type processor_info_t		= array[*:1024] of natural_t;
+type processor_basic_info_data_t = struct[5] of integer_t;
+
+
+type processor_set_t = mach_port_t
+		ctype: mach_port_t
+#if	KERNEL_SERVER
+		intran: processor_set_t convert_port_to_pset(mach_port_t)
+		outtran: mach_port_t convert_pset_to_port(processor_set_t)
+		destructor: pset_deallocate(processor_set_t)
+#endif	/* KERNEL_SERVER */
+		;
+
+type processor_set_array_t = ^array[] of processor_set_t;
+
+type processor_set_name_t = mach_port_t
+		ctype: mach_port_t
+#if	KERNEL_SERVER
+		intran: processor_set_t convert_port_to_pset_name(mach_port_t)
+		outtran: mach_port_t convert_pset_name_to_port(processor_set_t)
+		destructor: pset_deallocate(processor_set_t)
+#endif	/* KERNEL_SERVER */
+		;
+
+type processor_set_name_array_t = ^array[] of processor_set_name_t;
+
+type processor_set_info_t	= array[*:1024] of natural_t;	
+type processor_set_basic_info_data_t = struct[5] of integer_t;
+type processor_set_sched_info_data_t = struct[2] of integer_t;
+
+
+type kernel_version_t		= (MACH_MSG_TYPE_STRING, 512*8);
+
+type kernel_boot_info_t		= (MACH_MSG_TYPE_STRING, 4096*8);
+
+type time_value_t		= struct[2] of integer_t;
+
+type emulation_vector_t		= ^array[] of vm_offset_t;
+
+type xxx_emulation_vector_t	= array[*:1024] of vm_offset_t
+					ctype: emulation_vector_t;
+					/* XXX compatibility */
+
+#if	KERNEL_SERVER
+simport <kern/ipc_kobject.h>;	/* for null conversion */
+simport <kern/ipc_tt.h>;	/* for task/thread conversion */
+simport <kern/ipc_host.h>;	/* for host/processor/pset conversions */
+simport <kern/task.h>;		/* for task_t */
+simport <kern/thread.h>;	/* for thread_t */
+simport <kern/host.h>;		/* for host_t */
+simport <kern/processor.h>;	/* for processor_t, processor_set_t */
+simport <vm/vm_object.h>;	/* for vm_object_t */
+simport <vm/vm_map.h>;		/* for vm_map_t */
+simport <ipc/ipc_space.h>;	/* for ipc_space_t */
+#endif	/* KERNEL_SERVER */
+
+import <mach/mach_types.h>;
+
+#endif	/* _MACH_MACH_TYPES_DEFS_ */

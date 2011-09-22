@@ -1,0 +1,991 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	mach_msg.man,v $
+.\" Revision 2.5  91/12/11  08:42:36  jsb
+.\" 	Updated for MK62 (sequence numbers).
+.\" 	[91/11/26  11:01:07  rpd]
+.\" 
+.\" Revision 2.4  91/05/14  17:05:36  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:10:44  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:10:51  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:35:41  rpd
+.\" 	Created.
+.\" 
+.TH mach_msg 2 9/19/86
+.CM 4
+.SH NAME
+.nf
+mach_msg \- send and receive messages
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach/port.h>
+#include <mach/message.h>
+
+mach_msg_return_t
+mach_msg(msg, option, send_size, rcv_size, rcv_name, timeout, notify)
+	mach_msg_header_t *msg;
+	mach_msg_option_t option;
+	mach_msg_size_t send_size;
+	mach_msg_size_t rcv_size;
+	mach_port_t rcv_name;
+	mach_msg_timeout_t timeout;
+	mach_port_t notify;
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 12
+.B msg
+The address of a message buffer in the caller's address space.
+Message buffers should be aligned on long-word boundaries.
+.TP 12
+.B option
+Message options are bit values, combined with bitwise-or.
+One or both of MACH_SEND_MSG and MACH_RCV_MSG should be used.
+Other options act as modifiers.
+.TP 12
+.B send_size
+When sending a message, specifies the size of the message buffer.
+Otherwise zero should be supplied.
+.TP 12
+.B rcv_size
+When receiving a message, specifies the size of the message buffer.
+Otherwise zero should be supplied.
+.TP 12
+.B rcv_name
+When receiving a message, specifies the port or port set.
+Otherwise MACH_PORT_NULL should be supplied.
+.TP 12
+.B timeout
+When using the MACH_SEND_TIMEOUT and MACH_RCV_TIMEOUT options,
+specifies the time in milliseconds to wait before giving up.
+Otherwise MACH_MSG_TIMEOUT_NONE should be supplied.
+.TP 12
+.B notify
+When using the MACH_SEND_NOTIFY, MACH_SEND_CANCEL, and MACH_RCV_NOTIFY
+options, specifies the port used for the notification.
+Otherwise MACH_PORT_NULL should be supplied.
+.SH DESCRIPTION
+The \fBmach_msg\fR system call sends and receives Mach messages.
+Mach messages contain typed data, which can include port rights
+and references to large regions of memory.
+
+If the \fBoption\fR argument is MACH_SEND_MSG, it sends a message.
+The \fBsend_size\fR argument specifies the size of the message to send.
+The \fBmsgh_remote_port\fR field of the message header specifies
+the destination of the message.
+
+If the \fBoption\fR argument is MACH_RCV_MSG, it receives a message.
+The \fBrcv_size\fR argument specifies the size of the message buffer
+that will receive the message; messages larger than \fBrcv_size\fR
+are not received.  The \fBrcv_name\fR argument specifies the port
+or port set from which to receive.
+
+If the \fBoption\fR argument is MACH_SEND_MSG|MACH_RCV_MSG,
+then \fBmach_msg\fR does both send and receive operations.
+If the send operation encounters an error (any return code
+other than MACH_MSG_SUCCESS), then the call returns immediately
+without attempting the receive operation.  Semantically
+the combined call is equivalent to separate send and receive calls,
+but it saves a system call and enables other internal optimizations.
+
+If the \fBoption\fR argument specifies neither MACH_SEND_MSG nor
+MACH_RCV_MSG, then \fBmach_msg\fR does nothing.
+
+Some options, like MACH_SEND_TIMEOUT and MACH_RCV_TIMEOUT,
+share a supporting argument.  If these options are used together,
+they make independent use of the supporting argument's value.
+.SH MAJOR CONCEPTS
+The Mach kernel provides message-oriented, capability-based
+interprocess communication.  The interprocess communication (IPC)
+primitives efficiently support many different styles of
+interaction, including remote procedure calls,
+object-oriented distributed programming, streaming of data,
+and sending very large amounts of data.
+
+The IPC primitives operate on three abstractions:  messages,
+ports, and port sets.  User tasks access all other kernel
+services and abstractions via the IPC primitives.
+
+The message primitives let tasks send and receive messages.  Tasks
+send messages to ports.  Messages sent to a port are delivered
+reliably (messages may not be lost) and are received in the order in
+which they were sent.  Messages contain a fixed-size header and a
+variable amount of typed data following the header.  The header
+describes the destination and size of the message.
+
+The IPC implementation makes use of the VM system to efficiently
+transfer large amounts of data.  The message
+body can contain the address of a region in the sender's address space
+which should be transferred as part of the message.  When a task
+receives a message containing an out-of-line region of data, the data
+appears in an unused portion of the receiver's address space.  This
+transmission of out-of-line data is optimized so that sender and
+receiver share the physical pages of data copy-on-write, and no actual
+data copy occurs unless the pages are written.  Regions of memory up
+to the size of a full address space may be sent in this manner.
+
+Ports hold a queue of messages.  Tasks operate on a port
+to send and receive messages by exercising capabilities
+for the port.  Multiple tasks can hold send capabilities,
+or rights, for a port.  Tasks can also hold send-once rights,
+which grant the ability to send a single message.
+Only one task can hold
+the receive capability, or receive right, for a port.
+Port rights can be transferred between tasks
+via messages.  The sender of a message can specify in
+the message body that the message contains a port right.
+If a message contains a receive right for a port, then
+the receive right is removed from the sender of the
+message and the right is transferred to the receiver
+of the message.  While the receive right is in transit,
+tasks holding send rights can still send messages
+to the port, and they are queued until a task acquires
+the receive right and uses it to receive the messages.
+
+Tasks can receive messages from ports and port sets.  The port set
+abstraction allows a single thread to wait for a message from any of
+several ports.  Tasks manipulate port sets with a capability, or
+port-set right, which is taken from the same space as the port
+capabilities.  The port-set right may not be transferred in a message.
+A port set holds receive rights, and a receive
+operation on a port set blocks waiting for a message sent to any of
+the constituent ports.  A port may not belong to more than one port
+set, and if a port is a member of a port set, the holder of the
+receive right can't receive directly from the port.
+
+Port rights are a secure, location-independent way
+of naming ports.  The port queue is a protected data structure,
+only accessible via the kernel's exported message
+primitives.  Rights are also protected by the kernel;
+there is no way for a malicious user task to guess a port name
+and send a message to a port to which it shouldn't have access.
+Port rights do not carry any location information.  When
+a receive right for a port moves from task to task, and even
+between tasks on different machines, the send rights for
+the port remain unchanged and continue to function.
+.SH MESSAGE FORMAT
+A Mach message consists of a fixed size message header,
+a \fBmach_msg_header_t\fR, followed by zero or more data items.
+Data items are typed.  Each item has a type descriptor
+followed by the actual data (or the address of the data, for out-of-line
+memory regions).
+
+.nf
+.in +5n
+.ft B
+typedef unsigned int mach_port_t;
+typedef unsigned int mach_port_seqno_t;
+
+typedef unsigned int mach_msg_bits_t;
+typedef	unsigned int mach_msg_size_t;
+typedef int mach_msg_id_t;
+
+typedef	struct {
+    mach_msg_bits_t	msgh_bits;
+    mach_msg_size_t	msgh_size;
+    mach_port_t		msgh_remote_port;
+    mach_port_t		msgh_local_port;
+    mach_port_seqno_t	msgh_seqno;
+    mach_msg_id_t	msgh_id;
+} mach_msg_header_t;
+.fi
+.in -5n
+.ft R
+
+The \fBmsgh_size\fR field
+in the header of a received message contains the message's size.
+The message size, a byte quantity, includes the message header,
+type descriptors, and in-line data.  For out-of-line memory regions,
+the message size includes the size of the in-line address, not
+the size of the actual memory region.  There are no arbitrary limits
+on the size of a Mach message, the number of data items in a message,
+or the size of the data items.
+
+The \fBmsgh_remote_port\fR field specifies
+the destination port of the message.  The field must carry a legitimate
+send or send-once right for a port.
+
+The \fBmsgh_local_port\fR field specifies
+an auxiliary port right, which is conventionally used as a reply port
+by the recipient of the message.  The field must carry
+a send right, a send-once right, MACH_PORT_NULL, or MACH_PORT_DEAD.
+
+The \fBmsgh_bits\fR field has the following bits defined:
+.nf
+.in +5n
+.ta 4i
+.ft B
+#define MACH_MSGH_BITS_REMOTE_MASK	0x000000ff
+#define MACH_MSGH_BITS_LOCAL_MASK	0x0000ff00
+#define MACH_MSGH_BITS_COMPLEX		0x80000000
+
+#define MACH_MSGH_BITS_REMOTE(bits)
+#define MACH_MSGH_BITS_LOCAL(bits)
+#define MACH_MSGH_BITS(remote, local)
+.fi
+.in -5n
+.ft R
+The remote and local bits encode \fBmach_msg_type_name_t\fR values
+that specify the port rights in the \fBmsgh_remote_port\fR and
+\fBmsgh_local_port\fR fields.  The remote value must specify
+a send or send-once right for the destination of the message.
+If the local value doesn't specify a send or send-once right
+for the message's reply port, it must be zero and \fBmsgh_local_port\fR
+must be MACH_PORT_NULL.
+The complex bit must be specified if the message body contains
+port rights or out-of-line memory regions.  If it is not specified,
+then the message body carries no port rights or memory, no matter
+what the type descriptors may seem to indicate.
+
+The MACH_MSGH_BITS_REMOTE and MACH_MSGH_BITS_LOCAL macros
+return the appropriate \fBmach_msg_type_name_t\fR values,
+given a \fBmsgh_bits\fR value.
+The MACH_MSGH_BITS macro constructs
+a value for \fBmsgh_bits\fR, given two \fBmach_msg_type_name_t\fR values.
+
+The \fBmsgh_seqno\fR field provides a sequence number for the
+message.  It is only valid in received messages; its value in sent
+messages is overwritten.  The "MESSAGE RECEIVE" section discusses
+message sequence numbers.
+
+The \fBmach_msg\fR call doesn't use the \fBmsgh_id\fR field, but it
+conventionally conveys an operation or function id.
+
+Each data item has a type descriptor, a \fBmach_msg_type_t\fR or a
+\fBmach_msg_type_long_t\fR.  The \fBmach_msg_type_long_t\fR type
+descriptor allows larger values for some fields.  The
+\fBmsgtl_header\fR field in the long descriptor is only used for its
+inline, longform, and deallocate bits.
+
+.nf
+.in +5n
+.ta 2.5i
+.ft B
+typedef unsigned int mach_msg_type_name_t;
+typedef unsigned int mach_msg_type_size_t;
+typedef unsigned int mach_msg_type_number_t;
+
+typedef struct {
+    unsigned int	msgt_name : 8,
+			msgt_size : 8,
+			msgt_number : 12,
+			msgt_inline : 1,
+			msgt_longform : 1,
+			msgt_deallocate : 1,
+			msgt_unused : 1;
+} mach_msg_type_t;
+
+typedef struct {
+    mach_msg_type_t	msgtl_header;
+    unsigned short	msgtl_name;
+    unsigned short	msgtl_size;
+    unsigned int	msgtl_number;
+} mach_msg_type_long_t;
+.fi
+.in -5n
+.ft R
+
+The \fBmsgt_name\fR (\fBmsgtl_name\fR) field specifies
+the data's type.  The following types are predefined:
+.nf
+.in +5n
+MACH_MSG_TYPE_UNSTRUCTURED
+MACH_MSG_TYPE_BIT
+MACH_MSG_TYPE_BOOLEAN
+MACH_MSG_TYPE_INTEGER_16
+MACH_MSG_TYPE_INTEGER_32
+MACH_MSG_TYPE_CHAR
+MACH_MSG_TYPE_BYTE
+MACH_MSG_TYPE_INTEGER_8
+MACH_MSG_TYPE_REAL
+MACH_MSG_TYPE_STRING
+MACH_MSG_TYPE_STRING_C
+MACH_MSG_TYPE_PORT_NAME
+
+MACH_MSG_TYPE_MOVE_RECEIVE
+MACH_MSG_TYPE_MOVE_SEND
+MACH_MSG_TYPE_MOVE_SEND_ONCE
+MACH_MSG_TYPE_COPY_SEND
+MACH_MSG_TYPE_MAKE_SEND
+MACH_MSG_TYPE_MAKE_SEND_ONCE
+.fi
+.in -5n
+The last six types specify port rights, and receive special treatment.
+The next section discusses these types in detail.  The type
+MACH_MSG_TYPE_PORT_NAME describes port right names, when no rights
+are being transferred, but just names.  For this purpose, it should be used
+in preference to MACH_MSG_TYPE_INTEGER_32.
+
+The \fBmsgt_size\fR (\fBmsgtl_size\fR) field specifies
+the size of each datum, in bits.  For example, the \fBmsgt_size\fR
+of MACH_MSG_TYPE_INTEGER_32 data is 32.
+
+The \fBmsgt_number\fR (\fBmsgtl_number\fR) field specifies
+how many data elements comprise the data item.
+Zero is a legitimate number.
+
+The total length specified by a type descriptor is
+(\fBmsgt_size\fR * \fBmsgt_number\fR), rounded up
+to an integral number of bytes.  In-line data is then
+padded to an integral number of long-words.
+This ensures that type descriptors always start on
+long-word boundaries.  It implies that message sizes
+are always an integral multiple of a long-word's size.
+
+The \fBmsgt_longform\fR bit specifies, when TRUE, that this type descriptor
+is a \fBmach_msg_type_long_t\fR instead of a \fBmach_msg_type_t\fR.
+The \fBmsgt_name\fR, \fBmsgt_size\fR,
+and \fBmsgt_number\fR fields should be zero.  Instead, \fBmach_msg\fR
+uses the following \fBmsgtl_name\fR, \fBmsgtl_size\fR,
+and \fBmsgtl_number\fR fields.
+
+The \fBmsgt_inline\fR bit specifies, when FALSE, that the data
+actually resides in an out-of-line region.
+The address of the memory region (a \fBvm_offset_t\fR or \fBvm_address_t\fR)
+follows the type descriptor
+in the message body.  The \fBmsgt_name\fR, \fBmsgt_size\fR,
+and \fBmsgt_number\fR fields describe the memory region, not the address.
+
+The \fBmsgt_deallocate\fR bit is used with out-of-line regions.
+When TRUE, it specifies that the memory region should be deallocated
+from the sender's address space (as if with \fBvm_deallocate\fR)
+when the message is sent.
+
+The \fBmsgt_unused\fR bit should be zero.
+.SH PORT RIGHTS
+Each task has its own space of port rights.
+Port rights are named with positive integers.
+Except for the reserved
+values MACH_PORT_NULL (0) and MACH_PORT_DEAD (~0), this is a full 32-bit
+name space.  When the kernel chooses a name for a new right, it
+is free to pick any unused name (one which denotes no right) in the space.
+
+There are five basic kinds of rights: receive rights, send rights,
+send-once rights, port-set rights, and dead names.
+Dead names are not capabilities.  They act as place-holders
+to prevent a name from being otherwise used.
+
+A port is destroyed, or dies, when its receive right is deallocated.
+When a port dies, send and send-once rights for the port turn into
+dead names.  Any messages queued at the port are destroyed,
+which deallocates the port rights and out-of-line memory in the messages.
+
+Tasks may hold multiple user-references for send rights and dead names.
+When a task receives a send right
+which it already holds, the kernel increments the right's user-reference count.
+When a task deallocates a send right, the kernel decrements its user-reference
+count, and the task only loses the send right when the count goes to zero.
+
+Send-once rights always have a user-reference count of one, although
+a port can have multiple send-once rights, because each send-once right
+held by a task has a different name.  In contrast, when a task holds
+send rights or a receive right for a port, the rights share
+a single name.
+
+A message body can carry port rights;
+the \fBmsgt_name\fR (\fBmsgtl_name\fR) field in a
+type descriptor specifies the type of port right and how the port
+right is to be extracted from the caller.  The values MACH_PORT_NULL and
+MACH_PORT_DEAD are
+always valid in place of a port right in a message body.
+In a sent message, the following \fBmsgt_name\fR
+values denote port rights:
+.TP 12
+MACH_MSG_TYPE_MAKE_SEND
+The message will carry
+a send right, but the caller must supply a receive right.  The send
+right is created from the receive right, and the receive right's
+make-send count is incremented.
+.TP 12
+MACH_MSG_TYPE_COPY_SEND
+The message will carry
+a send right, and the caller should supply a send right.  The user
+reference count for the supplied send right is not changed.  The caller
+may also supply a dead name and the receiving task will get MACH_PORT_DEAD.
+.TP 12
+MACH_MSG_TYPE_MOVE_SEND
+The message will carry
+a send right, and the caller should supply a send right.  The user
+reference count for the supplied send right is decremented, and the
+right is destroyed if the count becomes zero.  Unless a receive right
+remains, the name becomes available for recycling.  The caller may also
+supply a dead name, which loses a user reference, and the receiving
+task will get MACH_PORT_DEAD.
+.TP 12
+MACH_MSG_TYPE_MAKE_SEND_ONCE
+The message will carry
+a send-once right, but the caller must supply a receive right.  The
+send-once right is created from the receive right.
+.TP 12
+MACH_MSG_TYPE_MOVE_SEND_ONCE
+The message will carry
+a send-once right, and the caller should supply a send-once right.
+The caller loses the supplied send-once right.  The caller may also
+supply a dead name, which loses a user reference, and the receiving
+task will get MACH_PORT_DEAD.
+.TP 12
+MACH_MSG_TYPE_MOVE_RECEIVE
+The message will carry
+a receive right, and the caller should supply a receive right.
+The caller loses the supplied receive right, but retains any send rights
+with the same name.
+.PP
+If a message
+carries a send or send-once right, and the port dies while the
+message is in transit, then the receiving task will get MACH_PORT_DEAD
+instead of a right.  The following \fBmsgt_name\fR values in
+a received message indicate that it carries port rights:
+.TP 12
+MACH_MSG_TYPE_PORT_SEND
+This name is an alias for MACH_MSG_TYPE_MOVE_SEND.
+The message carried a send right.
+If the receiving task already has send and/or receive rights for the port,
+then that name for the port will be reused.  Otherwise, the new right
+will have a new name.  If the task already has send
+rights, it gains a user reference for the right (unless this
+would cause the user-reference count to overflow).  Otherwise, it acquires
+the send right, with a user-reference count of one.
+.TP 12
+MACH_MSG_TYPE_PORT_SEND_ONCE
+This name is an alias for MACH_MSG_TYPE_MOVE_SEND_ONCE.
+The message carried a send-once right.
+The right will have a new name.
+.TP 12
+MACH_MSG_TYPE_PORT_RECEIVE
+This name is an alias for MACH_MSG_TYPE_MOVE_RECEIVE.
+The message carried a receive right.
+If the receiving task already has send rights for
+the port, then that name for the port will be reused.  Otherwise, the
+right will have a new name.  The make-send count
+of the receive right is reset to zero, but the port retains other
+attributes like queued messages, extant send and send-once rights,
+and requests for port-destroyed and no-senders notifications.
+.PP
+When the kernel chooses a new name for a port right, it can choose any
+name, other than MACH_PORT_NULL and MACH_PORT_DEAD, which is not
+currently being used for a port right or dead name.  It might choose a
+name which at some previous time denoted a port right, but is
+currently unused.
+.SH MEMORY
+A message body can contain the address of a region in the sender's
+address space which should be transferred as part of the message.
+The message carries a logical copy of the memory, but the kernel
+uses VM techniques to defer any actual page copies.  Unless
+the sender or the receiver modifies the data, the physical
+pages remain shared.
+
+An out-of-line transfer occurs when the data's type descriptor
+specifies \fBmsgt_inline\fR as FALSE.  The address of the memory
+region (a \fBvm_offset_t\fR or \fBvm_address_t\fR)
+should follow the type descriptor in the message body.
+The type descriptor and the address contribute to the message's
+size (\fBsend_size\fR, \fBmsgh_size\fR).  The out-of-line data
+does not contribute to the message's size.
+
+The name, size, and number fields in the type descriptor describe
+the type and length of the out-of-line data, not the in-line address.
+Out-of-line memory frequently requires long type descriptors
+(\fBmach_msg_type_long_t\fR), because the \fBmsgt_number\fR field is
+too small to describe a page of 4K bytes.
+
+Out-of-line memory arrives somewhere
+in the receiver's address space as new memory.
+It has the same inheritance and protection attributes
+as newly \fBvm_allocate\fR'd memory.
+The receiver
+has the responsibility of deallocating (with \fBvm_deallocate\fR)
+the memory when it is no longer needed.
+Security-conscious receivers should exercise caution when using
+out-of-line memory from untrustworthy sources, because
+the memory may be backed by an unreliable memory manager.
+
+Null out-of-line memory is legal.  If the out-of-line region size is zero
+(for example, because \fBmsgtl_number\fR is zero), then the region's
+specified address is ignored.  A received null out-of-line memory region
+always has a zero address.
+
+Unaligned addresses and region sizes that are not page multiples are legal.
+A received message can also contain memory with unaligned addresses
+and funny sizes.
+In the general case, the first and last pages in the
+new memory region in the receiver do not contain only data
+from the sender, but are partly zero.  (But see BUGS.)
+The received address
+points to the start of the data in the first page.  This possibility
+doesn't complicate deallocation, because \fBvm_deallocate\fR
+does the right thing, rounding the start address down
+and the end address up to deallocate all arrived pages.
+
+Out-of-line memory has a deallocate option, controlled by
+the \fBmsgt_deallocate\fR bit.
+If it is TRUE and the out-of-line memory region is not null,
+then the region is implicitly deallocated from
+the sender, as if by \fBvm_deallocate\fR.  In particular,
+the start and end addresses are rounded so that every page
+overlapped by the memory region is deallocated.
+The use of \fBmsgt_deallocate\fR effectively changes
+the memory copy into a memory movement.
+In a received message, \fBmsgt_deallocate\fR is TRUE
+in type descriptors for out-of-line memory.
+
+Out-of-line memory can carry port rights.
+.SH MESSAGE SEND
+The send operation queues a message to a port.
+The message carries a copy of the caller's data.
+After the send, the caller can freely modify
+the message buffer or the out-of-line memory regions
+and the message contents will remain unchanged.
+
+Message delivery is reliable and sequenced.
+Messages are not lost, and messages sent to a port,
+from a single thread,
+are received in the order in which they were sent.
+
+If the destination port's queue is full, then several
+things can happen.  If the message is sent to a send-once right
+(\fBmsgh_remote_port\fR carries a send-once right), then
+the kernel ignores the queue limit and delivers the message.
+Otherwise the caller blocks until there is room in the queue,
+unless the MACH_SEND_TIMEOUT or MACH_SEND_NOTIFY options are used.
+If a port has several blocked senders, then any of them
+may queue the next message when space in the queue becomes
+available, with the proviso that a blocked sender will not
+be indefinitely starved.
+
+These options modify MACH_SEND_MSG.  If MACH_SEND_MSG is not also
+specified, they are ignored.
+.TP 12
+MACH_SEND_TIMEOUT
+The \fBtimeout\fR argument should specify
+a maximum time (in milliseconds) for the call to block before giving up.
+If the message can't be queued before the timeout interval elapses,
+then the call returns MACH_SEND_TIMED_OUT.  A zero timeout
+is legitimate.
+.TP 12
+MACH_SEND_NOTIFY
+The \fBnotify\fR argument should specify a
+receive right for a notify port.  If the send were to block, then
+instead the message is queued, MACH_SEND_WILL_NOTIFY is returned, and
+a msg-accepted notification is requested.  If MACH_SEND_TIMEOUT is
+also specified, then MACH_SEND_NOTIFY doesn't take effect until
+the timeout interval elapses.
+
+With MACH_SEND_NOTIFY, a task can forcibly queue to a send right
+one message at a time.  A msg-accepted notification is sent to the
+the notify port when another message can be forcibly queued.
+If an attempt is made to use MACH_SEND_NOTIFY before then,
+the call returns a MACH_SEND_NOTIFY_IN_PROGRESS error.
+
+The msg-accepted notification carries the name of the send right.
+If the send right is deallocated before the msg-accepted notification
+is generated, then the msg-accepted notification carries the value
+MACH_PORT_NULL.  If the destination port is destroyed before
+the notification is generated, then a
+send-once notification is generated instead.
+.TP 12
+MACH_SEND_INTERRUPT
+If specified, the \fBmach_msg\fR call will return MACH_SEND_INTERRUPTED
+if a software interrupt aborts the call.
+Otherwise, the send operation will be retried.
+.TP 12
+MACH_SEND_CANCEL
+The \fBnotify\fR argument should specify a receive right for a notify port.
+If the send operation removes the destination port right from the caller,
+and the removed right had a dead-name request registered for it,
+and \fBnotify\fR is the notify port for the dead-name request,
+then the dead-name request may be silently canceled (instead of
+resulting in a port-deleted notification).
+
+This option is typically used to cancel a dead-name request
+made with the MACH_RCV_NOTIFY option.  It should only
+be used as an optimization.
+.PP
+The send operation can generate the following return codes.
+These return codes imply that the call did nothing:
+.TP 12
+MACH_SEND_MSG_TOO_SMALL
+The specified \fBsend_size\fR was smaller than the minimum size for a message.
+.TP 12
+MACH_SEND_NO_BUFFER
+A resource shortage prevented the kernel from allocating a message buffer.
+.TP 12
+MACH_SEND_INVALID_DATA
+The supplied message buffer was not readable.
+.TP 12
+MACH_SEND_INVALID_HEADER
+The \fBmsgh_bits\fR value was invalid.
+.TP 12
+MACH_SEND_INVALID_DEST
+The \fBmsgh_remote_port\fR value was invalid.
+.TP 12
+MACH_SEND_INVALID_REPLY
+The \fBmsgh_local_port\fR value was invalid.
+.TP 12
+MACH_SEND_INVALID_NOTIFY
+When using MACH_SEND_CANCEL,
+the \fBnotify\fR argument did not denote a valid receive right.
+.PP
+These return codes imply that some or all of the message was destroyed:
+.TP 12
+MACH_SEND_INVALID_MEMORY
+The message body specified out-of-line data that was not readable.
+.TP 12
+MACH_SEND_INVALID_RIGHT
+The message body specified a port right which the caller
+didn't possess.
+.TP 12
+MACH_SEND_INVALID_TYPE
+A type descriptor was invalid.
+.TP 12
+MACH_SEND_MSG_TOO_SMALL
+The last data item in the message ran over the end of the message.
+.PP
+These return codes imply that the message was returned
+to the caller with a pseudo-receive operation:
+.TP 12
+MACH_SEND_TIMED_OUT
+The \fBtimeout\fR interval expired.
+.TP 12
+MACH_SEND_INTERRUPTED
+A software interrupt occurred.
+.TP 12
+MACH_SEND_INVALID_NOTIFY
+When using MACH_SEND_NOTIFY,
+the \fBnotify\fR argument did not denote a valid receive right.
+.TP 12
+MACH_SEND_NO_NOTIFY
+A resource shortage prevented the kernel from setting up
+a msg-accepted notification.
+.TP 12
+MACH_SEND_NOTIFY_IN_PROGRESS
+A msg-accepted notification was already requested,
+and hasn't yet been generated.
+.PP
+These return codes imply that the message was queued:
+.TP 12
+MACH_SEND_WILL_NOTIFY
+The message was forcibly queued, and a msg-accepted
+notification was requested.
+.TP 12
+MACH_MSG_SUCCESS
+The message was queued.
+.PP
+Some return codes, like MACH_SEND_TIMED_OUT, imply that the message
+was almost sent, but could not be queued.  In these situations,
+the kernel tries to return the message contents to the caller with a
+pseudo-receive operation.  This prevents the loss of port rights
+or memory which only exist in the message.  For example, a receive
+right which was moved into the message, or out-of-line memory sent
+with the deallocate bit.
+
+The pseudo-receive operation is very similar to a normal receive
+operation.  The pseudo-receive handles the port rights in the
+message header as if they were in the message body.  They are
+not reversed.  After the pseudo-receive, the message is ready
+to be resent.  If the message is not resent, note that out-of-line
+memory regions may have moved and some port rights may have
+changed names.
+
+The pseudo-receive operation may encounter resource shortages.
+This is similar to a MACH_RCV_BODY_ERROR return code from a receive
+operation.  When this happens, the normal send return codes are
+augmented with the MACH_MSG_IPC_SPACE, MACH_MSG_VM_SPACE,
+MACH_MSG_IPC_KERNEL, and MACH_MSG_VM_KERNEL bits to indicate
+the nature of the resource shortage.
+
+The queueing of a message carrying receive rights may create
+a circular loop of receive rights and messages,
+which can never be received.  For example,
+a message carrying a receive right can be sent to that receive
+right.  This situation is not an error, but the kernel
+will garbage-collect such loops, destroying the messages
+and ports involved.
+.SH MESSAGE RECEIVE
+The receive operation dequeues a message from a port.
+The receiving task acquires the port rights and out-of-line
+memory regions carried in the message.
+
+The \fBrcv_name\fR argument specifies a port or port set
+from which to receive.  If a port is specified,
+the caller must possess the receive right for the port
+and the port must not be a member of a port set.
+If no message is present,
+then the call blocks, subject to the MACH_RCV_TIMEOUT option.
+
+If a port set is specified,
+the call will receive a message sent to any of the member ports.
+It is permissible for the port set to have no member ports,
+and ports may be added and removed while a receive from the port set
+is in progress.
+The received message can come from any of the member ports
+which have messages, with the proviso that a member port with
+messages will not be indefinitely starved.
+The \fBmsgh_local_port\fR field in the received message header
+specifies from which port in the port set the message came.
+
+The \fBrcv_size\fR argument specifies the size of the caller's
+message buffer.  The \fBmach_msg\fR call will not receive
+a message larger than \fBrcv_size\fR.  Messages that are too large
+are destroyed, unless the MACH_RCV_LARGE option is used.
+
+The destination and reply ports are reversed in a received
+message header.  The \fBmsgh_local_port\fR field names
+the destination port, from which the message was received,
+and the \fBmsgh_remote_port\fR field names the reply port right.
+The bits in \fBmsgh_bits\fR are also reversed.
+The MACH_MSGH_BITS_LOCAL bits have the value MACH_MSG_TYPE_PORT_SEND
+if the message was sent to a send right,
+and the value MACH_MSG_TYPE_PORT_SEND_ONCE if was sent to a send-once right.
+The MACH_MSGH_BITS_REMOTE bits describe the reply port right.
+
+A received message can contain port rights and out-of-line memory.
+The \fBmsgh_local_port\fR field does not receive a port right; the act
+of receiving the message destroys the send or send-once right for the
+destination port.  The \fBmsgh_remote_port\fR field does name a
+received port right, the reply port right, and the message body can carry
+port rights and memory if MACH_MSGH_BITS_COMPLEX is present in
+\fBmsgh_bits\fR.  Received port rights and memory should be consumed
+or deallocated in some fashion.
+
+In almost all cases, \fBmsgh_local_port\fR will specify the name
+of a receive right, either \fBrcv_name\fR or if \fBrcv_name\fR
+is a port set, a member of \fBrcv_name\fR.  If other threads
+are concurrently manipulating the receive right, the situation
+is more complicated.  If the receive right is renamed during
+the call, then \fBmsgh_local_port\fR specifies the right's new name.
+If the caller loses the receive right after the message was dequeued
+from it, then \fBmach_msg\fR will proceed instead of returning
+MACH_RCV_PORT_DIED.  If the receive right was destroyed,
+then \fBmsgh_local_port\fR specifies MACH_PORT_DEAD.  If the receive
+right still exists, but isn't held by the caller,
+then \fBmsgh_local_port\fR specifies MACH_PORT_NULL.
+
+Received messages are stamped with a sequence number, taken from the
+port from which the message was received.  (Messages received from a
+port set are stamped with a sequence number from the appropriate
+member port.)  Newly created ports start with a zero sequence number,
+and the sequence number is reset to zero whenever the port's receive
+right moves between tasks.  When a message is dequeued from the port,
+it is stamped with the port's sequence number and the port's sequence
+number is then incremented.  The dequeue and increment operations are
+atomic, so that multiple threads receiving messages from a port can
+use the \fBmsgh_seqno\fR field to reconstruct the original order of
+the messages.
+
+These options modify MACH_RCV_MSG.  If MACH_RCV_MSG is not also
+specified, they are ignored.
+.TP 12
+MACH_RCV_TIMEOUT
+The \fBtimeout\fR argument should specify
+a maximum time (in milliseconds) for the call to block before giving up.
+If no message arrives before the timeout interval elapses,
+then the call returns MACH_RCV_TIMED_OUT.  A zero timeout is legitimate.
+.TP 12
+MACH_RCV_NOTIFY
+The \fBnotify\fR argument should specify a receive right for a notify port.
+If receiving the reply port creates a new port right in the caller,
+then the notify port is used to request a dead-name notification
+for the new port right.
+.TP 12
+MACH_RCV_INTERRUPT
+If specified, the \fBmach_msg\fR call will return MACH_RCV_INTERRUPTED
+if a software interrupt aborts the call.
+Otherwise, the receive operation will be retried.
+.TP 12
+MACH_RCV_LARGE
+If the message is larger than \fBrcv_size\fR,
+then the message remains queued instead of being destroyed.
+The call returns MACH_RCV_TOO_LARGE and the actual size of
+the message is returned in the \fBmsgh_size\fR field
+of the message header.
+.PP
+The receive operation can generate the following return codes.
+These return codes imply that the call did not dequeue a message:
+.TP 12
+MACH_RCV_INVALID_NAME
+The specified \fBrcv_name\fR was invalid.
+.TP 12
+MACH_RCV_IN_SET
+The specified port was a member of a port set.
+.TP 12
+MACH_RCV_TIMED_OUT
+The \fBtimeout\fR interval expired.
+.TP 12
+MACH_RCV_INTERRUPTED
+A software interrupt occurred.
+.TP 12
+MACH_RCV_PORT_DIED
+The caller lost the rights specified by \fBrcv_name\fR.
+.TP 12
+MACH_RCV_PORT_CHANGED
+\fBrcv_name\fR specified a receive right
+which was moved into a port set during the call.
+.TP 12
+MACH_RCV_TOO_LARGE
+When using MACH_RCV_LARGE, and the message was
+larger than \fBrcv_size\fR.  The message is left queued,
+and its actual size is returned in the \fBmsgh_size\fR field
+of the message buffer.
+.PP
+These return codes imply that a message was dequeued and destroyed:
+.TP 12
+MACH_RCV_HEADER_ERROR
+A resource shortage prevented the reception of the port rights
+in the message header.
+.TP 12
+MACH_RCV_INVALID_NOTIFY
+When using MACH_RCV_NOTIFY,
+the \fBnotify\fR argument did not denote a valid receive right.
+.TP 12
+MACH_RCV_TOO_LARGE
+When not using MACH_RCV_LARGE, a message larger than \fBrcv_size\fR
+was dequeued and destroyed.
+.PP
+In these situations, when a message is dequeued and then destroyed,
+the reply port and all port rights and memory in the message body are
+destroyed.  However, the caller receives the message's header, with
+all fields correct, including the destination port but excepting the
+reply port, which is MACH_PORT_NULL.
+.PP
+These return codes imply that a message was received:
+.TP 12
+MACH_RCV_BODY_ERROR
+A resource shortage prevented the reception of a port right
+or out-of-line memory region in the message body.
+The message header, including the reply port, is correct.
+The kernel attempts to transfer all port rights
+and memory regions in the body, and only destroys those that
+can't be transferred.
+.TP 12
+MACH_RCV_INVALID_DATA
+The specified message buffer was not writable.
+The calling task did successfully receive the port rights
+and out-of-line memory regions in the message.
+.TP 12
+MACH_MSG_SUCCESS
+A message was received.
+.PP
+Resource shortages can occur after a message is dequeued,
+while transferring port rights and out-of-line memory regions
+to the receiving task.  The \fBmach_msg\fR call returns
+MACH_RCV_HEADER_ERROR or MACH_RCV_BODY_ERROR in this situation.
+These return codes always carry extra bits (bitwise-ored)
+that indicate the nature of the resource shortage:
+.TP 12
+MACH_MSG_IPC_SPACE
+There was no room in the task's IPC name space for another port name.
+.TP 12
+MACH_MSG_VM_SPACE
+There was no room in the task's VM address space
+for an out-of-line memory region.
+.TP 12
+MACH_MSG_IPC_KERNEL
+A kernel resource shortage prevented the reception of a port right.
+.TP 12
+MACH_MSG_VM_KERNEL
+A kernel resource shortage prevented the reception
+of an out-of-line memory region.
+.PP
+If a resource shortage prevents the reception of a port right, the
+port right is destroyed and the caller sees the name MACH_PORT_NULL.
+If a resource shortage prevents the reception of an out-of-line memory
+region, the region is destroyed and the caller receives a zero
+address.  In addition, the \fBmsgt_size\fR (\fBmsgtl_size\fR) field in
+the data's type descriptor is changed to zero.  If a resource shortage
+prevents the reception of out-of-line memory carrying port rights,
+then the port rights are always destroyed if the memory region can
+not be received.  A task never receives port rights or memory regions
+that it isn't told about.
+.SH ATOMICITY
+The \fBmach_msg\fR call handles port rights in a message header
+atomically.  Port rights and out-of-line memory in a message body
+do not enjoy this atomicity guarantee.  The message body may
+be processed front-to-back, back-to-front, first out-of-line memory
+then port rights, in some random order, or even atomically.
+
+For example, consider sending a message with the destination port
+specified as MACH_MSG_TYPE_MOVE_SEND and the reply port specified
+as MACH_MSG_TYPE_COPY_SEND.  The same send right,
+with one user-reference, is supplied for both the \fBmsgh_remote_port\fR
+and \fBmsgh_local_port\fR fields.  Because \fBmach_msg\fR processes
+the message header atomically, this succeeds.  If \fBmsgh_remote_port\fR
+were processed before \fBmsgh_local_port\fR, then \fBmach_msg\fR
+would return MACH_SEND_INVALID_REPLY in this situation.
+
+On the other hand, suppose the destination and reply port are
+both specified as MACH_MSG_TYPE_MOVE_SEND, and again the same
+send right with one user-reference is supplied for both.
+Now the send operation fails, but because it processes the header
+atomically, \fBmach_msg\fR can return either MACH_SEND_INVALID_DEST
+or MACH_SEND_INVALID_REPLY.
+
+For example, consider receiving a message at the same time another
+thread is deallocating the destination receive right.  Suppose the
+reply port field carries a send right for the destination port.  If
+the deallocation happens before the dequeuing, then the receiver gets
+MACH_RCV_PORT_DIED.  If the deallocation happens after the receive,
+then the \fBmsgh_local_port\fR and the \fBmsgh_remote_port\fR fields
+both specify the same right, which becomes a dead name when the
+receive right is deallocated.  If the deallocation happens between the
+dequeue and the receive, then the \fBmsgh_local_port\fR and
+\fBmsgh_remote_port\fR fields both specify MACH_PORT_DEAD.  Because
+the header is processed atomically, it is not possible for just one of
+the two fields to hold MACH_PORT_DEAD.
+
+The MACH_RCV_NOTIFY option provides a more likely example.
+Suppose a message carrying a send-once right reply port is received
+with MACH_RCV_NOTIFY at the same time the reply port is destroyed.
+If the reply port is destroyed first, then \fBmsgh_remote_port\fR
+specifies MACH_PORT_DEAD and the kernel does not generate
+a dead-name notification.  If the reply port is destroyed after
+it is received, then \fBmsgh_remote_port\fR specifies a dead name
+for which the kernel generates a dead-name notification.
+It is not possible to receive the reply port right and have it
+turn into a dead name before the dead-name notification is requested;
+as part of the message header the reply port is received atomically.
+.SH BUGS
+Sending out-of-line memory with a non-page-aligned address,
+or a size which is not a page multiple, works but with a caveat.
+The extra bytes in the first and last page of the received memory
+are not zeroed, so the receiver can peek at more data than
+the sender intended to transfer.  This might be a security problem
+for the sender.
+
+If MACH_RCV_TIMEOUT is used without MACH_RCV_INTERRUPT,
+then the timeout duration might not be accurate.
+When the call is interrupted and automatically retried,
+the original timeout is used.  If interrupts occur frequently enough,
+the timeout interval might never expire.  MACH_SEND_TIMEOUT without
+MACH_SEND_INTERRUPT suffers from the same problem.
+.SH FILES
+<mach/port.h>, <mach/message.h>, <mach/notify.h>.

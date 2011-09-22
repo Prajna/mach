@@ -1,0 +1,330 @@
+#
+# Mach Operating System
+# Copyright (c) 1993-1991 Carnegie Mellon University
+# All Rights Reserved.
+# 
+# Permission to use, copy, modify and distribute this software and its
+# documentation is hereby granted, provided that both the copyright
+# notice and this permission notice appear in all copies of the
+# software, derivative works or modified versions, and any portions
+# thereof, and that both notices appear in supporting documentation.
+#
+# CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+# CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+# ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+#
+# Carnegie Mellon requests users of this software to return to
+#
+#  Software Distribution Coordinator   or   Software.Distribution@CS.CMU.EDU
+#  School of Computer Science
+#  Carnegie Mellon University
+#  Pittsburgh PA 15213-3890
+#
+# any improvements or extensions that they make and grant Carnegie Mellon
+# the rights to redistribute these changes.
+#
+#
+# HISTORY
+# $Log:	files,v $
+# Revision 2.7  93/08/31  18:08:05  mrt
+# 	Removed the device-driver flag from chips/{spans,nc,nw_mk}
+# 	since they are not really device drivers and don't need to
+# 	be compiled with special flags.
+# 	[93/08/31            mrt]
+# 
+# Revision 2.6  93/08/10  15:52:38  mrt
+# 	[93/08/02  14:52:58  cmaeda]
+# 
+#	Made the atm driver files conditonal on net_atm rather than atm
+#	added scsi/pc_label.c and scsi/pc_scsi_label - from rvb
+# 	New Fore ATM device driver from jcb:
+# 		removed chips/atm.c
+# 		added	chips/tca100.c
+# 			chips/tca100_if.c
+# 			chips/spans.c
+# 			chips/nc.c
+# 			chips/nw_mk.c
+# 	[93/07/03            cmaeda]
+# 
+# 	Added mips/mips_bcopy.s to list of standard files.
+# 	[93/06/18            cmaeda]
+# 
+# Revision 2.5  93/05/30  21:07:43  rvb
+# 	Added kn03 (DS5000/240), revisited conditionals a little.
+# 	[Someone should build a non-generic kernel and let me know.]
+# 
+# Revision 2.4  93/03/26  17:56:41  mrt
+# 	Added audio driver.
+# 	[93/03/17            af]
+# 
+# Revision 2.3  93/03/09  10:52:59  danner
+# 	Added rz_audio.c
+# 	[93/03/06            af]
+# 
+# Revision 2.2  93/02/04  14:49:52  mrt
+# 	replaced ecc device with atm.
+# 	[93/01/20            danner]
+# 
+# Revision 2.24  93/01/14  17:24:08  danner
+# 	Added Smart frame buffer.
+# 	[92/12/03            af]
+# 	Removed compiler option for vm/vm_fault.c which was cc dependent.
+# 	[92/11/06  04:21:00  cmaeda]
+# 
+# Revision 2.23  92/05/22  15:48:44  jfriedl
+# 	Relocated files for 2D/3D driver, which now works.
+# 	[92/05/13  20:38:51  af]
+# 
+# Revision 2.22  92/04/03  12:08:26  rpd
+# 	Add FORE ATM support.
+# 	[92/03/23            rvb]
+# 
+# Revision 2.21  92/04/01  15:14:44  rpd
+# 	Added mappable timer device.
+# 	[92/03/11  02:38:35  af]
+# 
+# Revision 2.20  92/04/01  15:11:56  rpd
+# 	Added vm/vm_fault.c, with -Olimit so that vm_fault_page is optimized.
+# 	[92/03/27            rpd]
+# 
+# Revision 2.19  92/03/02  18:33:26  rpd
+# 	Added MAXine support code.
+# 	[92/03/02  02:09:01  af]
+# 
+# Revision 2.18  92/01/24  18:15:30  rpd
+# 	Added mips/swapgeneric.c.
+# 	[92/01/24            rpd]
+# 
+# Revision 2.17  92/01/03  20:01:31  dbg
+# 	Move bootstrap code to user space - remove exec.c.
+# 	[91/09/04            dbg]
+# 
+# Revision 2.16  91/08/24  11:55:11  af
+# 	The SCC driver moved to its final destination.
+# 	[91/08/02  10:21:47  af]
+# 
+# 	New 3min files for "fb" screen, SCC serial lines, 3min (kmin*)
+# 	proper, new SCSI "Cpu" and "Host" devices, generic console.
+# 	[91/08/02  02:39:59  af]
+# 
+# Revision 2.15  91/07/09  23:15:31  danner
+# 	Added scsi/rz_labels.c to support new label technology.
+# 
+# Revision 2.14  91/06/19  15:23:54  rvb
+# 	Most files in mips/PMAX got moved to scsi/ or chips/.
+# 	[91/06/07            rvb]
+# 
+# Revision 2.13  91/05/18  14:29:12  rpd
+# 	Removed the compacted option.
+# 	[91/03/19            rpd]
+# 
+# Revision 2.13  91/05/18  14:29:12  rpd
+# 	Removed the compacted option.
+# 	[91/03/19            rpd]
+# 
+# Revision 2.12  91/05/14  15:30:18  mrt
+# 	Correcting copyright
+# 
+# Revision 2.11  91/05/13  06:02:10  af
+# 	Added bad-block replacent code for scsi driver.
+# 	[91/05/12  15:44:37  af]
+# 
+# Revision 2.10  91/02/05  17:05:26  mrt
+# 	Changed to new copyright
+# 	[91/01/28  14:47:51  mrt]
+# 
+# Revision 2.8  90/12/05  20:42:06  af
+# 	Made cfb driver optional.
+# 	New, copyright free PMAX device drivers.
+# 	Added mapped scsi driver.
+# 	Added mapped ether files.
+# 	[90/12/03  22:54:01  af]
+# 
+# Revision 2.7  90/09/09  23:19:48  rpd
+# 	Added mapped ether driver.
+# 	[90/08/30  17:42:07  af]
+# 
+# Revision 2.6  90/08/27  21:47:36  dbg
+# 	Made new debugger official.
+# 	New, copyright-free clock driver.
+# 	[90/08/18  00:08:05  af]
+# 
+# 	Added new dbg's debugger files.
+# 	[90/08/14            af]
+# 
+# Revision 2.5  90/08/07  22:22:49  rpd
+# 	Added 3max support files and new autoconf code.
+# 	[90/08/07  15:56:50  af]
+# 
+# Revision 2.3.3.1  90/06/11  11:01:35  af
+# 	Added 3max support and new autoconf procedures.
+# 
+# Revision 2.4  90/06/02  14:46:53  rpd
+# 	Added trap_history.
+# 	[90/05/12            rpd]
+# 
+# Revision 2.3  90/01/22  23:04:31  af
+# 	Merged with mainline KDB, added experimental options.
+# 	[90/01/20  13:15:23  af]
+# 
+# Revision 2.2  89/11/29  14:08:14  af
+# 	Changes for pure kernel.
+# 	[89/10/04            af]
+# 
+# Revision 2.7  89/09/22  13:53:58  af
+# 	Added kdb files.
+# 	[89/08/28            af]
+# 
+# Revision 2.6  89/05/31  15:12:04  rvb
+# 	mips/MIPS => mips/MSERIES
+# 	[89/05/31            rvb]
+# 
+# Revision 2.5  89/05/31  12:46:32  rvb
+# 	Move r2350mem.[ch] to MIPS.
+# 
+# 
+# Revision 2.4  89/05/30  13:09:58  rvb
+# 	Put MIPS specific and PMAX specific drivers in subdirectories.
+# 
+# 28-Feb-89  Alessandro Forin (af) at Carnegie-Mellon University
+#	Added Pmax devices.
+# ??-???-??  Robert V. Baron (rvb) at Carnegie-Mellon University
+#	Created.
+#
+#
+
+# vm_fault_page is big, but we want to optimize it anyway.
+# we really just want "-Olimit 600", but cc doesn't seem to
+# pass it through to uopt correctly.
+#vm/vm_fault.c		standard |${PMAX_USE_GCC?:-Wo,-Olimit -Wo,600}
+
+OPTIONS/ref_bits	optional ref_bits
+OPTIONS/mips_code	optional mips_code
+OPTIONS/counters	optional counters
+OPTIONS/trap_history	optional trap_history
+
+mips/start.s		standard ordered
+mips/autoconf.c		standard
+mips/conf.c		standard 
+mips/context.s		standard
+mips/db_disasm.c	optional mach_kdb
+mips/db_interface.c	optional mach_kdb
+mips/db_mips_sym.c	optional mach_kdb
+mips/db_trace.c		optional mach_kdb
+mips/locore.s		standard
+mips/mips_bcopy.s	standard
+mips/mips_cache.s	standard
+mips/mips_copyin.s	standard
+mips/mips_cpu.s		standard
+mips/mips_init.c	standard
+mips/mips_instruction.c	standard
+mips/mips_mem_ops.c	standard
+mips/mips_misc.c	standard
+mips/mips_startup.c	standard
+mips/parse_args.c	standard
+mips/pcb.c		standard
+mips/pmap.c		standard
+mips/prom_interface.s	standard
+mips/softfp.s		optional mips_code
+mips/swapgeneric.c	standard
+mips/tlb.s		standard
+mips/trap.c		standard
+
+# Mips M-Series device drivers
+mips/MSERIES/cp.c		optional cp device-driver
+mips/MSERIES/dkip.c		optional dkip device-driver
+mips/MSERIES/i8254clock.c	optional i8254clock device-driver
+mips/MSERIES/if_enp.c		optional enp device-driver
+mips/MSERIES/r2350mem.c		optional mseries device-driver
+mips/MSERIES/rd.c		optional rd device-driver
+mips/MSERIES/s2681cons.c	optional s2681cons device-driver
+mips/MSERIES/sd.c		optional sd device-driver
+mips/MSERIES/ts.c		optional ts device-driver
+mips/MSERIES/tth.c		optional tthu device-driver
+mips/MSERIES/vme.c		optional vme device-driver
+
+# DECStation devices drivers
+chips/audio.c		optional audio device-driver
+
+chips/bt431.c		optional mfb device-driver
+chips/bt455.c		optional mfb device-driver
+chips/bt459.c		optional cfb device-driver
+chips/bt459.c		optional sfb device-driver
+chips/bt478.c		optional fb device-driver
+chips/busses.c		standard
+chips/cfb_hdw.c		optional cfb device-driver
+chips/cfb_misc.c	optional cfb sfb device-driver
+chips/dc503.c		optional bm device-driver
+chips/dtop_handlers.c	optional dtop device-driver
+chips/dtop_hdw.c	optional dtop device-driver
+chips/dz_hdw.c		optional dz_ device-driver
+chips/tca100.c          optional atm device-driver
+chips/tca100_if.c       optional atm device-driver
+chips/spans.c           optional net_atm
+chips/nc.c              optional net_atm
+chips/nw_mk.c           optional net_atm
+chips/fb_hdw.c		optional mfb device-driver
+chips/fb_misc.c		optional mfb device-driver
+chips/fdc_82077_hdw.c	optional fd device-driver
+chips/frc.c		optional frc device-driver
+chips/ims332.c		optional xcfb device-driver
+chips/isdn_79c30_hdw.c	optional isdn device-driver
+chips/kernel_font.c	optional bm device-driver
+chips/lance.c		optional ln device-driver
+chips/lance_mapped.c	optional ln device-driver
+chips/lk201.c		optional lk device-driver
+chips/mc_clock.c	optional mc device-driver
+chips/mouse.c		optional bm device-driver
+chips/pm_hdw.c		optional fb device-driver
+chips/pm_misc.c		optional fb device-driver
+chips/scc_8530_hdw.c	optional scc device-driver
+chips/screen.c		optional bm device-driver
+chips/screen_switch.c	optional bm device-driver
+chips/serial_console.c	optional constty device-driver
+chips/sfb_hdw.c		optional sfb device-driver
+chips/sfb_misc.c	optional sfb device-driver
+chips/xcfb_hdw.c	optional xcfb device-driver
+chips/xcfb_misc.c	optional xcfb device-driver
+chips/dec_lic/ga_hdw.c	optional gx device-driver
+chips/dec_lic/ga_misc.c	optional gx device-driver
+chips/dec_lic/gq_hdw.c	optional gx device-driver
+chips/dec_lic/gq_misc.c	optional gx device-driver
+chips/dec_lic/gx_misc.c	optional gx device-driver
+mips/PMAX/kmin.c	optional kmin
+mips/PMAX/kmin_cpu.s	optional kmin
+mips/PMAX/kmin_dma.c	optional kmin maxine kn03
+mips/PMAX/kn01.c	optional pmax
+mips/PMAX/kn02.c	optional kmax
+mips/PMAX/kn02_dma.c	optional kmax
+mips/PMAX/kn02ba.c	optional kmin maxine kn03
+mips/PMAX/kn03.c	optional kn03
+mips/PMAX/kn03_cpu.s	optional kn03
+mips/PMAX/maxine.c	optional maxine
+mips/PMAX/maxine_cpu.s	optional maxine
+mips/PMAX/mips_box.c	optional pmax kmax kmin kn03 maxine
+mips/PMAX/model_dep.c	optional pmax kmax kmin kn03 maxine
+mips/PMAX/tc.c		optional kmax kmin kn03 maxine
+scsi/mapped_scsi.c	optional scsi device-driver
+scsi/rz.c		optional scsi device-driver
+scsi/rz_audio.c		optional scsi device-driver
+scsi/rz_cpu.c		optional scsi device-driver
+scsi/rz_disk.c		optional scsi device-driver
+scsi/rz_disk_bbr.c	optional scsi device-driver
+scsi/rz_host.c		optional scsi device-driver
+scsi/rz_labels.c	optional scsi device-driver
+scsi/pc_label.c		optional scsi device-driver
+scsi/rz_tape.c		optional scsi device-driver
+scsi/scsi.c		optional scsi device-driver
+scsi/adapters/scsi_53C94_hdw.c	optional asc device-driver
+scsi/adapters/scsi_7061_hdw.c	optional sii device-driver
+scsi/scsi_alldevs.c	optional scsi device-driver
+scsi/scsi_comm.c	optional scsi device-driver
+scsi/scsi_cpu.c		optional scsi device-driver
+scsi/scsi_disk.c	optional scsi device-driver
+scsi/scsi_jukebox.c	optional scsi device-driver
+scsi/scsi_optical.c	optional scsi device-driver
+scsi/scsi_printer.c	optional scsi device-driver
+scsi/scsi_rom.c		optional scsi device-driver
+scsi/scsi_scanner.c	optional scsi device-driver
+scsi/scsi_tape.c	optional scsi device-driver
+scsi/scsi_worm.c	optional scsi device-driver

@@ -1,0 +1,126 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	memory_object_server.man,v $
+.\" Revision 2.4  91/05/14  17:10:25  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:13:26  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:14:11  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:41:32  rpd
+.\" 	Created.
+.\" 
+.TH memory_object_server 2 12/19/89
+.CM 4
+.SH NAME
+.nf
+memory_object_server  \-  main program of memory manager
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+boolean_t memory_object_server(in_msg, out_msg)
+	msg_header_t	*in_msg;	
+	msg_header_t	*out_msg;
+
+
+.fi
+.ft P
+.SH DESCRIPTION
+A 
+.B memory manager
+is a server task that responds to specific
+messages from the kernel in order to handle memory management functions for
+the kernel.
+
+In order to isolate the memory manager from the specifics of message
+formatting, the remote procedure call generator produces a
+procedure, 
+.B memory_object_server
+, to handle a received message.
+This function does all necessary argument handling, and actually
+calls one of the following  functions: 
+.B memory_object_init
+,
+.B memory_object_data_write, memory_object_data_request,
+.B memory_object_data_unlock, memory_object_lock_completed,
+.B memory_object_copy, memory_object_terminate
+. A 
+.B default memory manager
+may get two additional requests from the kernel: 
+.B memory_object_create
+and 
+.B memory_object_data_initialize
+.  
+
+The return value from the 
+.B memory_object_server
+function indicates that
+the message was appropriate to the memory management interface
+(returning 
+.B TRUE
+), or that it could not handle this message
+(returning 
+.B FALSE
+).
+
+.SH ARGUMENTS
+.TP 15
+.B
+.B in_msg
+The message that has been received from the kernel.
+.TP 15
+.B
+.B out_msg
+A reply message. Not used for this server
+
+.SH DIAGNOSTICS
+.TP 25
+.B TRUE
+From 
+.B memory_object_server
+, indicates that the message
+in question was applicable to this interface, and that the appropriate
+routine was called to interpret the message.
+.TP 25
+.B FALSE
+From 
+.B memory_object_server
+, indicates that the message
+did not apply to this interface, and that no other action was taken.
+
+.SH SEE ALSO
+.B memory_object_init,memory_object_data_request,memory_object_data_unlock,
+.B memory_object_data_write,memory_object_copy,memory_object_terminate,
+.B memory_object_lock_completed, memory_object_data_initialize,
+.B memory_object_create
+

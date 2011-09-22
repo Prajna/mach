@@ -1,0 +1,135 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	thread_assign.man,v $
+.\" Revision 2.4  91/05/14  17:13:47  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:15:08  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:15:58  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:45:06  rpd
+.\" 	Created.
+.\" 
+.TH thread_assign 2 8/13/89
+.CM 4
+.SH NAME
+.nf
+thread_assign  \-  assign thread to processor set
+thread_assign_default  \-  assign thread to default processor set
+thread_get_assignment  \-  get processor set to which thread is assigned
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t thread_assign(thread, processor_set)
+	thread_t	thread;
+	processor_set_t	processor_set;
+
+
+.fi
+.ft P
+.nf
+.ft B
+kern_return_t thread_assign_default(thread)
+	thread_t	thread;
+
+
+.fi
+.ft P
+.nf
+.ft B
+kern_return_t thread_get_assignment(thread, processor_set)
+	thread_t		thread;
+	processor_set_name_t	*processor_set;
+
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+thread
+The thread to be assigned.
+.TP 15
+.B
+processor_set
+The processor set to assign it to.
+
+.SH DESCRIPTION
+.B thread_assign
+assigns 
+.B thread
+the the set 
+.B processor_set.
+After the assignment is completed, the thread only executes on processors
+assigned to the designated processor set.  If there are no such processors,
+then the thread is unable to execute.  Any previous assignment of
+the thread is nullified.  Unix system call compatibility code may
+temporarily force threads to execute on the master processor.
+
+.B thread_assign_default
+is a variant of 
+.B thread_assign
+that assigns the thread to the default processor set.  This variant exists
+because the control port for the default processor set is privileged and
+therefore not available to most users.
+
+.B thread_get_assignment
+returns the name of the processor set to which the thread is currently
+assigned.  This port can only be used to obtain information about the
+processor set.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The assignment has been performed.
+.TP 25
+KERN_INVALID_ARGUMENT
+.B thread
+is not a thread, or 
+.B processor_set
+is not a processor_set on the same host as 
+.B thread.
+.TP 25
+KERN_INVALID_ADDRESS
+.B processor_set
+points to inaccessible memory (thread_get_assignment only).
+
+.SH BUGS
+Availability limited.
+
+.SH SEE ALSO
+.B processor_set_create, processor_set_info, processor_assign, task_assign
+,
+.B host_processor_set_priv
+

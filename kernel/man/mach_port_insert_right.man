@@ -1,0 +1,151 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	mach_port_insert_right.man,v $
+.\" Revision 2.6  93/05/10  19:31:26  rvb
+.\" 	updated
+.\" 	[93/04/21  16:03:35  lli]
+.\" 
+.\" Revision 2.5  91/12/11  08:43:03  jsb
+.\" 	Changed <mach/mach.h> to <mach.h>.
+.\" 	[91/11/25  10:55:33  rpd]
+.\" 
+.\" Revision 2.4  91/05/14  17:06:47  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:11:32  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:11:43  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:37:11  rpd
+.\" 	Created.
+.\" 
+.TH mach_port_insert_right 2 4/13/87
+.CM 4
+.SH NAME
+.nf
+mach_port_insert_right \- inserts a port right into a task
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+kern_return_t
+mach_port_insert_right(task, name, right, right_type)
+	mach_port_t task;
+	mach_port_t name;
+	mach_port_t right;
+	mach_msg_type_name_t right_type;
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 12
+.B
+task
+The task which gets the caller's right.
+.TP 12
+.B
+name
+The name by which \fBtask\fR will know the right.
+.TP 12
+.B
+right
+The port right.
+.TP 12
+.B
+right_type
+IPC type of the sent right; e.g., MACH_MSG_TYPE_COPY_SEND
+or MACH_MSG_TYPE_MOVE_RECEIVE.
+.SH DESCRIPTION
+\fBmach_port_insert_right\fR
+inserts into \fBtask\fR the caller's right for a port, using a specified
+name for the right in the target task.
+
+The specified \fBname\fR can't be one of the reserved values
+MACH_PORT_NULL or MACH_PORT_DEAD.  The right
+can't be MACH_PORT_NULL or MACH_PORT_DEAD.
+
+The argument \fBright_type\fR specifies a right to be inserted and
+how that right should be extracted from the caller.  It should
+be a value appropriate for \fBmsgt_name\fR; see \fBmach_msg(2)\fR.
+
+If \fBright_type\fR is
+MACH_MSG_TYPE_MAKE_SEND, MACH_MSG_TYPE_MOVE_SEND, or
+MACH_MSG_TYPE_COPY_SEND, then a send right is inserted.
+If the target already holds send or receive
+rights for the port, then \fBname\fR should denote those rights in the
+target.  Otherwise, \fBname\fR should be unused in the target.  If the
+target already has send rights, then those send rights gain an
+additional user reference.  Otherwise, the target gains a send right,
+with a user reference count of one.
+
+If \fBright_type\fR is MACH_MSG_TYPE_MAKE_SEND_ONCE or
+MACH_MSG_TYPE_MOVE_SEND_ONCE, then a send-once right is inserted.
+The \fBname\fR should be unused in the target.
+The target gains a send-once right.
+
+If \fBright_type\fR is MACH_MSG_TYPE_MOVE_RECEIVE, then a receive right
+is inserted.  If the target already holds send rights
+for the port, then \fBname\fR should denote those rights in the target.
+Otherwise, \fBname\fR should be unused in the target.  The receive
+right is moved into the target task.
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The call succeeded.
+.TP 25
+KERN_INVALID_TASK
+\fBtask\fR was invalid.
+.TP 25
+KERN_INVALID_VALUE
+\fBname\fR was MACH_PORT_NULL or MACH_PORT_DEAD.
+.TP 25
+KERN_NAME_EXISTS
+\fBname\fR already denoted a right.
+.TP 25
+KERN_INVALID_VALUE
+\fBright\fR was not a port right.
+.TP 25
+KERN_INVALID_CAPABILITY
+\fBright\fR was null or dead.
+.TP 25
+KERN_UREFS_OVERFLOW
+Inserting the right would overflow \fBname\fR's user-reference count.
+.TP 25
+KERN_RIGHT_EXISTS
+\fBtask\fR already had rights for the port, with a different name.
+.TP 25
+KERN_RESOURCE_SHORTAGE
+The kernel ran out of memory.
+.PP
+The \fBmach_port_insert_right\fR call is actually an RPC to \fBtask\fR,
+normally a send right for a task port, but potentially any send right.
+In addition to the normal diagnostic
+return codes from the call's server (normally the kernel),
+the call may return \fBmach_msg(2)\fR return codes.
+.SH SEE ALSO
+mach_port_extract_right(2), mach_msg(2).

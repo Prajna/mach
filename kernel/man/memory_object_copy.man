@@ -1,0 +1,139 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	memory_object_copy.man,v $
+.\" Revision 2.5  93/05/10  19:33:22  rvb
+.\" 	updated
+.\" 	[93/04/21  16:08:05  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:08:31  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:12:28  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:12:50  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:39:19  rpd
+.\" 	Created.
+.\" 
+.TH memory_object_copy 2 12/19/89
+.CM 4
+.SH NAME
+.nf
+memory_object_copy  \-   part of page object has been copied
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t memory_object_copy(old_memory_object, old_memory_control,
+                                offset, length, new_memory_object)           
+     mach_port_t		old_memory_object;
+     memory_object_control_t	old_memory_control;
+     vm_offset_t		offset;
+     vm_size_t			length;
+     mach_port_t		new_memory_object;
+
+
+
+.fi
+.ft P
+.SH DESCRIPTION
+.B memory_object_copy
+indicates that a copy has been made of the specified
+range of the given original memory object.  
+This call includes only the new memory object itself; a 
+.B memory_object_init
+call will be made on the new memory object after the currently cached pages
+of the original object are prepared. After the memory manager receives the
+init call, it should reply with the 
+.B memory_object_set_attributes
+call to
+assert the "ready" attribute. The kernel will use the new memory
+object, contol and name ports to refer to the new copy.
+
+This call is made when the original memory object had the caching
+parameter set to 
+.B MEMORY_OBJECT_COPY_CALL
+and a user of the object 
+has asked the kernel to copy it.
+
+Cached pages from the original memory object at the time of the copy operation
+are handled as follows: Readable pages may be silently copied to the new
+memory object (with all access permissions). Pages not copied are locked 
+to prevent write access.
+
+The new memory object is 
+.I temporary
+, meaning that the memory manager should
+not change its contents or allow the memory object to be mapped in another 
+client.  The memory manager may use the 
+.B memory_object_data_unavailable
+call to indicate that the appropriate pages of the original memory 
+object may be used to fulfill the data request.
+
+.SH ARGUMENTS
+.TP 15
+.B
+.B old_memory_object
+The port that represents the old memory object date.
+.TP 15
+.B
+.B old_memory_contol
+The kernel control port for the old object.
+.TP 15
+.B
+.B offset
+The offset within a memory object to which this call refers.
+This will be page aligned.
+.TP 15
+.B
+.B length
+The number of bytes of data, starting at 
+.B offset
+, to which this
+call refers. This will be an integral number of memory object pages.
+.TP 15
+.B
+.B new_memory_object
+A new memory object created by the kernel; see 
+synopsis for further description.  Note that all port rights (including
+receive rights) are included for the new memory object.
+
+.SH DIAGNOSTICS
+.TP 25
+.B KERN_SUCCESS
+Since this routine is called by the kernel, which does not
+wait for a reply message, this value is ignored.
+
+.SH SEE ALSO
+.B memory_object_init, memory_object_set_attributes,
+
+.B memory_object_data_unavailable
+

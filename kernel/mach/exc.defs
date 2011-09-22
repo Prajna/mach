@@ -1,0 +1,94 @@
+/* 
+ * Mach Operating System
+ * Copyright (c) 1993,1991,1990,1989,1988,1987 Carnegie Mellon University
+ * All Rights Reserved.
+ * 
+ * Permission to use, copy, modify and distribute this software and its
+ * documentation is hereby granted, provided that both the copyright
+ * notice and this permission notice appear in all copies of the
+ * software, derivative works or modified versions, and any portions
+ * thereof, and that both notices appear in supporting documentation.
+ * 
+ * CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+ * CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+ * ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+ * 
+ * Carnegie Mellon requests users of this software to return to
+ * 
+ *  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+ *  School of Computer Science
+ *  Carnegie Mellon University
+ *  Pittsburgh PA 15213-3890
+ * 
+ * any improvements or extensions that they make and grant Carnegie Mellon
+ * the rights to redistribute these changes.
+ */
+/*
+ * HISTORY
+ * $Log:	exc.defs,v $
+ * Revision 2.5  93/11/17  17:38:17  dbg
+ * 	64-bit cleanup.  Subcode must be integer_t, since it holds an
+ * 	address for EXC_BAD_ADDRESS.  I made exception and code be
+ * 	natural_t for consistency.
+ * 	[93/11/09            dbg]
+ * 
+ * Revision 2.4  91/05/14  16:51:31  mrt
+ * 	Correcting copyright
+ * 
+ * Revision 2.3  91/02/05  17:31:52  mrt
+ * 	Changed to new Mach copyright
+ * 	[91/02/01  17:16:59  mrt]
+ * 
+ * Revision 2.2  90/06/02  14:57:52  rpd
+ * 	Converted to new IPC.
+ * 	[90/03/26  22:29:13  rpd]
+ * 
+ * Revision 2.1  89/08/03  17:16:47  rwd
+ * Created.
+ * 
+ * Revision 2.3  89/02/25  18:13:23  gm0w
+ * 	Changes for cleanup.
+ * 
+ * Revision 2.2  89/01/15  16:29:49  rpd
+ * 	Moved from kern/ to mach/.
+ * 	[89/01/15  14:38:37  rpd]
+ * 
+ * Revision 2.3  89/01/12  07:53:10  rpd
+ * 	Fixed includes.
+ * 
+ * 29-Jun-88  Michael Young (mwyoung) at Carnegie-Mellon University
+ *	Moved data type declarations to "mach_types.defs".
+ *
+ * 30-Nov-87  David Black (dlb) at Carnegie-Mellon University
+ *	Rewrote interface to use messages for synchronization.
+ *
+ *  9-Oct-87  David Black (dlb) at Carnegie-Mellon University
+ *	Translation won't work for this interface; all combinations of 
+ *	user/kernel to user/kernel are possible.  Removed translation.
+ *
+ * 29-Sep-87  David Black (dlb) at Carnegie-Mellon University
+ *	Created.
+ *
+ */
+/*
+ * Abstract:
+ *	MiG definitions file for Mach exception interface.
+ */
+
+subsystem
+#if	KERNEL_USER
+	  KernelUser
+#endif	/* KERNEL_USER */
+		     exc 2400;
+
+#include <mach/std_types.defs>
+
+ServerPrefix catch_;
+
+routine		exception_raise(
+			exception_port	: mach_port_t;
+			thread		: mach_port_t;
+			task		: mach_port_t;
+			exception	: integer_t;
+			code		: integer_t;
+			subcode		: integer_t);

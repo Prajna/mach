@@ -1,0 +1,746 @@
+
+ ==================MK83A=============================
+ 
+New features:
+--- --------
+
+MiG has new syntax to align fields on arbitrary (power-of-2) boundaries,
+so that (for example) a structure of 32-bit integers can be aligned
+on either a 64-bit or a 32-bit boundary on the Alpha.  The syntax
+is:
+<type> = (<type name>, <size in bits>, <alignment boundary in bits>)
+
+Added the scripts and auxilary build tools to flatten the MK
+source tree and build with the NetBSD make files.
+
+Added the sources for a NetBSD boot program that will boot both
+MK and a vanilla NetBSD kernel
+
+Added a few changes from Johannes Helander to support LITES
+
+[I386AT]	now supports the AHA17 32-bit SCSI adapter.
+
+[I386PS2]	now supports the Ethernet adapter.
+
+Bug fixes:
+--- -----
+
+The 'device_write' bug HAS been fixed.  If the memory given to
+device_write_request is changed before the hardware has completed the
+IO, the user wil be forced to wait for the hardware IO to be done.
+The bug was in vm_copyin_to_page_list.
+
+host_info() now correctly returns min_timeout and min_quantum in
+milliseconds, as per the documentation.  These values, however,
+are somewhat arbitrary: min_timeout depends on the current resolution
+of the system clock, and the quantum varies on multiprocessors.
+
+The 'audio' device ignores drops: "it is less irritating to
+hear a glitch than to speed-ahead an entire block of samples"
+(Alessandro Forin).
+
+[ALPHA]	  'catch_exception_raise' has been made 64-bit clean: the
+	  'exception', 'code', and 'subcode' arguments are now
+	  longs, since 'subcode' contains a virtual address for
+	  EXC_BAD_ADDRESS.  This is an INCOMPATIBLE change, however;
+	  all programs that use 'exc_server' and 'catch_exception_raise'
+	  (and 'exc_user') MUST be relinked.  As a result, MK84 will
+	  NOT work with the current UX server (UX42 and below).  There
+	  will be a UX release in the very near future that works with
+	  MK84 on the Alpha.
+
+Special notes:
+------- -----
+
+Built and tested on i386AT, i386PS2, Sequent, DecStation 5000/120,
+Dec Alpha.
+
+The list of machines that CMU supports has once again dropped.  We
+now build for the I386 (ISA and PS/2), various flavors of Decstations
+(the MIPS R2000/R3000 processors), and the Dec Alpha (with Turbochannel).
+This release has been built and tested for the Sequent Symmetry.  However,
+since our Sequent has broken, it is unlikely that future releases will
+be built for it.
+
+We no longer support the Omron Luna88k.  The kernel has been compiled
+for the Luna88k, but not run.
+
+******** CUT HERE ******** summary of log messages ******** CUT HERE ********
+
+./bootstrap/Makefile.bnr
+Upgrade for NetBSD 0.9 and "md".
+
+Added dosfs_io and ufs_io				******** &
+[93/09/14  11:49:37  af]
+------------------------
+
+./bootstrap/alpha/exec.c
+Converted "" includes to <>.
+[93/09/29            dbg]
+
+------------------------
+./bootstrap/i386/exec.c
+De-linted.  Changed "" includes to <>.  Added ANSI
+function prototypes.
+[93/09/28            dbg]
+
+------------------------
+./bootstrap/m88k/exec.c
+Converted "" includes to <>.
+[93/09/29            dbg]
+
+------------------------
+./bootstrap/mips/exec.c
+De-linted.
+[93/09/27            dbg]
+
+------------------------
+./kernel/alpha/swapgeneric.c
+Looks like the bus number is in a different place
+than where I thought.
+[93/09/14  12:09:39  af]
+
+------------------------
+./kernel/chips/audio.c
+Delinted.
+
+In audio_write(), ignore cb_drops. It is less irritating to
+hear a glitch than to speed-ahead an entire block of samples.
+[93/12/16            af]
+
+------------------------
+./kernel/chips/busses.h
+Import mach/machine/vm_types.h for vm_offset_t.
+[93/06/11            dbg]
+
+------------------------
+./kernel/conf/Makefile.bnr
+Upgrade for NetBSD 0.9 and "md".
+[93/12/13            rvb]
+
+------------------------
+./kernel/conf/i386/MASTER
+Added 174x driver (dherity@cs.tcd.ie & ralf@chpc.org)
+[93/10/06            af]
+
+Added PS2 ethernet driver, from Zon Williamson.
+[93/09/13            dbg]
+
+Added mc and pit clock devices for PS2.				********** &
+[93/09/08            dbg]
+
+Added mc and pit clock devices for AT386 configurations, for	********** &
+real-time support.
+[93/06/04            dbg]
+
+Integrate PS2 code from IBM. - by prithvi, rvb
+
+------------------------
+./kernel/conf/i386/MASTER.bnr
+Added 174x driver (dherity@cs.tcd.ie & ralf@chpc.org)
+[93/10/06            af]
+
+Added PS2 ethernet driver, from Zon Williamson.
+[93/09/13            dbg]
+
+Added mc and pit clock devices for PS2.				********** &
+[93/09/08            dbg]
+
+Added mc and pit clock devices for AT386 configurations, for	********** &
+real-time support.
+[93/06/04            dbg]
+
+Integrate PS2 code from IBM. - by prithvi, rvb
+
+------------------------
+./kernel/conf/i386/files
+Added 174x driver.
+[93/10/20  13:08:56  af]
+
+Added PS2 Ethernet driver.
+[93/09/13            dbg]
+
+
+Removed i386at/rtc.c from PS2 configurations.			******** &
+[93/09/08            dbg]
+
+Added chips/mc_clock.c and i386at/clockpit.c for new		******** &
+clocks and timers.  Removed i386at/rtc.c.
+[93/05/21            dbg]
+
+------------------------
+./kernel/conf/i386/files.bnr
+export i386/stdarg.h
+[93/12/13  14:11:00  rvb]
+
+Added 174x driver.
+[93/10/20  13:08:56  af]
+
+Added PS2 Ethernet driver.
+[93/09/13            dbg]
+
+Removed i386at/rtc.c from PS2 configurations.			*********** &
+[93/09/08            dbg]
+
+Added chips/mc_clock.c and i386at/clockpit.c for new		*********** &
+clocks and timers.  Removed i386at/rtc.c.
+[93/05/21            dbg]
+
+------------------------
+./kernel/conf/i386/MASTER
+Added PS2 ethernet driver, from Zon Williamson.
+[93/09/13            dbg]
+
+
+Added mc and pit clock devices for PS2.				******** &
+[93/09/08            dbg]
+
+Added mc and pit clock devices for AT386 configurations, for	******** &
+real-time support.
+[93/06/04            dbg]
+
+------------------------
+./kernel/conf/template.mk.bnr
+Add code for mach_timer_reply.defs to generate header and _user.c
+[93/12/13            rvb]					*********** &
+
+Upgrade for NetBSD 0.9 and "md".
+
+------------------------
+./kernel/device/bpf.h
+Changed 'long' to 'int' for 64-bit cleanup.
+(perhaps we should use int32?)
+[93/10/26            dbg]
+
+------------------------
+./kernel/device/conf.h
+Added include of mach/machine/vm_types.h to get vm_offset_t.
+[93/05/21            dbg]
+
+./kernel/device/device_reply.defs
+Added sequence number support
+[94/05/18	jvh]
+
+------------------------
+./kernel/device/net_io.c
+Changed 'long' to 'int' in BPF routines for 64-bit cleanup.
+[93/10/26            dbg]
+
+Added AST_KERNEL_CHECK to net_thread loop, to check for timer	******** &
+ASTs.  Added ANSI function prototypes.
+[93/09/02            dbg]
+
+------------------------
+./kernel/device/tty_status.h
+Defined B19200 and B38400
+[94/05/18	jvh]
+
+------------------------
+./kernel/i386/db_interface.c
+ANSI-fied.
+[93/11/03            dbg]
+Added option of faulting in pages in db_user_to_kernel_address(),
+controlled by the global variable db_no_vm_fault, same as mips/alpha.
+[93/09/25            af]
+
+------------------------
+./kernel/i386/db_trace.c
+Reorganized a little, splitting out db_i386_stack_trace().
+Added Cthreads debugging support.
+[93/09/24            af]
+
+------------------------
+./kernel/i386/interrupt.s
+PIC addresses are constants (and known to be <= 0xff), so they
+can be used as immediate addresses in IN and OUT instructions.
+[93/10/29            dbg]
+The reason that the spurious interrupt check has never worked is
+that the non-specific EOI has already CLEARED the ISR bit that we
+are checking!
+[93/10/25            dbg]
+Changes from ralf@chpc.org: handle spuroius interrupts
+generated by Adaptec 174x.
+[93/10/20  13:03:31  af]
+
+------------------------
+./kernel/i386/iopb.c
+Never allow access to IO ports 0x00 .. 0xff.  These are system
+control ports on PCs.  Clobbering configuration info in CMOS may
+make the machine unusable!
+[93/10/20            dbg]
+Removed lint.
+[93/06/17            dbg]
+
+------------------------
+./kernel/i386/user_ldt.c
+Fixed bug in i386_set_ldt: descriptors were being copied into
+the old LDT (which was sometimes NULL), thus being thrown away
+(!).
+[93/09/10            dbg]
+Removed lint.
+[93/06/17            dbg]
+
+------------------------
+./kernel/i386at/autoconf.c
+Added 174x driver (dherity@cs.tcd.ie & ralf@chpc.org)
+[93/10/06            af]
+Lint.
+[93/05/08  11:20:03  af]
+Made it possible to have two Adaptec boards.
+[93/05/07  18:37:34  af]
+Added include of standard types.
+[93/05/06  09:30:11  af]
+
+------------------------
+./kernel/i386at/boot/Makefile
+Update for odemake. 
+[93/11/08            mrt]
+
+------------------------
+./kernel/i386at/boot/Makefile.bnr
+Upgrade for NetBSD 0.9 and "md".
+[93/12/13            rvb]
+
+------------------------
+./kernel/i386at/com.c
+Restore earlier fix: can`t use ttymodem "flow control" since
+modem drops carrier but still talks to machine.  Shut down FIFO
+on close.
+[93/06/15            dbg]
+
+Include kern/time_out.h for hz.					*********
+[93/06/04            dbg]
+
+------------------------
+./kernel/i386at/eisa.h
+RCSed.  Presumably Philippe Bernadat wrote this.
+[93/10/20            af]
+
+------------------------
+./kernel/i386at/iopl.c
+Changed mmap routines to return physical address instead of	*************!!
+physical page number.
+[93/05/24            dbg]
+
+Remove CMOS from IO port list, since kernel uses it as a clock.
+Autoconfig should remove in-use IO ports from list as it finds
+devices.
+[93/05/14            dbg]
+
+------------------------
+./kernel/i386ps2/if_en.c
+Changed start() to return void.
+[93/09/13            dbg]
+Created, used if_pc586 as a reference.
+[93/09/09            zon]
+
+------------------------
+./kernel/kern/exception.c
+Use 'MACH_MSG_TYPE_INTEGER_T' for type of integer_t.
+[93/11/19            dbg]
+
+64-bit cleanup.  Subcode must be integer_t, since it holds an
+address for EXC_BAD_ADDRESS.  I made exception and code be
+natural_t for consistency.
+[93/11/09            dbg]
+
+Use thread_lock instead of ith_lock, task_lock instead of	*********** &
+itk_lock.
+[93/07/12            dbg]
+
+Declared continuation functions as not returning.		*********** &
+[93/05/04            dbg]
+
+Added ANSI function prototypes.  Removed include of		*********** &
+kern/sched.h.  Removed KEEP_STACKS code.
+[93/03/25            dbg]
+
+------------------------
+./kernel/kern/host.c
+Get min_quantum from kern/quantum.h.				***********
+[93/05/11            dbg]
+
+Fixed host_info to correctly return min_timeout and min_quantum	***********
+in milliseconds.  Added ANSI function prototypes.
+[93/01/27            dbg]
+
+------------------------
+./kernel/kern/pc_sample.c
+Made file still build when MACH_PCSAMPLE == 0.  Added		***********
+ANSI function prototypes.  Return current system clock
+period (in microseconds!) instead of 'tick'.
+[93/03/02            dbg]
+
+------------------------
+./kernel/kern/pc_sample.h
+Moved kernel internal definitions here from mach/pc_sample.h.
+[93/09/24            dbg]
+
+------------------------
+./kernel/kern/strings.c
+Simplified.  Fixed boundary conditions in strncpy, strncmp.
+[93/11/08            dbg]
+
+------------------------
+./kernel/mach/error.h
+Surounded typedefs with ifndef ASSEMBLER.
+[94/02/11		jvh]
+
+------------------------
+./kernel/mach/exc.defs
+64-bit cleanup.  Subcode must be integer_t, since it holds an
+address for EXC_BAD_ADDRESS.  I made exception and code be
+natural_t for consistency.
+
+------------------------
+./kernel/mach/host_info.h
+Finished the 64-bit cleanup: made host_sched_info be a struct of
+integer_t, since it is passed as a host_info_t.
+[93/11/09            dbg]
+
+------------------------
+./kernel/mach/i386/syscall_sw.h
+Added BSD_TRAP conditional with cerror processing
+[94/04/08		jvh]
+
+------------------------
+./kernel/mach/mach4.defs
+Made PC sampling calls 64-bit clean.
+[93/09/27            dbg]
+
+Return actual wakeup time for timer_sleep.			*********** &
+[93/07/13            dbg]
+
+Added calls for new timers and for real-time threads.		*********** &
+[93/03/24            dbg]
+
+------------------------
+[ ./kernel/mach/mach_types.defs ]
+Finished the 64-bit cleanup: made host_sched_info_data_t,
+processor_set_basic_info_data_t, processor_set_sched_info_data_t
+be structs of integer_t, since they are passed as
+variable-length arrays of integer_t.
+[93/11/09            dbg]
+
+Added policy_param_t.						*********** &
+[93/05/11            dbg]
+
+Added types for new clocks and timers.				*********** &
+[93/03/24            dbg]
+
+-----------------------
+./kernel/mach/mig_support.h
+Added prototype for mig_put_reply_port and added port argument to
+mig_dealloc_reply_port.
+[94/02/26		jvh]
+
+------------------------
+[ ./kernel/mach/pc_sample.h ]
+Moved kernel internal definitions to kern/pc_sample.h.
+Made 64-bit clean.
+
+------------------------
+./kernel/mach/processor_info.h
+Finished the 64-bit cleanup: made processor_set_basic_info and
+processor_set_sched_info be structs of integer_t, since they are
+passed as processor_set_info_t.
+[93/11/09            dbg]
+
+------------------------
+./kernel/mach/vm_statistics.h
+Include mach/machine/vm_types.h for integer_t definition.
+[93/02/19            dbg]
+
+------------------------
+./kernel/mips/PMAX/kn03_cpu.s
+In splx, a no-reorder got turned into a reorder.
+I wonder what bit 23 in the status register might do...
+[93/09/21            af]
+
+------------------------
+./kernel/mips/PMAX/tc.h
+Import mach/machine/vm_types.h for vm_offset_t.
+[93/06/11            dbg]
+
+------------------------
+./kernel/mips/db_trace.c
+Carried over mods made for alpha, db_all_cprocs(<task>) works.
+Prototypes.
+[93/09/24            af]
+
+-------------------------
+./kernel/i386at/DLINK/if_de6c.c
+Moved source into kernel/i386at/DLINK/if_de6c.c, since we
+can't release it but don't want to lose it.
+[93/11/17            dbg]
+
+Removed u_long.
+
+------------------------
+./kernel/i386at/DLINK/if_de6c.h
+Moved source into kernel/i386at/DLINK/if_de6c.c, since we
+can't release it but don't want to lose it.
+[93/11/17            dbg]
+
+Removed local declaration of HZ.				************
+[93/01/29            dbg]
+
+------------------------
+./kernel/i386at/DLINK/if_de6s.s
+Moved source into kernel/i386at/DLINK/if_de6c.c, since we
+can't release it but don't want to lose it.
+[93/11/17            dbg]
+
+------------------------
+./kernel/scsi/adapters/scsi_aha15_hdw.c
+Adaptec 1740 Standard Mode detection, from dherity@cs.tcd.ie
+[93/10/06            af]
+
+------------------------
+./kernel/scsi/adapters/scsi_aha17_hdw.c
+Added to CMU tree, from dherity@cs.tcd.ie and help from ralf@chpc.org.
+ANSI.
+[93/10/06            af]
+
+------------------------
+[ ./kernel/scsi/rz_labels.c ]
+Need to always keep d_partitions[MAXPARTITIONS] correct, so
+always reset it ourselves.
+[93/10/08            rvb]
+
+------------------------
+./kernel/src/config/Makefile.bnr
+Upgrade for NetBSD 0.9 and "md".
+[93/12/13            rvb]
+
+------------------------
+./kernel/src/makeboot/Makefile.bnr
+Upgrade for NetBSD 0.9 and "md".
+[93/12/13            rvb]
+
+------------------------
+./kernel/src/mig/Makefile.bnr
+Upgrade for NetBSD 0.9 and "md".
+[93/12/13            rvb]
+
+------------------------
+./kernel/src/mig/error.h
+ Removed volatile from fatal declaration.
+[ 			jvh]
+
+------------------------
+./kernel/src/mig/lexxer.l
+stringize() macro for non-STDC preprocessors.
+Changed TPRETURN to take an alignment argument.
+Fixed all uses accordingly.
+[93/09/14  12:52:12  af]
+
+------------------------
+./kernel/src/mig/mig.sh
+Added -migcom option. The argument specifies where to find it.
+Removed dependency of CPP being defined as an environment variable.
+[			jvh]
+
+------------------------
+./kernel/src/mig/parser.y
+Added "alignment" field to symtype.
+Pass it to itShortDecl and itLongDecl.
+Added production to BasicTypeSpec for 
+specifying explicitly the alignment.
+Verify alignments in IPCType.
+[93/09/14  12:50:09  af]
+
+------------------------
+./kernel/src/mig/routine.c
+Added initializations of argSuffix.
+Implemented alignment of basic/defined types.
+rtFindSize prints a warning when the new code
+and the previous (hack) code differ.
+Added workaround for case of polymorphic request/reply
+port and suffix code.
+[93/09/14  13:02:04  af]
+
+------------------------
+./kernel/src/mig/routine.h
+Added argSuffix to struct argument.
+[93/09/14  12:21:54  af]
+
+------------------------
+./kernel/src/mig/server.c
+Lots of changes to accomodate screwy GCC compiler on 64bit
+machines, who makes improper assumptions about alignments.
+The basic idea is to typecast type descriptors as needed.
+The argSuffix field helps building the proper reference.
+Added WriteMsgFieldRef().  Changed WriteArgSize to take
+alignment specifier, and use it.
+Added WriteArgSizeStright().
+WriteAdjustMsgSize now needs to look-ahead for alignment requirements.
+See comments within for 64bit-specific twist.
+[93/09/14  12:28:33  af]
+
+------------------------
+./kernel/src/mig/string.c
+Added strconcat3().
+[93/09/14  12:22:21  af]
+
+------------------------
+./kernel/src/mig/string.h
+Added prototype for strconcat3().
+[93/09/14  12:22:43  af]
+
+------------------------
+./kernel/src/mig/type.c
+Added itAlignmentOf, and initializations of itAlignment field.
+Fixed prettyprinter to emit alignment of types.
+Changed itShortDecl/itLongDecl to take up alignment arg.
+Fixed all uses accordingly.
+[93/09/14  12:57:37  af]
+
+------------------------
+./kernel/src/mig/type.h
+Added itAlignment to struct ipc_type.
+Fixed protos for itShortDecl and itLongDecl.
+Added proto for itAlignmentOf.
+[93/09/14  12:53:53  af]
+
+------------------------
+./kernel/src/mig/user.c
+Similarly to changes in server.c (duplications... tzk tzk)
+Lots of changes to accomodate screwy GCC compiler on 64bit
+machines, who makes improper assumptions about alignments.
+The basic idea is to typecast type descriptors as needed.
+The argSuffix field helps building the proper reference,
+as in WritePackArgValue() for instance.
+Added WriteMsgFieldRef().  Changed WriteArgSize to take
+alignment specifier, and use it.
+Added WriteArgSizeStright().
+WriteAdjustMsgSize now needs to look-ahead for alignment requirements.
+See comments within for 64bit-specific twist.
+[93/09/14  13:07:24  af]
+
+Give the port name as an argument to mig_dealloc_reply_port.   ************&
+Call mig_put_reply_port when done with a port allocated by
+mig_get_reply_port but mig_dealloc_reply_port is not called.
+[94/02/26		jvh]
+
+------------------------
+./kernel/src/mig/vprint.c
+Added include of strings.h to quiet GCC complains for strlen().
+[93/08/28            af]
+
+------------------------
+./kernel/vm/vm_map.c
+Fixed vm_map_copyin_page_list to write-protect pages that it
+finds.  This prevents the caller from modifying the page while
+the IO device is writing it.
+
+{ The correct code disappeared when vm_map_copyin_page_list went
+  in... }
+
+Also fixed the src_destroy case of vm_map_copyin to check for
+a shared-writable object (object->use_shared_copy) and do 
+copy-on-write processing if so (a missing part of the share_map
+purge).
+[93/12/14            dbg]
+Conditionalized projected buffer support under NET_ATM.
+[93/09/10            dbg]
+ANSI-fied.
+[93/06/16            dbg]
+
+------------------------
+./kernel/vm/vm_resident.c
+Always include vm/vm_kern.h, since it is needed by
+vm_page_grab_contiguous_pages.
+[93/08/26            dbg]
+
+Cleaned up lint.
+[93/06/16            dbg]
+
+------------------------
+./user/libmach/Makefile						********** &
+Renamed 'rt' or 'realtime' threads and timers to 'periodic'
+threads and timers (even though they can be used for nonperiodic
+threads).
+[93/11/16            dbg]
+
+Added -rbase and -B to the alpha compilation flags.
+This is needed so that crt0.o and libmach_sa can be
+used by the emulator which lives in a high address
+quadrant.
+[93/09/17            mrt]
+
+Added seqnos_device_reply_server
+[		    jvh]
+
+------------------------
+./user/libmach/Makefile.bnr
+Upgrade for NetBSD 0.9 and "md".
+[93/12/13            rvb]
+
+------------------------
+,user/libmach/err_kern.sub
+Added new error strings for Lite
+[			jvh]
+
+------------------------
+.user/libmach/mig_support.c
+Added mach_put_reply_port. mig_dealloc_reply_port now takes the
+port as an argument.
+[		jvh]
+
+------------------------
+.user/libmach/msg.c
+Wrapped code with ifdef MACH_IPC_COMPAT.
+[		jvh]
+
+------------------------
+./user/threads/Makefile
+Added -rbase and -B to the alpha compilation flags.
+This is needed so that crt0.o and libmach_sa can be
+used by the emulator which lives in a high address
+quadrant.
+[93/09/17            mrt]
+
+------------------------
+./user/threads/Makefile.bnr
+Upgrade for NetBSD 0.9 and "md".
+[93/12/13            rvb]
+
+-----------------------
+./user/threads/alpha/cthreads.h
+When compiling with GCC, inline cthread_sp().
+[93/09/21            af]
+
+------------------------
+./user/threads/cprocs.c
+Set the wait_type field.
+[		jvh]
+
+------------------------
+./user/threads/cthread_internals.h
+Defined WAIT_DEBUG and initialized wait_enum
+[               jvh]
+
+------------------------
+.//user/threads/cthreads.c
+Renamed cthread_t->catch to to cthread_t->catch_exit, because
+catch is reserved word in c++.
+[93/10/20		kivinen]
+
+------------------------
+./user/threads/mips/cthreads.h
+Since we compile with GCC now, at least inline cthread_sp().
+[93/09/21            af]
+
+Renamed cthread_t->catch to to cthread_t->catch_exit, because
+catch is reserved word in c++.
+[93/10/20		kivinen]
+
+------------------------
+./user/threads/mig_support.c
+Added mach_put_reply_port. mig_dealloc_reply_port now takes the
+port as an argument
+[			jvh]
+------------------------
+
+

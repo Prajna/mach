@@ -1,0 +1,575 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	ddb.man,v $
+.\" Revision 2.7  93/03/09  18:01:38  danner
+.\" 	Added , modifier to examine
+.\" 	[93/03/09            jfriedl]
+.\" 
+.\" Revision 2.6  92/04/08  08:52:57  rpd
+.\" 	Changes from OSF.
+.\" 	[92/01/17  14:19:22  jsb]
+.\" 	Changes for OSF debugger modifications.
+.\" 	[91/12/12            tak]
+.\" 
+.\" Revision 2.5  91/06/25  13:50:22  rpd
+.\" 	Added some watchpoint explanation.
+.\" 	[91/06/25            rpd]
+.\" 
+.\" Revision 2.4  91/06/17  15:47:31  jsb
+.\" 	Added documentation for continue/c, match, search, and watchpoints.
+.\" 	I've not actually explained what a watchpoint is; maybe Rich can
+.\" 	do that (hint, hint).
+.\" 	[91/06/17  10:58:08  jsb]
+.\" 
+.\" Revision 2.3  91/05/14  17:04:23  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.2  91/02/14  14:10:06  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:10:12  mrt]
+.\" 
+.\" Revision 2.2  90/08/30  14:23:15  dbg
+.\" 	Created.
+.\" 	[90/08/30            dbg]
+.\" 
+.TH ddb 8
+.SH NAME
+ddb \- new kernel debugger
+.de XX
+.sp
+.ti -4n
+\\$1
+.br
+.sp
+..
+.de XS
+.nr )R +\\$1
+..
+.de XE
+.nr )R -\\$1
+..
+.SH DESCRIPTION
+.br
+.sp
+The new kernel debugger has most of the features of the old kdb,
+but with a more rational (gdb-like) syntax.
+.sp
+The current location is called 'dot'.  The 'dot' is displayed with
+a hexadecimal format at a prompt.
+Examine and write commands update 'dot' to the address of the last line
+examined or the last location modified, and set 'next' to the address of
+the next location to be examined or changed.
+Other commands don't change 'dot', and set 'next' to be the same as 'dot'.
+.sp
+The general command syntax is:
+.sp
+.ti +4n
+\fIcommand[/modifier] address [,count]\fR
+.sp
+"!!" repeats the previous command, and
+a blank line repeats from the address 'next' with count 1 and no modifiers.
+Specifying 'address' sets 'dot' to the address.
+Omitting 'address' uses 'dot'.
+A missing 'count' is taken to be 1 for printing commands or infinity
+for stack traces.
+.sp
+Current
+.B ddb
+is enhanced to support multi-thread debugging.  A break point can be
+set only for a specific thread, and the address space or registers of
+non current thread can be examined or modified if supported by machine
+dependent routines.
+For example,
+.sp
+.ti +4n
+break/t mach_msg_trap $task11.0
+.sp
+sets a break point at "mach_msg_trap" for the first thread
+of task 11 listed by a "show all threads" command.
+.br
+In the above example, "$task11.0" is translated to the corresponding 
+thread structure's address by variable translation mechanism described later.
+If a default target thread is set in a variable "$thread", the "$task11.0"
+can be omitted.
+In general, if 't' is specified in a modifier of a command line,
+a specified thread or a default target thread is used as a target thread
+instead of the current one.
+The 't' modifier in a command line is not valid in evaluating
+expressions in a command line.  If you want to get a value indirectly
+from a specific thread's address space or access to its registers within
+an expression, you have to specify a default target thread in advance,
+and to use ":t" modifier immediately after the indirect access or the register
+reference like as follows:
+.sp
+.ti +4n
+set $thread $task11.0
+.br
+.ti +4n
+print $eax:t *(0x100):tuh
+.sp
+No sign extension and indirection size(long, half word, byte)
+can be specified with 'u', 'l', 'h' and 'b' respectively
+for the indirect access.
+.br
+Note: Support of non current space/register access and user space
+break point depend on the machines.  If not supported, attempts of
+such operation may provide incorrect information or may cause strange
+behavior.   Even if supported, the user space access is limited
+to the pages resident in the main memory at that time.  If a target
+page is not in the main memory, an error will be reported.
+.sp
+"\fBddb\fR" has a feature like a command "\fBmore\fR"
+for the output.  If an output line exceeds the number set in the $lines
+variable, it displays "\fI--db_more--\fR"
+and waits for a response.
+The valid responses for it are:
+.XS 4n
+.IP \fI\<space>\fR 10n
+one more page
+.IP \fI\<return>\fR 10n
+one more line
+.IP \fB\q\fR 10n
+abort the current command, and return to the command input mode.
+.LP
+.sp
+.XE 4n
+.LP
+.B COMMANDS
+.sp
+.XS 4n
+.LP
+.XX "\fBexamine(x) \fI[/<modifier>] <addr>[,<count>] [ <thread> ]\fR"
+Display the addressed locations according to the formats in the modifier.
+Multiple modifier formats display multiple locations.
+If no format is specified, the last formats specified for this command
+is used.
+Address space other than that of the current thread can be specified
+with 't' option in the modifier and 'thread' parameter.
+.br
+The format characters are
+.sp
+.LP
+.XS 2n
+.IP b 5n
+look at by bytes(8 bits)
+.IP h 5n
+look at by half words(16 bits)
+.IP l 5n
+look at by long words(32 bits)
+.IP a 5n
+print the location being displayed
+.IP , 5n
+skip one unit producing no output
+.IP A 5n
+print the location with a line number if possible
+.IP x 5n
+display in unsigned hex
+.IP z 5n
+display in signed hex
+.IP o 5n
+display in unsigned octal
+.IP d 5n
+display in signed decimal
+.IP u 5n
+display in unsigned decimal
+.IP r 5n
+display in current radix, signed
+.IP c 5n
+display low 8 bits as a character.
+Non-printing characters are displayed as an octal escape code (e.g. '\\000').
+.IP s 5n
+display the null-terminated string at the location.
+Non-printing characters are displayed as octal escapes.
+.IP m 5n
+display in unsigned hex with character dump at the end of each line.
+The location is also displayed in hex at the beginning of each line.
+.IP i 5n
+display as an instruction
+.IP I 5n
+display as an instruction with possible alternate formats depending on the
+machine:
+.XE 2n
+.LP
+.XS 5n
+.LP
+.IP vax 6n
+don't assume that each external label is a procedure entry mask
+.IP i386 6n
+don't round to the next long word boundary
+.IP mips 6n
+print register contents
+.LP
+.XE 5n
+.LP
+.XX xf
+Examine forward.
+It executes an examine command with the last specified parameters to it
+except that the next address displayed by it is used as the start address.
+.XX xb
+Examine backward.
+It executes an examine command with the last specified parameters to it
+except that the last start address subtracted by the size displayed by it
+is used as the start address.
+.XX "\fBprint[/axzodurc] \fI<addr1> [ <addr2> ... ]\fR"
+Print 'addr's according to the modifier character.
+Valid formats are: a x z o d u r c.
+If no modifier is specified, the last one specified to it is used.  'addr'
+can be a string, and it is printed as it is.  For example,
+.br
+.sp
+.ti +4n
+print/x "eax = " $eax "\\necx = " $ecx "\\n"
+.br
+.sp
+will print like
+.sp
+.in +4n
+eax = xxxxxx
+.br
+ecx = yyyyyy
+.in -4n
+.sp
+.br
+.XX "\fBwrite[/bhlt] \fI<addr> [ <thread> ] <expr1> [ <expr2> ... ]\fR"
+Write the expressions at succeeding locations.
+The write unit size can be specified in the modifier with a letter
+b (byte), h (half word) or l(long word) respectively.  If omitted,
+long word is assumed.  Target address space can also be specified
+with 't' option in the modifier and 'thread' parameter.
+.br
+Warning: since there is no delimiter between expressions, strange
+things may happen.
+It's best to enclose each expression in parentheses.
+.XX "\fBset \fI$<variable> [=] <expr>\fR"
+Set the named variable or register with the value of 'expr'.
+Valid variable names are described below.
+.XX "\fBbreak[/tuTU] \fI<addr>[,<count>] [ <thread1> ...]\fR"
+Set a break point at 'addr'.
+If count is supplied, continues (count-1) times before stopping at the
+break point.  If the break point is set, a break point number is
+printed with '#'.  This number can be used in deleting the break point
+or adding conditions to it.
+.LP
+.XS 2n
+.IP t 5n
+Set a break point only for a specific thread.  The thread is specified
+by 'thread' parameter, or default one is used if the parameter is omitted.
+.IP u 5n
+Set a break point in user space address.  It may be combined with 't' or 'T'
+option to specify the non-current target user space.  Without 'u' option,
+the address is considered in the kernel space, and wrong space address
+is rejected with an error message.
+This option can be used only if it is supported by machine dependent
+routines.
+.IP T 5n
+Set a break point only for threads in a specific task.  It is like 't'
+option except that the break point is valid for all threads which belong
+to the same task as the specified target thread.
+.IP U 5n
+Set a break point in shared user space address.  It is like 'u' option,
+except that the break point is valid for all threads which share the
+same address space even if 't' option is specified.  't' option is used
+only to specify the target shared space.  Without 't' option, 'u' and 'U'
+have the same meanings.  'U' is useful for setting a user space
+break point in non-current address space with 't' option such as in an
+emulation library space.
+This option can be used only if it is supported by machine dependent
+routines.
+.LP
+.XE 2n
+Warning: if a user text is shadowed by a normal user space debugger,
+user space break points may not work correctly.  Setting a break
+point at the low-level code paths may also cause strange behavior.
+.XX "\fBdelete[/tuTU] \fI<addr>|#<number> [ <thread1> ...]\fR"
+Delete the break point.  The target break point can be specified by a
+break point number with '#', or by 'addr' like specified in 'break'
+command.
+.XX "\fBcond \fI#<number> [ <condition> <commands> ]\fR"
+Set or delete a condition for the break point specified by the 'number'.
+If the 'condition' and 'commands' are null, the condition is deleted.
+Otherwise the condition is set for it.
+When the break point is hit, the 'condition' is evaluated.
+The 'commands' will be executed if the condition is true and the break
+point count set by a break point command becomes zero.  'commands' is
+a list of commands separated by semicolons.
+Each command in the list is executed in that order, but if a "continue"
+command is executed, the command execution stops there, and the stopped
+thread resumes execution.  If the command execution reaches the
+end of the list, and it enters into a command input mode.
+.br
+For example,
+.sp
+.nf
+    set $work0 0
+    break/Tu xxx_start $task7.0
+    cond #1  (1)  set $work0 1; set $work1 0; cont
+    break/T  vm_fault $task7.0
+    cond #2  ($work0) set $work1 ($work1+1); cont
+    break/Tu xxx_end $task7.0
+    cond #3  ($work0) print $work1 " faults\\n"; set $work0 0
+    cont
+.br
+.fi
+.sp
+will print page fault counts from 'xxx_start' to 'xxx_end' in task7.
+.br
+.XX "\fBstep[/p] \fI[,<count>]\fR"
+Single step 'count' times.
+If 'p' option is specified, print each instruction at each step.
+Otherwise, only print the last instruction.
+.br
+.sp
+Warning: depending on machine type, it may not be possible to
+single-step through some low-level code paths or user space code.
+On machines with software-emulated single-stepping (e.g., pmax),
+stepping through code executed by interrupt handlers will probably
+do the wrong thing.
+.XX "\fBcontinue[/c]\fR"
+Continue execution until a breakpoint or watchpoint.
+If /c, count instructions while executing.
+Some machines (e.g., pmax) also count loads and stores.
+.br
+.sp
+Warning: when counting, the debugger is really silently single-stepping.
+This means that single-stepping on low-level code may cause strange
+behavior.
+.XX "\fBuntil\fR"
+Stop at the next call or return instruction.
+.XX "\fBnext[/p]\fR"
+Stop at the matching return instruction.
+If 'p' option is specified, print the call nesting depth and the
+cumulative instruction count at each call or return.  Otherwise,
+only print when the matching return is hit.
+.XX "\fBmatch[/p]\fR"
+A synonym for 'next'.
+.XX "\fBtrace[/tu] \fI[ <frame_addr>|<thread> ][,<count>]\fR"
+Stack trace.  'u' option traces user space; if omitted, only traces
+kernel space.  If 't' option is specified, it shows the stack trace
+of the specified thread or a default target thread.
+Otherwise, it shows the stack trace of the current thread from the
+frame address specified by a parameter or from the current frame.  'count'
+is the number of frames to be traced.  If the 'count' is omitted,
+all frames are printed.
+.br
+.sp
+Warning: If the target thread's stack is not in the main memory at that
+time, the stack trace will fail.  User space stack trace is valid
+only if the machine dependent code supports it.
+.XX "\fBsearch[/bhl] \fI<addr> <value> [<mask>] [,<count>]\fR"
+Search memory for a value. This command might fail in interesting
+ways if it doesn't find the searched-for value.  This is because
+ddb doesn't always recover from touching bad memory.  The optional
+count argument limits the search.
+.XX "\fBmacro \fI<name> <commands>\fR"
+Define a debugger macro as 'name'.  'commands' is a list of commands
+to be associated with the macro.
+In the expressions of the command list, a variable
+.B $arg\fIxx\fR
+can be used to get a parameter passed to the macro.
+When a macro is called, each argument is evaluated as an expression,
+and the value is assigned to each parameter,
+.B $arg1, $arg2, ...
+respectively.  10
+.B $arg
+variables are reserved to each level of macros, and they can be used
+as local variables.
+The nesting of macro can be allowed up to 5 levels.
+.br
+For example,
+.sp
+.nf
+    macro xinit set $work0 $arg1
+    macro xlist examine/m $work0,4; set $work0 *($work0)
+    xinit *(xxx_list)
+    xlist
+    ....
+.sp
+will print the contents of a list starting from 'xxx_list'
+by each "xlist" command.
+.fi
+.XX "\fBdmacro \fI<name>\fR"
+Delete the macro named 'name'.
+.XX "\fBshow all threads[/ul]\fR"
+Display all tasks and threads information.
+This version of "\fBddb\fR"
+prints more information than previous one.
+It shows UNIX process information like "ps" for each task.
+The UNIX process information may not be shown if it is not
+supported in the machine, or the bottom of the stack of the
+target task is not in the main memory at that time.
+.br
+It also shows task and thread identification numbers.
+These numbers can be used to specify a task or a thread
+symbolically in various commands.
+The numbers are valid only in the same debugger session.
+If the execution is resumed again, the numbers may change.
+The current thread can be distinguished from others by a '#' after
+the thread id instead of ':'.
+.br
+Without 'l' option, it only shows thread id, thread structure address
+and the status for each thread.  The status consists of 5 letters,
+R(run), W(wait), S(suspended), O(swapped out) and N(interruptible),
+and if corresponding status bit is off, '.' is printed instead.
+If 'l' option is specified, more detail information is printed for each
+thread.
+.XX "\fBshow task \fI[ <addr> ]\fR"
+Display the information of a task specified by 'addr'.  If 'addr' is
+omitted, current task information is displayed.
+.XX "\fBshow thread \fI[ <addr> ]\fR"
+Display the information of a thread specified by 'addr'.  If 'addr' is
+omitted, current thread information is displayed.
+.XX "\fBshow registers[/tu \fI[ <thread> ]]\fR"
+Display the register set.
+Target thread can be specified with 't' option and 'thread' parameter.
+If 'u' option is specified, it displays user registers instead of
+kernel or currently saved one.
+.br
+.sp
+Warning: The support of 't' and 'u' option depends on the machine.  If
+not supported, incorrect information will be displayed.
+.XX "\fBshow map \fI<addr>\fR"
+Prints the vm_map at 'addr'.
+.XX "\fBshow object  \fI<addr>\fR"
+Prints the vm_object at 'addr'.
+.XX "\fBshow page \fI<addr>\fR"
+Prints the vm_page structure at 'addr'.
+.XX "\fBshow port\fR"
+Prints the ipc_port structure at 'addr'.
+.XX "\fBshow ipc_port[/t \fI[ <thread> ]]\fR"
+Prints all ipc_port structure's addresses the target thread has.
+The target thread is a current thread or that specified by a parameter.
+.XX "\fBshow macro \fI[ <name> ]\fR"
+Show the definitions of macros.
+If 'name' is specified, only the definition of it is displayed.
+Otherwise, definitions of all macros are displayed.
+.XX "\fBshow watches\fR"
+Displays all watchpoints.
+.XX "\fBwatch[/T] \fI<addr>,<size> [ <task> ]\fR"
+Set a watchpoint for a region.  Execution stops
+when an attempt to modify the region occurs.
+The 'size' argument defaults to 4.
+.br
+Without 'T' option, 'addr' is assumed to be a kernel address.
+If you want to set a watch point in user space, specify 'T'
+and 'task' parameter where the address belongs to.  If the 'task'
+parameter is omitted, a task of the default target thread or
+a current task is assumed.
+If you specify a wrong space address, the request is rejected
+with an error message.
+.br
+.sp
+Warning: Attempts to watch wired kernel memory
+may cause unrecoverable error in some systems such as i386.
+Watchpoints on user addresses work best.
+.br
+.LP
+.XE 4n
+.LP
+.sp
+.B VARIABLES
+.sp
+The debugger accesses registers and variables as
+.I $<name>.
+Register names are as in the "\fBshow registers\fR"
+command.
+Some variables are suffixed with numbers, and may have some modifier
+following a colon immediately after the variable name.
+For example, register variables can have 'u' and 't' modifier to indicate
+user register and that of a default target thread instead of that of the
+current thread (e.g. $eax:tu).
+.br
+.sp
+Built-in variables currently supported are:
+.sp
+.IP task\fIxx[.yy]\fR 12n
+Task or thread structure address.  'xx' and 'yy' are task and thread
+identification numbers printed by a "\fBshow all threads\fR"
+command respectively.  This variable is read only.
+.IP thread 12n
+The default target thread.  The value is used when 't' option is
+specified without explicit thread structure address parameter
+in command lines or expression evaluation.
+.IP radix 12n
+Input and output radix
+.IP maxoff 12n
+Addresses are printed as 'symbol'+offset unless offset is greater than maxoff.
+.IP maxwidth 12n
+The width of the displayed line.
+.IP lines 12n
+The number of lines.  It is used by "more" feature.
+.IP tabstops 12n
+Tab stop width.
+.IP arg\fIxx\fR
+Parameters passed to a macro.
+.I 'xx'
+can be 1 to 10.
+.IP work\fIxx\fR
+Work variable.
+.I 'xx'
+can be 0 to 31.
+.LP
+.LP
+.sp
+.B EXPRESSIONS
+.sp
+Almost all expression operators in C are supported except '~', '^',
+and unary '&'.
+Special rules in "\fBddb\fR"
+are:
+.br
+.IP "<identifier>" 15n
+name of a symbol.  It is translated to the address(or value) of it.  '.'
+and ':' can be used in the identifier.  If supported by an object format
+dependent routine,
+[\fI<file_name>\fR:]\fI<func>\fR[:\fI<line_number>\fR]
+[\fI<file_name>\fR:]\fI<variable>\fR, and
+\fI<file_name>\fR[:\fI<line_number>\fR]
+can be accepted as a symbol.
+The symbol may be prefixed with '\fI<symbol_table_name>\fR::'
+like 'emulator::mach_msg_trap' to specify other than kernel symbols.
+.IP "<number>" 15n
+radix is determined by the first two letters:
+0x: hex, 0o: octal, 0t: decimal, otherwise, follow current radix.
+.IP \. 15n
+\'dot'
+.IP \+ 15n
+\'next'
+.IP \.. 15n
+address of the start of the last line examined.
+Unlike 'dot' or 'next', this is only changed by "examine" or
+"write" command.
+.IP \' 15n
+last address explicitly specified.
+.IP "$<variable>" 15n
+register name or variable.  It is translated to the value of it.
+It may be followed by a ':' and modifiers as described above.
+.IP \# 15n
+a binary operator which rounds up the left hand side to the next
+multiple of right hand side.
+.IP "*<expr>" 15n
+indirection.  It may be followed by a ':' and  modifiers as described above.

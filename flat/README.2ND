@@ -1,0 +1,79 @@
+-----------------------------------------------------
+PREREQUISITES:
+1. Your path must:
+	have a DeBoor make
+	have your favorite cc
+	have cpp on it
+-----------------------------------------------------
+-----------------------------------------------------
+SHADOWING:
+If you don't want a shadow tree, skip this section:
+1. Execute .../src/mach/util/mkshadow from the base of
+   your shadow tree.
+   (I use ... here and below to indicate where you
+   planted your src/mach tree.)
+
+2. setenv MACH_SRC to ".../src/mach"
+-----------------------------------------------------
+-----------------------------------------------------
+BUILDING:
+1. cd to .../src/mach/tree or your "shadow"/src/mach/tree
+   (I use ... here and below to indicate where you
+   planted your src/mach tree.)
+   Type:
+	make			-- build std obj tree
+	make SYS=i386_mach	-- build obj/@sys tree
+	make MACH_OBJ=XX 	-- root obj tree at XX
+	make MACH_OBJ=XX SYS=..	-- root obj tree at XX/@sys
+
+2. cd .. (to .../src/mach or "shadow"/src/mach)
+
+3. If you want profiled libmach, libthreads and bsdss,
+	setenv PROFILE
+
+4. Type
+	make
+   Go get some coffee.
+
+5. Results:
+   After the build completes successfully you should have
+   the following files in "ObjectTree"/mach
+	mach_servers/
+	    mach.boot  which is the kernel boot file
+
+   	lib/
+	    libthreads.a, libmach.a, libmach_sa.a, crto.0, moncrt0.o
+
+	include/
+	    header files exported by the kernel and needed for building
+	    the servers and user programs
+
+	mig/
+	   mig, migcom - needed for building the servers and user programs
+
+	util/md  - program used by our Makefiles to complete the 
+		   dependency files.
+
+	xstrip/xstrip - program used by our Makefiles to strip executables
+
+	binutils/
+	    arx, ldx, nmx, ranlibx - cross build tools that produce
+		and manipulate oldstyle BSD4.3 executables. These tools
+		are used to build the server program that is loaded by
+		the micro-kernel.  
+
+5. Install the mach.boot program as /mach. Most boot programs will
+   let  you specify the device and name of the program to be booted but
+   the boot program  we provide defaults to /mach. The kernel will
+   want to execute a server program called /mach_servers/startup.
+   See the standard Mach setup notes for more instructions.
+-------------------------------------------------------
+-------------------------------------------------------
+Notes:
+1. MYFLAGS is specified on every CC compile line.  You may
+   abuse it at will.
+
+2. I haven't thought adequately on how to build lots of different
+   configurations.
+_______________________________________________________
+_______________________________________________________

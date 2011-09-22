@@ -1,0 +1,95 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	thread_wire.man,v $
+.\" Revision 2.3  93/05/10  19:34:10  rvb
+.\" 	updated
+.\" 	[93/04/21  16:09:00  lli]
+.\" 
+.\" Revision 2.2  91/12/11  08:43:29  jsb
+.\" 	Created.
+.\" 	[91/11/25            rpd]
+.\" 
+.TH thread_wire 2 1/22/88
+.CM 4
+.SH NAME
+.nf
+thread_wire  \-  control VM privilege level of threads
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t thread_wire(host_priv, thread, wired)
+	mach_port_t	host_priv;
+	mach_port_t	thread;
+	boolean_t	wired;
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+host_priv
+The privileged host port for the thread's host.
+.TP 15
+.B
+thread
+The thread to be affected
+.TP 15
+.B
+wired
+Make thread privileged if TRUE, unprivileged if FALSE.
+.SH DESCRIPTION
+\fBthread_wire\fR controls the VM privilege level of threads.
+A VM-privileged thread never waits inside the kernel for memory allocation
+from the kernel's free list of pages or for allocation of
+a kernel stack.
+
+Threads that are part of the default pageout path should be
+VM-privileged, to prevent system deadlocks.  Threads that
+are not part of the default pageout path should not
+be VM-privileged, to prevent the kernel's free list of pages
+from being exhausted.
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The call succeeded.
+.TP 25
+KERN_INVALID_ARGUMENT
+\fBhost_priv\fR or \fBthread\fR was invalid.
+.PP
+The \fBthread_wire\fR call is actually an RPC to \fBhost_priv\fR,
+normally a send right for a privileged host port, but potentially any
+send right.  In addition to the normal diagnostic return codes from
+the call's server (normally the kernel), the call may return
+\fBmach_msg(2)\fR return codes.
+.SH SEE ALSO
+vm_wire(2),
+vm_set_default_memory_manager(2).

@@ -1,0 +1,149 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	thread_priority.man,v $
+.\" Revision 2.4  91/05/14  17:14:19  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:15:25  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:16:18  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:46:13  rpd
+.\" 	Created.
+.\" 
+.TH thread_priority 2 8/13/89
+.CM 4
+.SH NAME
+.nf
+thread_priority  \-  set scheduling priority for thread
+thread_max_priority  \-  set max scheduling priority for thread
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t thread_priority(thread, priority, set_max)
+	thread_t	thread;
+	int		priority;
+	boolean_t	set_max
+
+
+.fi
+.ft P
+.nf
+.ft B
+kern_return_t thread_max_priority(thread, processor_set, priority)
+	thread_t	thread;
+	processor_set_t	processor_set;
+	int		priority;
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+thread
+The thread whose priority is to be changed.
+.TP 15
+.B
+priority
+The new priority to change it to.
+.TP 15
+.B
+set_max
+Also set thread's maximum priority if TRUE.
+.TP 15
+.B
+processor_set
+The control port for the processor set to which the 
+thread is currently assigned.
+
+.SH DESCRIPTION
+Threads have three priorities associated with them by the system, a
+.B priority
+, a 
+.B maximum priority
+, and a 
+.B scheduled priority.
+The scheduled priority is used to make scheduling decisions about the
+thread.  It is determined from the priority by the policy (for timesharing,
+this means adding an increment derived from cpu usage).  The priority
+can be set under user control, but may never exceed the maximum priority.
+Changing the maximum priority requires presentation of the control port
+for the thread's processor set; since the control port for the default
+processor set is privileged, users cannot raise their maximum priority
+to unfairly compete with other users on that set.  Newly created threads
+obtain their priority from their task and their max priority from the
+thread.
+
+.B thread_priority
+changes the priority and optionally the maximum priority of
+.B thread.
+Priorities range from 0 to 31, where lower numbers denote higher
+priorities.  If the new priority is higher than the priority of the
+current thread, preemption may occur as a result of this call.
+The maximum priority of the thread is also set if 
+.B set_max
+is TRUE.  This call will fail if 
+.B priority
+is greater than the current maximum priority of the thread.  As a result,
+this call can only lower the value of a thread's maximum priority.
+
+.B thread_max_priority
+changes the maximum priority of the thread.  Because it requires
+presentation of the corresponding processor set port, this call can reset
+the maximum priority to any legal value.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+Operation completed successfully
+.TP 25
+KERN_INVALID_ARGUMENT
+.B thread
+is not a thread, or
+.B processor_set
+is not a control port for a processor set, or
+.B priority
+is out of range (not in 0..31).
+.TP 25
+KERN_FAILURE
+The requested operation would violate the thread's 
+maximum priority
+(thread_priority) or the thread is not assigned to the processor set
+whose control port was presented.
+
+.SH BUGS
+Availability limited.
+
+.SH SEE ALSO
+.B thread_policy, task_priority, processor_set_priority
+

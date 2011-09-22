@@ -1,0 +1,109 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	vm_write.man,v $
+.\" Revision 2.6  93/03/18  15:17:11  mrt
+.\" 	corrected types
+.\" 	[93/03/12  16:55:47  lli]
+.\" 
+.\" Revision 2.5  91/12/13  14:22:35  jsb
+.\" 	Moved alignment restrictions to a BUGS section.
+.\" 	[91/12/11            rpd]
+.\" 
+.\" Revision 2.4  91/05/14  17:16:44  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:16:48  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:17:49  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:48:25  rpd
+.\" 	Created.
+.\" 
+.TH vm_write 2 1/13/87
+.CM 4
+.SH NAME
+.nf
+vm_write  \-  allows a task's memory to be written by another task
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t vm_write(target_task, address, data, data_count)
+	mach_port_t	target_task;
+	vm_address_t	address;
+	vm_offset_t	data;
+	mach_msg_number_type_t	data_count;
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+target_task
+Task whose memory is to be written.
+.TP 15
+.B
+address
+Starting address in task to be affected.
+.TP 15
+.B
+data
+An array of bytes to be written.
+.TP 15
+.B
+data_count
+The size of the 
+.B data
+array.
+.SH DESCRIPTION
+\fBvm_write\fR allows a task's virtual memory to be written
+by another task.
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+Memory written.
+.TP 25
+KERN_PROTECTION_FAILURE
+The address region in the target task
+is protected against writing.
+.TP 25
+KERN_INVALID_ADDRESS
+Illegal or non_allocated address specified or
+there is not \fBdata_count\fR
+of allocated memory starting at \fBaddress\fR.
+.SH BUGS
+The current implementation requires that \fBaddress\fR,
+\fBdata\fR, and \fBdata_count\fR all be page-aligned.
+Otherwise, KERN_INVALID_ARGUMENT is returned.
+.SH SEE ALSO
+vm_copy(2),
+vm_protect(2),
+vm_read(2),
+vm_statistics(2).

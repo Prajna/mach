@@ -1,0 +1,158 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	task_info.man,v $
+.\" Revision 2.5  93/03/18  15:14:50  mrt
+.\" 	corrected types
+.\" 	[93/03/12  16:52:49  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:12:36  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:14:34  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:15:24  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:43:37  rpd
+.\" 	Created.
+.\" 
+.TH task_info 2 1/20/88
+.CM 4
+.SH NAME
+.nf
+task_info  \-  gets task machine independent information
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+/* the definition of task_info_t from mach.h - mach/task_info.h is */
+
+typedef	int	*task_info_t;		/* variable length array of int */
+
+/* currently the only interpretation of info is */
+
+   struct task_basic_info {
+	int		suspend_count;	/* suspend count for task */
+	int		base_priority;	/* base scheduling priority */
+	vm_size_t	virtual_size;	/* number of virtual pages */
+	vm_size_t	resident_size;	/* number of resident pages */
+	time_value_t	user_time;	/* total user run time for
+					   terminated threads */
+	time_value_t	system_time;	/* total system run time for
+					   terminated threads */
+   };
+typedef struct task_basic_info		*task_basic_info_t;
+
+.nf
+.ft B
+kern_return_t task_info(target_task, flavor, task_info, task_infoCnt)
+	mach_port_t	target_task;
+	int 		flavor;
+	task_info_t 	task_info;	/* in and out */
+	mach_msg_type_number_t 	*task_infoCnt;	/* in and out */
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+target_task
+The task to be affected.
+.TP 15
+.B
+flavor
+The type of statistics that are wanted.  Currently only
+.B TASK_BASIC_INFO
+is implemented.
+.TP 15
+.B
+task_info
+Statistics about the task specified by 
+.B target_task
+.
+.TP 15
+.B
+task_infoCnt
+Size of the info structure. Currently only 
+.B TASK_BASIC_INFO_COUNT
+is  implemented.
+
+.SH DESCRIPTION
+
+Returns the selected information array for a task, as specified
+by 
+.B flavor
+. 
+.B task_info
+is an array of integers that is supplied
+by the caller, and filled with specified information. 
+.B task_infoCnt
+is supplied as the maximum number of integers in 
+.B task_info
+. On return,
+it contains the actual number of integers in 
+.B task_info
+.
+
+Currently there is only one flavor of information which is defined
+by 
+.B TASK_BASIC_INFO
+. Its size is defined by 
+.B TASK_BASIC_INFO_COUNT
+.
+
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The call succeeded.
+.TP 25
+KERN_INVALID_ARGUMENT
+.B target_task
+is not a task or
+.B flavor
+is not recognized.
+.TP 25
+MIG_ARRAY_TOO_LARGE
+Returned info array is too large for
+.B task_info
+. 
+.B task_info
+is filled as much as possible.
+.B task_infoCnt
+is set to the number of elements that would
+be returned if there were enough room.
+
+.SH SEE ALSO
+.B task_special_ports, task_threads,
+.B thread_info, thread_state
+
+
+
+

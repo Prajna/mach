@@ -1,0 +1,107 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	memory_object_lock_completed.man,v $
+.\" Revision 2.5  93/05/10  19:33:57  rvb
+.\" 	updated
+.\" 	[93/04/21  16:08:46  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:10:04  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:13:19  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:14:02  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:41:19  rpd
+.\" 	Created.
+.\" 
+.TH memory_object_lock_completed 2 12/22/89
+.CM 4
+.SH NAME
+.nf
+memory_object_lock_completed  \-  indicates previous lock request is done
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t memory_object_lock_completed(memory_object,memory_control, 
+				offset, length)
+	mach_port_t	memory_object;
+	mach_port_t
+			memory_control;
+	vm_offset_t	offset;
+	vm_size_t	length;
+
+
+.fi
+.ft P
+.SH DESCRIPTION
+This call indicates that a previous 
+.B memory_object_lock_request
+has been
+completed. Note that this call is made on whatever port was specified
+in the 
+.B memory_object_lock_request
+call; that port need not be the
+memory object port itself. No reply is expected after this call.
+
+.SH ARGUMENTS
+.TP 15
+.B
+.B memory_object
+The port that represents the memory object data, as 
+supplied to the kernel in a 
+.B vm_map
+call.
+.TP 15
+.B
+.B memory_control
+The request port to which a response is 
+requested.  [In the event that a memory object has been supplied 
+to more than one the kernel that has made the request.]
+.TP 15
+.B
+.B offset
+The offset within a memory object to which this call refers.
+.TP 15
+.B
+.B length
+The length of the data covered by the lock request.
+
+.SH DIAGNOSTICS
+.TP 25
+.B KERN_SUCCESS
+Since this routine is called by the kernel, which does not
+wait for a reply message, this value is ignored.
+
+.SH SEE ALSO
+.B memory_object_lock_request
+

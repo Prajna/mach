@@ -1,0 +1,1338 @@
+%!PS-Adobe-2.0
+%%Title: mach3_setup.mss
+%%DocumentFonts: (atend)
+%%Creator: Mary Thompson and Scribe 7(1700)
+%%CreationDate: 1 April 1993 10:50
+%%Pages: (atend)
+%%EndComments
+% PostScript Prelude for Scribe.
+/BS {/SV save def 0.0 792.0 translate .01 -.01 scale} bind def
+/ES {showpage SV restore} bind def
+/SC {setrgbcolor} bind def
+/FMTX matrix def
+/RDF {WFT SLT 0.0 eq 
+  {SSZ 0.0 0.0 SSZ neg 0.0 0.0 FMTX astore}
+  {SSZ 0.0 SLT neg sin SLT cos div SSZ mul SSZ neg 0.0 0.0 FMTX astore}
+  ifelse makefont setfont} bind def
+/SLT 0.0 def
+/SI { /SLT exch cvr def RDF} bind def
+/WFT /Courier findfont def
+/SF { /WFT exch findfont def RDF} bind def
+/SSZ 1000.0 def
+/SS { /SSZ exch 100.0 mul def RDF} bind def
+/AF { /WFT exch findfont def /SSZ exch 100.0 mul def RDF} bind def
+/MT /moveto load def
+/XM {currentpoint exch pop moveto} bind def
+/UL {gsave newpath moveto dup 2.0 div 0.0 exch rmoveto
+   setlinewidth 0.0 rlineto stroke grestore} bind def
+/LH {gsave newpath moveto setlinewidth
+   0.0 rlineto
+   gsave stroke grestore} bind def
+/LV {gsave newpath moveto setlinewidth
+   0.0 exch rlineto
+   gsave stroke grestore} bind def
+/BX {gsave newpath moveto setlinewidth
+   exch
+   dup 0.0 rlineto
+   exch 0.0 exch neg rlineto
+   neg 0.0 rlineto
+   closepath
+   gsave stroke grestore} bind def
+/BX1 {grestore} bind def
+/BX2 {setlinewidth 1 setgray stroke grestore} bind def
+/PB {/PV save def newpath translate
+    100.0 -100.0 scale pop /showpage {} def} bind def
+/PE {PV restore} bind def
+/GB {/PV save def newpath translate rotate
+    div dup scale 100.0 -100.0 scale /showpage {} def} bind def
+/GE {PV restore} bind def
+/FB {dict dup /FontMapDict exch def begin} bind def
+/FM {cvn exch cvn exch def} bind def
+/FE {end /original-findfont /findfont load def  /findfont
+   {dup FontMapDict exch known{FontMapDict exch get} if
+   original-findfont} def} bind def
+/BC {gsave moveto dup 0 exch rlineto exch 0 rlineto neg 0 exch rlineto closepath clip} bind def
+/EC /grestore load def
+/SH /show load def
+/MX {exch show 0.0 rmoveto} bind def
+/W {0 32 4 -1 roll widthshow} bind def
+/WX {0 32 5 -1 roll widthshow 0.0 rmoveto} bind def
+/RC {100.0 -100.0 scale
+612.0 0.0 translate
+-90.0 rotate
+.01 -.01 scale} bind def
+/URC {100.0 -100.0 scale
+90.0 rotate
+-612.0 0.0 translate
+.01 -.01 scale} bind def
+/RCC {100.0 -100.0 scale
+0.0 -792.0 translate 90.0 rotate
+.01 -.01 scale} bind def
+/URCC {100.0 -100.0 scale
+-90.0 rotate 0.0 792.0 translate
+.01 -.01 scale} bind def
+%%EndProlog
+%%Page: 0 1
+BS
+0 SI
+15 /Helvetica-Bold AF
+23929 8294 MT
+(Setup for Mach 3.0)SH
+10 /Helvetica AF
+26349 10647 MT
+(Mary R. Thompson)SH
+27932 12330 MT
+(1 April 1993)SH
+12 /Helvetica-Bold AF
+7200 16085 MT
+(1. Introduction)SH
+10 /Helvetica AF
+8312 17511 MT
+(Booting a micro-kernel/server system is)
+43 W( slightly more complicated than booting a macro-kernel system)42 W
+7200 18937 MT
+(since more files have to be in place and functioning correctly before the system will accept input from the)31 W
+7200 20363 MT
+(user. The CMU environment has also contributed some complexity to the usual BSD Unix setup.)SH
+8312 22930 MT
+(In Mach 3.0 the pieces that are needed for a sucessful boot are:  the 16-sector boot code)
+145 W( \050usually)144 W
+7200 24356 MT
+(supplied by the machine vendor\051, the)
+225 W( micro-kernel, a paging file, a server for the kernel to call, an)226 W
+7200 25782 MT
+(emulation library \050at least for our servers\051 and a startup user program.)SH
+8312 28349 MT
+(The other complications are the fact that we normally have a super root and local root in order)
+173 W( to)172 W
+7200 29775 MT
+(support the CMU RFS file)
+52 W( system and the fact that when you come up single user, you do not have root)53 W
+7200 31201 MT
+(access, but are running with)
+51 W( the userid "opr". Also on CMU machines we have an /etc/rc that insists that)50 W
+7200 32627 MT
+(/vmunix be a symbolic link to the unix-server you are running before it will complete a boot to multi-user.)SH
+8312 35194 MT
+(This document explains exactly what is required to)
+83 W( boot a Mach 3.0 system up multi-user. It explains)84 W
+7200 36620 MT
+(the non-Uxix)
+50 W( features, how to set up your machine originally, how to safely boot alternative pieces of the)49 W
+7200 38046 MT
+(OS and how external sites can get the OS files.)SH
+12 /Helvetica-Bold AF
+7200 41801 MT
+(2. Super root and local root)SH
+10 /Helvetica AF
+8312 43227 MT
+(Mach systems \0502.5 or 3.0\051 are normally set up with a super root that contains one real directory)65 W
+/Helvetica-BoldOblique SF
+51722 XM
+(RFS)SH
+/Helvetica SF
+(.)SH
+/Helvetica-BoldOblique SF
+7200 44653 MT
+(RFS)SH
+/Helvetica SF
+9590 XM
+(contains the directory)112 W
+/Helvetica-BoldOblique SF
+19708 XM
+(.LOCALROOT)SH
+/Helvetica SF
+26709 XM
+(and links to all other)
+112 W( machines that are accessible via RFS.)111 W
+7200 46079 MT
+(The super root also contains symbolic links to all the standard directories in /, eg.)68 W
+/Helvetica-BoldOblique SF
+44235 XM
+(/dev, /mnt,)
+68 W( /bin, /etc,)69 W
+7200 47505 MT
+(/lib, /usr, /usr1)30 W
+/Helvetica SF
+(.)SH
+/Helvetica-BoldOblique SF
+14935 XM
+(/RFS/.LOCALROOT)SH
+/Helvetica SF
+24410 XM
+(is known as the local)
+30 W( root. After boot time the local root is named)29 W
+/Helvetica-BoldOblique SF
+53722 XM
+(/)SH
+/Helvetica SF
+7200 48931 MT
+(and the super root is named)93 W
+/Helvetica-BoldOblique SF
+20487 XM
+(/../../)SH
+/Helvetica SF
+(. Some)
+465 W( files such as the Mach kernel and the Unix-server have hard)94 W
+7200 50357 MT
+(links in)
+59 W( both the local root and super root, so that they can be found by the same name during and after)58 W
+7200 51783 MT
+(the boot sequence. In the)
+44 W( Mach 3.0 case the switching of the root,)45 W
+/Helvetica-BoldOblique SF
+37243 XM
+(/)SH
+/Helvetica SF
+(, from the super root to the local root)45 W
+7200 53209 MT
+(is done by the Unix-server or POE)
+75 W( rather than the micro-kernel. If you are not using the RFS filesystem)74 W
+7200 54635 MT
+(you can use only)
+13 W( a single root by not having the /RFS directory. You may see a complaint during the boot)14 W
+7200 56061 MT
+(sequence about i\050unable to change to local root\051, but the system will work ok.)SH
+12 /Helvetica-Bold AF
+7200 59816 MT
+(3. Setup for a default boot)SH
+11 SS 
+7200 63498 MT
+(3.1. Micro-kernel Names)SH
+10 /Helvetica AF
+8312 64924 MT
+(In Mach 2.5 the kernel is called both)278 W
+/Helvetica-BoldOblique SF
+26822 XM
+(mach)SH
+/Helvetica SF
+29990 XM
+(and)SH
+/Helvetica-BoldOblique SF
+32214 XM
+(vmunix)SH
+/Helvetica SF
+36271 XM
+(and is hard-linked to)
+278 W( by)277 W
+/Helvetica-BoldOblique SF
+48275 XM
+(/../../vmunix,)SH
+7200 66350 MT
+(/../../mach, /mach)16 W
+/Helvetica SF
+15514 XM
+(and)SH
+/Helvetica-BoldOblique SF
+17476 XM
+(/vmunix)SH
+/Helvetica SF
+(. Some boot code looks for the file)16 W
+/Helvetica-BoldOblique SF
+36780 XM
+(/vmunix)SH
+/Helvetica SF
+40853 XM
+(by default and some looks for)17 W
+/Helvetica-BoldOblique SF
+7200 67776 MT
+(/mach)SH
+/Helvetica SF
+10585 XM
+(but always on the super root.)
+217 W( As the kernel boots, the root is changed to be the local root,)216 W
+/Helvetica-BoldOblique SF
+7200 69202 MT
+(/RFS/.LOCALROOT)SH
+/Helvetica SF
+(. After)
+956 W( booting)
+339 W( some Unix programs read the "Unix namelist" by referencing)340 W
+/Helvetica-BoldOblique SF
+7200 70628 MT
+(/vmunix)SH
+/Helvetica SF
+(.)SH
+ES
+%%Page: 1 2
+BS
+0 SI
+10 /Helvetica-Bold AF
+30322 4329 MT
+(1)SH
+/Helvetica SF
+8312 7929 MT
+(In Mach 3.0 the names)119 W
+/Helvetica-BoldOblique SF
+19356 XM
+(mach)SH
+/Helvetica SF
+22364 XM
+(and)SH
+/Helvetica-BoldOblique SF
+24428 XM
+(mach.boot)SH
+/Helvetica SF
+29880 XM
+(are used for the Mach micro-kernel and)118 W
+/Helvetica-BoldOblique SF
+48435 XM
+(vmunix)SH
+/Helvetica SF
+52332 XM
+(and)SH
+/Helvetica-BoldOblique SF
+7200 9355 MT
+(startup)SH
+/Helvetica SF
+10955 XM
+(are used for the Unix-server. The micro-kernel is)
+88 W( the program that you wish to boot. Boot code)89 W
+7200 10781 MT
+(that we provide for the i386 will boot)11 W
+/Helvetica-BoldOblique SF
+23518 XM
+(mach)SH
+/Helvetica SF
+26419 XM
+(on device)
+11 W( 0, partition a by default. Older boot code for the Vax)10 W
+7200 12207 MT
+(and Sun3's may boot)197 W
+/Helvetica-BoldOblique SF
+17661 XM
+(vmunix)SH
+/Helvetica SF
+21638 XM
+(by default. On the DecStations, the default boot name is setable. On)198 W
+7200 13633 MT
+(DecStations setup by CMUCS facilities the default is)306 W
+/Helvetica-BoldOblique SF
+33101 XM
+(mach_kernel)SH
+/Helvetica SF
+39799 XM
+(on device 0,)
+306 W( partition 0. Boot)305 W
+7200 15059 MT
+(programs normally allow you to specify a non-default name for the program)
+137 W( to be booted, so you can)138 W
+7200 16485 MT
+(either install the micro kernel on your machine by whatever default name your boot code)
+33 W( uses, or specify)32 W
+7200 17911 MT
+(the boot file by name whenever you boot the)
+511 W( machine.  The Mach micro-kernel is named)512 W
+/Helvetica-BoldOblique SF
+7200 19337 MT
+(mach.boot.MKnn.<config>)SH
+/Helvetica SF
+20088 XM
+(in the build)
+53 W( and release directories.  Note that in releases prior to MK68 the)52 W
+7200 20763 MT
+(kernel was named)SH
+/Helvetica-BoldOblique SF
+15592 XM
+(mach_kernel.MKnn.<config>)SH
+/Helvetica SF
+29485 XM
+(but now the file by that name is not a bootable file.)
+SH( The)279 W
+7200 22189 MT
+(Unix-server is named)SH
+/Helvetica-BoldOblique SF
+16924 XM
+(vmunix.UKnn.<config>)SH
+/Helvetica SF
+28093 XM
+(in the build and release directories.)SH
+11 /Helvetica-Bold AF
+7200 25871 MT
+(3.2. Other file names)SH
+10 /Helvetica AF
+8312 27297 MT
+(The)SH
+/Helvetica-BoldOblique SF
+10417 XM
+(/mach_servers)SH
+/Helvetica SF
+17803 XM
+(directory is the default)
+104 W( directory where the Mach 3.0 kernel and various servers)103 W
+7200 28723 MT
+(look for files. There are four required file names that are coded into the micro-kernel and unix-servers and)10 W
+7200 30149 MT
+(cannot be changed at boot time. They are)147 W
+/Helvetica-BoldOblique SF
+27165 XM
+(paging_file, startup, emulator)147 W
+/Helvetica SF
+41887 XM
+(and)SH
+/Helvetica-BoldOblique SF
+43980 XM
+(mach_init)SH
+/Helvetica SF
+(. The name)147 W
+/Helvetica-BoldOblique SF
+7200 31575 MT
+(mach_servers)SH
+/Helvetica SF
+14271 XM
+(may be specified at)
+67 W( boot time to allow the booting of alternative pieces of the OS, but in)68 W
+7200 33001 MT
+(this section the default boot is assumed.)SH
+/Helvetica-BoldOblique SF
+8312 35568 MT
+(/mach_servers)SH
+/Helvetica SF
+15615 XM
+(may be a subdirectory in either the local root or the)
+21 W( super root with a symbolic link to it)20 W
+7200 36994 MT
+(in the other root or there can be two different directories. A)
+64 W( directory of this name must be findable from)65 W
+7200 38420 MT
+(both the root and super-root and at least one of)
+13 W( the directories must be on the root partition.  If you do not)12 W
+7200 39846 MT
+(have enough room on your root partition for all the files that are required to boot, the)
+183 W( mach_servers)184 W
+7200 41272 MT
+(directory on the superoot can be a symbolic link to a directory on a different partition. This)
+42 W( link is read by)41 W
+7200 42698 MT
+(the micro-kernel and must be of the form)30 W
+/Helvetica-Oblique SF
+25725 XM
+(/dev/<partition>/mach_servers)SH
+/Helvetica SF
+(, by)
+30 W( which the micro-kernel reads)31 W
+7200 44124 MT
+(unmounted partitions.)SH
+8312 46691 MT
+(The micro-kernel by default looks in the)178 W
+/Helvetica-BoldOblique SF
+27287 XM
+(/mach_servers)SH
+/Helvetica SF
+34747 XM
+(directory on the super root for three)
+178 W( files:)177 W
+/Helvetica-BoldOblique SF
+7200 48117 MT
+(startup)SH
+/Helvetica SF
+10893 XM
+(which is the program it will)
+26 W( start the user task in;)27 W
+/Helvetica-BoldOblique SF
+32692 XM
+(emulator)SH
+/Helvetica SF
+37220 XM
+(which the kernel reads to initialize the)27 W
+7200 49543 MT
+(symbols for the kernel debugger; and)42 W
+/Helvetica-BoldOblique SF
+24238 XM
+(paging_file)SH
+/Helvetica SF
+29837 XM
+(which is the default paging space.)
+42 W( These)
+360 W( names may)41 W
+7200 50969 MT
+(refer to files in that directory, symbolic links to files on)
+47 W( the root partition or symbolic links to files on other)48 W
+/Helvetica-Oblique SF
+7200 52395 MT
+(unmounted)SH
+/Helvetica SF
+12481 XM
+(partitions. See)
+278 W( the next section for an example of this last case.)SH
+8312 54962 MT
+(The Unix-server by default looks in the)282 W
+/Helvetica-BoldOblique SF
+27626 XM
+(/mach_servers)SH
+/Helvetica SF
+35190 XM
+(directory on the local)
+282 W( root for two files:)281 W
+/Helvetica-BoldOblique SF
+7200 56388 MT
+(emulator)SH
+/Helvetica SF
+11776 XM
+(and)SH
+/Helvetica-BoldOblique SF
+13797 XM
+(mach_init)SH
+/Helvetica SF
+(.)SH
+/Helvetica-BoldOblique SF
+19449 XM
+(emulator)SH
+/Helvetica SF
+24025 XM
+(is the emulation library that is)
+75 W( loaded with each task that the Unix-)76 W
+7200 57814 MT
+(server starts.)150 W
+/Helvetica-BoldOblique SF
+13557 XM
+(mach_init)SH
+/Helvetica SF
+18653 XM
+(is the program called by the first task started by)
+150 W( the Unix-server. These files)149 W
+7200 59240 MT
+(must reside on the root partition, since the Unix-server only has the root partition mounted and)
+62 W( does not)63 W
+7200 60666 MT
+(read unmounted partitions like the micro-kernel did.)SH
+8312 63233 MT
+(If you are running)
+27 W( POE rather than the Unix-server it looks in the)26 W
+/Helvetica-BoldOblique SF
+37388 XM
+(/mach_servers)SH
+/Helvetica SF
+44696 XM
+(directory on the local)26 W
+7200 64659 MT
+(root for)
+19 W( two files:)20 W
+/Helvetica-BoldOblique SF
+15191 XM
+(poe_emulator)SH
+/Helvetica SF
+22046 XM
+(and)SH
+/Helvetica-BoldOblique SF
+24012 XM
+(poe_init)SH
+/Helvetica SF
+(.)SH
+/Helvetica-BoldOblique SF
+28720 XM
+(poe_emulator)SH
+/Helvetica SF
+35575 XM
+(is the emulation library that is loaded with)20 W
+7200 66085 MT
+(each task that POE starts.)56 W
+/Helvetica-BoldOblique SF
+19375 XM
+(poe_init)SH
+/Helvetica SF
+23543 XM
+(is the program that is run by the the)
+56 W( first task POE starts.  As in the)55 W
+7200 67511 MT
+(case of the Unix server, these programs must reside on the root partition.)SH
+ES
+%%Page: 2 3
+BS
+0 SI
+10 /Helvetica-Bold AF
+30322 4329 MT
+(2)SH
+11 SS 
+7200 8002 MT
+(3.3. Installing the pieces)SH
+10 /Helvetica AF
+8312 9428 MT
+(First you need to install a Mach 3.0 micro-kernel on the root.  Copy a "mach.boot" to)21 W
+/Helvetica-BoldOblique SF
+46063 XM
+(/mach)SH
+/Helvetica SF
+49253 XM
+(and create)22 W
+7200 10854 MT
+(a hard-link)
+86 W( to it from)85 W
+/Helvetica-BoldOblique SF
+16740 XM
+(/../../mach)SH
+/Helvetica SF
+21661 XM
+(or whatever your default boot file name is.)85 W
+/Helvetica-BoldOblique SF
+41546 XM
+(mach.boot)SH
+/Helvetica SF
+46965 XM
+(is built from the)85 W
+7200 12280 MT
+(sources in the mach3.kernel collection or can be found in)
+159 W( mach3.release in the directory)160 W
+/Helvetica-BoldOblique SF
+48615 XM
+(special)SH
+/Helvetica SF
+(. It's)160 W
+7200 13706 MT
+(name in those directories is of the form)SH
+/Helvetica-BoldOblique SF
+24707 XM
+(mach.boot.MKnn.<congig>)SH
+/Helvetica SF
+(.)SH
+8312 16273 MT
+(Now you need to make a)SH
+/Helvetica-BoldOblique SF
+19651 XM
+(/mach_servers)SH
+/Helvetica SF
+26933 XM
+(directory, the recommended way is:)SH
+/Courier SF
+9600 17928 MT
+(mkdir /../../mach_servers)SH
+9600 18959 MT
+(cd /)SH
+9600 19990 MT
+(ln -s ../../mach_servers mach_servers)SH
+/Helvetica SF
+8312 23588 MT
+(The alternative method to conserve space on the root partition \050assuming that /dev/sd0e is mounted on)11 W
+7200 25014 MT
+(/usr\051 is to:)SH
+/Courier SF
+9600 26669 MT
+(mkdir /mach_servers)SH
+9600 27700 MT
+(mkdir /usr/mach_servers)SH
+9600 28731 MT
+(cd /../..)SH
+9600 29762 MT
+(ln -s /dev/sd0e/mach_servers mach_servers)SH
+/Helvetica SF
+8312 33360 MT
+(This second alternative is the default setup for DecStations at CMU, so)
+12 W( be sure you know what you are)13 W
+7200 34786 MT
+(doing if you try to install new pieces of the OS on one of those machines.)SH
+8312 37353 MT
+(Now populate)SH
+/Helvetica-BoldOblique SF
+14704 XM
+(/mach_servers)SH
+/Helvetica SF
+21986 XM
+(with:)SH
+/Helvetica-BoldOblique SF
+7200 39225 MT
+(paging_file)SH
+/Helvetica SF
+16096 XM
+(this is usually a symbolic link to a file on an umounted partition in order to avoid using)13 W
+16096 40368 MT
+(large amounts of space on the root partition.  For example if)148 W
+/Helvetica-BoldOblique SF
+44607 XM
+(/usr1)SH
+/Helvetica SF
+47423 XM
+(is mounted on)148 W
+/Helvetica-BoldOblique SF
+16096 41511 MT
+(/dev/hd0f)SH
+/Helvetica SF
+20773 XM
+(and has enough free space you)
+9 W( could make)8 W
+/Helvetica-BoldOblique SF
+40520 XM
+(paging_file)SH
+/Helvetica SF
+46085 XM
+(be a symbolic link)8 W
+16096 42654 MT
+(to "/dev/hd0f/pagingfile".  Then you create a)213 W
+/Helvetica-BoldOblique SF
+37253 XM
+(/usr1/pagingfile)SH
+/Helvetica SF
+45135 XM
+(of sufficient size to)213 W
+16096 43797 MT
+(handle your paging needs. Between about 4-20M is recommended.  The system)217 W
+16096 44940 MT
+(does not grow this file, so you must set it up in advance as a big file.  An easy way to)21 W
+16096 46083 MT
+(pre-assign the space is to do:)SH
+/Courier SF
+18496 47489 MT
+(dd if=/dev/rhd0f of=/usr1/pagingfile bs=1024k count=n)SH
+/Helvetica SF
+16096 49000 MT
+(which creates a nMeg file. It is possible to have Mach 2.5 and 3.0 use the same)170 W
+16096 50143 MT
+(paging file, but care must be taken so that Mach 2.5 does not truncate the file when it)16 W
+16096 51286 MT
+(boots. To)
+60 W( ensure this the line in)59 W
+/Helvetica-BoldOblique SF
+30684 XM
+(/etc/fstab)SH
+/Helvetica SF
+35411 XM
+(that specifies the paging file for Mach 2.5)59 W
+16096 52429 MT
+(should have the value of pagelowat equal to that of pagehiwat. The system)
+63 W( will boot)64 W
+16096 53572 MT
+(without a paging files)
+63 W( and run until it needs to page something out.  Just answer the)62 W
+16096 54715 MT
+(request during the boot process for a paging file with a carriage)
+70 W( return. This may be)71 W
+16096 55858 MT
+(useful if you are booting off a floppy or are just trying to come up single-user to fix)111 W
+16096 57001 MT
+(something.)SH
+/Helvetica-BoldOblique SF
+7200 58627 MT
+(startup)SH
+/Helvetica SF
+16096 XM
+(the program that the micro-kernel calls. This file must)
+51 W( be found in the /mach_servers)52 W
+16096 59770 MT
+(directory that is on \050or linked from\051)
+199 W( the super-root. It does not need to physically)198 W
+16096 60913 MT
+(reside on the root partition.  This is the way putting)
+149 W( the "super-root/mach_servers")150 W
+16096 62056 MT
+(directory off the root partition saves space on the root partition.)
+151 W( Usually this is the)150 W
+16096 63199 MT
+(Unix-server or POE. It could be an OS program of your own. The name)
+97 W( of the unix)98 W
+16096 64342 MT
+(server is)193 W
+/Helvetica-BoldOblique SF
+20538 XM
+(vmunix.UXnn.<config>)SH
+/Helvetica SF
+31844 XM
+(and is built from the sources in the mach3.unix)192 W
+16096 65485 MT
+(release or can be)
+46 W( found in the mach3.release collection in the directory)47 W
+/Helvetica-BoldOblique SF
+48283 XM
+(special)SH
+/Helvetica SF
+(. The)47 W
+16096 66628 MT
+(name of POE is)25 W
+/Helvetica-BoldOblique SF
+23476 XM
+(poe.POEn)SH
+/Helvetica SF
+(. It is built from the sources in mach3.poe or can be found)24 W
+16096 67771 MT
+(in the mach3.release collections in the directory)SH
+/Helvetica-BoldOblique SF
+37438 XM
+(special)SH
+/Helvetica SF
+(.)SH
+/Helvetica-BoldOblique SF
+7200 69397 MT
+(emulator)SH
+/Helvetica SF
+16096 XM
+(the emulation library which the Unix-server loads with each task and the micro-kernel)28 W
+16096 70540 MT
+(reads symbols from. This file must be accessible both from)
+56 W( the super-root where the)55 W
+16096 71683 MT
+(micro-kernel reads and from the local root where)
+83 W( the Unix-server loads it. If you are)84 W
+ES
+%%Page: 3 4
+BS
+0 SI
+10 /Helvetica-Bold AF
+30322 4329 MT
+(3)SH
+/Helvetica SF
+16096 7929 MT
+(using separate mach_servers)
+149 W( directories you either need two copies of this file, or)148 W
+16096 9072 MT
+(one copy on the root)
+14 W( partition and a symlink that that the micro-kernel can follow from)15 W
+16096 10215 MT
+(the non-root directory.  This program is built)
+210 W( from the sources in the mach3.unix)209 W
+16096 11358 MT
+(collection or can be found in the mach3.release collection as)1241 W
+/Helvetica-BoldOblique SF
+16096 12501 MT
+(special/emulator.UXnn)SH
+/Helvetica SF
+(.)SH
+/Helvetica-BoldOblique SF
+7200 14127 MT
+(mach_init)SH
+/Helvetica SF
+16096 XM
+(the program that is run by the)
+18 W( first task the Unix-server creates. It must be installed in)17 W
+/Helvetica-BoldOblique SF
+16096 15270 MT
+(/mach_servers)SH
+/Helvetica SF
+23397 XM
+(on the local root.)
+19 W( It)
+318 W( is built from sources in the mach3.user collection)20 W
+16096 16413 MT
+(in the)
+262 W( directory)261 W
+/Helvetica-BoldOblique SF
+23716 XM
+(etc/mach_init)SH
+/Helvetica SF
+30646 XM
+(or can be found in mach3.release)261 W
+/Helvetica-BoldOblique SF
+47331 XM
+(etc/mach_init)SH
+/Helvetica SF
+(.)SH
+16096 17556 MT
+(THIS PROGRAM IS NOT)
+23 W( COMPATIBLE WITH THE MACH 2.5 VERSION.  You may)24 W
+16096 18699 MT
+(set)SH
+/Helvetica-BoldOblique SF
+17982 XM
+(/mach_servers/mach_init)SH
+/Helvetica SF
+30483 XM
+(to be a symbolic link to the Mach 2.5 version of)273 W
+/Helvetica-BoldOblique SF
+16096 19842 MT
+(/etc/init)SH
+/Helvetica SF
+(. In this case the system will boot, but Mach servers will not work.)SH
+/Helvetica-BoldOblique SF
+7200 21468 MT
+(poe_init)SH
+/Helvetica SF
+16096 XM
+(the program that is run by the)
+225 W( first task POE creates.  It should be installed as)226 W
+/Helvetica-BoldOblique SF
+16096 22611 MT
+(/mach_servers/poe_init)SH
+/Helvetica SF
+27579 XM
+(if you are going to run POE.  It provides a)
+89 W( user shell for a)88 W
+16096 23754 MT
+(single user under POE. It is built from)
+29 W( the sources in the mach3.poe collection or can)30 W
+16096 24897 MT
+(be found in mach3.release as)SH
+/Helvetica-BoldOblique SF
+29492 XM
+(etc/poe_init)SH
+/Helvetica SF
+(.)SH
+/Helvetica-BoldOblique SF
+7200 26523 MT
+(poe_emulator)SH
+/Helvetica SF
+16096 XM
+(the emulation library which POE loads with each task. It is)
+93 W( built from the sources in)92 W
+16096 27666 MT
+(the mach3.poe collection or can be)
+1154 W( found in mach3.release as)1155 W
+/Helvetica-BoldOblique SF
+16096 28809 MT
+(special/poe_emulator.POEn)SH
+/Helvetica SF
+(. It)
+4743 W( should be installed as)2232 W
+/Helvetica-BoldOblique SF
+16096 29952 MT
+(/mach_servers/poe_emulator)SH
+/Helvetica SF
+30213 XM
+(if you are going to run POE.)SH
+12 /Helvetica-Bold AF
+7200 33707 MT
+(4. Booting new kernel/server pieces)SH
+10 /Helvetica AF
+8312 35133 MT
+(If you wish to try out a new version of any of the critical OS pieces)
+31 W( you should be sure that you have a)32 W
+7200 36559 MT
+(system that is known to work in a place where it can be found by the boot process. The bootcode,)
+100 W( the)99 W
+7200 37985 MT
+(micro-kernel and the unix-server allow you to specify an alternative name for the micro-kernel and the)130 W
+/Helvetica-BoldOblique SF
+7200 39411 MT
+(/mach_servers)SH
+/Helvetica SF
+14518 XM
+(directory. You cannot specify the names of specific files that live)
+36 W( in the </mach_servers>)35 W
+7200 40837 MT
+(directory, so even if you want to change)
+92 W( only one file there, you must create a fully populated directory)93 W
+7200 42263 MT
+(with that file and copies or links of the old files in it.)SH
+8312 44830 MT
+(Only the boot code needs to know the)
+53 W( name and location of the micro-kernel, so how you specify that)52 W
+7200 46256 MT
+(is dependent on what boot code)
+78 W( you are running.  The boot code we use accepts several options to be)79 W
+7200 47682 MT
+(passed to the booted program \050the micro-kernel\051. We use)4 W
+/Helvetica-BoldOblique SF
+32913 XM
+(-s)SH
+/Helvetica SF
+34083 XM
+(for single-user boot and)3 W
+/Helvetica-BoldOblique SF
+44878 XM
+(-q)SH
+/Helvetica SF
+46103 XM
+(\050DecStation\051 or)3 W
+/Helvetica-BoldOblique SF
+53111 XM
+(-a)SH
+/Helvetica SF
+7200 49108 MT
+(\050Sun3,Vax and I386\051 to prompt for an alternative mach_servers directory.  Since)
+48 W( the only information the)49 W
+7200 50534 MT
+(micro-kernel and unix-server have is an)
+13 W( alternative directory name, this directory must contain a complete)12 W
+7200 51960 MT
+(set of the four files needed for booting.)SH
+8312 54527 MT
+(Some examples of how to set things up follow:)SH
+/Helvetica-Bold SF
+8312 57094 MT
+(Booting a new micro-kernel, standard unix-server et.al)SH
+/Helvetica SF
+9424 58777 MT
+(install new kernel as mach.new on superroot.)SH
+9424 59920 MT
+(do an /etc/halt or /etc/shutdown)SH
+9424 62206 MT
+(at boot prompt type:)SH
+10536 63349 MT
+(DecStation 5000:)
+SH( >>)834 W
+/Helvetica-Bold SF
+(boot 3/rz0/mach.new)SH
+/Helvetica SF
+10536 64492 MT
+(i386: boot)3892 W
+/Helvetica-Bold SF
+19098 XM
+(mach.new)SH
+/Helvetica SF
+24211 XM
+(or)SH
+/Helvetica-Bold SF
+25378 XM
+(sd\0500,a\051mach.new)SH
+/Helvetica SF
+10536 65635 MT
+(Sun3: >>)3892 W
+/Helvetica-Bold SF
+(boot mach.new)SH
+/Helvetica SF
+26044 XM
+(or)SH
+/Helvetica-Bold SF
+27211 XM
+(boot sd\0500,0,0\051mach.new)SH
+/Helvetica SF
+10536 66778 MT
+(Micro Vax:)
+SH( >>)2502 W
+/Helvetica-Bold SF
+(b/3 mach.new)SH
+8312 69345 MT
+(Booting a new unix-server and emultor, standard micro-kernel)SH
+/Helvetica SF
+9424 71028 MT
+(Create mach_servers.new)
+278 W( directories or links on root and super-root)SH
+ES
+%%Page: 4 5
+BS
+0 SI
+10 /Helvetica-Bold AF
+30322 4329 MT
+(4)SH
+/Helvetica SF
+9424 7929 MT
+(If you only have one directory \050and one link\051 populate it with)SH
+11648 9072 MT
+(startup --)
+278 W( new unix-server)SH
+11648 10215 MT
+(emulator -- new emulator code)SH
+11648 11358 MT
+(paging_file --)
+278 W( link to existing pagingfile)SH
+11648 12501 MT
+(mach_init -- link to existing version of mach_init.)SH
+9424 13644 MT
+(If you have two directories populate /../../mach_servers.new with)SH
+11648 14787 MT
+(startup --)
+278 W( new unix-server)SH
+11648 15930 MT
+(emulator -- new emulator code \050may be a symlink\051)SH
+11648 17073 MT
+(paging_file --)
+278 W( link to existing pagingfile)SH
+9424 18216 MT
+(and /mach_servers.new with)SH
+11648 19359 MT
+(emulator --)
+278 W( new emulator code)SH
+11648 20502 MT
+(mach_init -- link to existing version of mach_init)SH
+9424 22788 MT
+(do and /etc/halt or /etc/shutdown)SH
+9424 25074 MT
+(at the boot prompt type:)SH
+10536 26217 MT
+(DecStation 5000:)
+SH( >>)834 W
+/Helvetica-Bold SF
+(boot -sq)SH
+/Helvetica SF
+10536 27360 MT
+(i386: boot)3892 W
+/Helvetica-Bold SF
+19098 XM
+(-sa)SH
+/Helvetica SF
+10536 28503 MT
+(Sun3: >>)3892 W
+/Helvetica-Bold SF
+(boot -sa)SH
+/Helvetica SF
+10536 29646 MT
+(Micro Vax:)
+SH( >>)2502 W
+/Helvetica-Bold SF
+(b/3 -sa)SH
+/Helvetica SF
+8312 32213 MT
+(The the)29 W
+/Helvetica-Bold SF
+12039 XM
+(-s)SH
+/Helvetica SF
+13235 XM
+(switch will cause the kernel to drop into the debugger as soon as is possible to allow)
+29 W( you to)30 W
+7200 33639 MT
+(set any break)
+109 W( points. Typing c causes the boot to be continued. It also causes the system to come up)108 W
+7200 35065 MT
+(single-user. You)
+278 W( will prompted for the name of the root device and the /mach_servers directory.)SH
+/Helvetica-Bold SF
+8312 37632 MT
+(Booting both a new micro-kernel and unix-server)SH
+/Helvetica SF
+9424 39315 MT
+(With the setup as in the previous examples respond to the boot prompt)SH
+10536 40458 MT
+(DecStation 5000:)
+SH( >>)834 W
+/Helvetica-Bold SF
+(boot 3/rz0/mach.new -sq)SH
+/Helvetica SF
+10536 41601 MT
+(i386: boot)3892 W
+/Helvetica-Bold SF
+19098 XM
+(mach.new -sa)SH
+/Helvetica SF
+10536 42744 MT
+(Sun3: >>)3892 W
+/Helvetica-Bold SF
+(boot sd\0500,0,0\051mach.new -sa)SH
+/Helvetica SF
+10536 43887 MT
+(Micro Vax:)
+SH( >>)2502 W
+/Helvetica-Bold SF
+(b/3 mach.new -sa)SH
+12 SS 
+7200 47642 MT
+(5. Mach 3.0 Servers)SH
+10 /Helvetica AF
+8312 49068 MT
+(If it exists)49 W
+/Helvetica-BoldOblique SF
+12905 XM
+(/mach_servers/mach_init)SH
+/Helvetica SF
+25182 XM
+(is the first program called by the Unix-server.  If)
+49 W( it does not exist)50 W
+/Helvetica-BoldOblique SF
+7200 50494 MT
+(/etc/init)SH
+/Helvetica SF
+11023 XM
+(is called and your system will boot but none of the)
+44 W( mach servers will work.)43 W
+/Helvetica-BoldOblique SF
+44955 XM
+(mach_init)SH
+/Helvetica SF
+49944 XM
+(initializes)SH
+7200 51920 MT
+(the following ports:)111 W
+/Helvetica-Bold SF
+16148 XM
+(name_server_port, environment_port)111 W
+/Helvetica SF
+34375 XM
+(and)SH
+/Helvetica-Bold SF
+36432 XM
+(service_port)SH
+/Helvetica SF
+(. The first port is used by)112 W
+7200 53346 MT
+(either the NetMsgServer or snames depending on which you choose to run. The)
+82 W( second is used by the)81 W
+7200 54772 MT
+(Environment Manager and the third by mach_init itself as the Service server. All the)
+125 W( processes on the)126 W
+7200 56198 MT
+(system inherit these ports.)SH
+8312 58765 MT
+(The collection mach3.release contains executables of mach3 programs and servers. They)
+218 W( can be)217 W
+7200 60191 MT
+(installed anywhere on your system and your PATH variable set to find them.)SH
+8312 62758 MT
+(It is)
+58 W( assumed below that you have copied the contents of the mach3.release collection \050except for the)59 W
+7200 64184 MT
+(directory)SH
+/Helvetica-BoldOblique SF
+11312 XM
+(special)SH
+/Helvetica SF
+(\051 to)SH
+/Helvetica-BoldOblique SF
+16426 XM
+(/usr/mach3)SH
+/Helvetica SF
+(. There)
+278 W( are two servers that we normally run:)SH
+/Helvetica-BoldOblique SF
+7200 66056 MT
+(/usr/mach3/bin/snames)SH
+/Helvetica SF
+16096 67199 MT
+(provides a local name service)
+59 W( that supplies the same name lookup functions \050on the)60 W
+16096 68342 MT
+(same port\051 that the NetMsgServer does.  Snames' name space is local to)
+295 W( the)294 W
+16096 69485 MT
+(machine it is running on while the NetMsgServer's name space spans all machines)102 W
+16096 70628 MT
+(that are running instantiations of the NetMsgServer.  Only one of these)
+94 W( servers can)93 W
+16096 71771 MT
+(be run.)SH
+ES
+%%Page: 5 6
+BS
+0 SI
+10 /Helvetica-Bold AF
+30322 4329 MT
+(5)SH
+/Helvetica-BoldOblique SF
+7200 7929 MT
+(/usr/mach3/bin/machid)SH
+/Helvetica SF
+16096 9072 MT
+(provides the machid services which)
+223 W( are needed by such programs as ms, pinfo,)222 W
+16096 10215 MT
+(vmstat and gdb4.5.  Machid needs to have a name server running.)SH
+12 /Helvetica-Bold AF
+7200 13970 MT
+(6. Accessing AFS)SH
+10 /Helvetica AF
+8312 15396 MT
+(Since UX29 Mach 3.0 has used the same AFS file access)
+49 W( code as Mach 2.5. Thus both systems look)50 W
+7200 16822 MT
+(in /usr/vice/etc/cacheinfo to find the)
+84 W( location of the venus.cache directory.  Note: that the name given in)83 W
+7200 18248 MT
+(cacheinfo should be a symbolic link to the real venus cache.)SH
+8312 20815 MT
+(The daemon afsd \050or afsd.31\051 must be run to get AFS access.  In Mach 2.5 this is started by nanny)100 W
+7200 22241 MT
+(with the script /usr/misc/.afs/etc/launchafsd. This will continue to work in Mach 3.0.)SH
+12 /Helvetica-Bold AF
+7200 25996 MT
+(7. Finding the files)SH
+11 SS 
+7200 29678 MT
+(7.1. Sup Collections)SH
+10 /Helvetica AF
+8312 31104 MT
+(Mach 3.0 is suped)
+112 W( as 6 separate collections. The collections mach3.kernel, mach3.unix, mach3.poe,)111 W
+7200 32530 MT
+(mach3.user and mach3.buildtools contain only source)
+171 W( files. When you build these sources directories)172 W
+7200 33956 MT
+(named obj/<machine_type> will be created.  These directories are referred to as)67 W
+/Helvetica-Oblique SF
+43742 XM
+(build directories)66 W
+/Helvetica SF
+(. In the)66 W
+7200 35382 MT
+(past you)
+133 W( have been expected to copy the programs that you built from these directories to the places)134 W
+7200 36808 MT
+(from which they were used. Starting)
+112 W( with releases MK69, UX31, POE9 and USER12 the build process)111 W
+7200 38234 MT
+(copies the end products of a build to the)91 W
+/Helvetica-Oblique SF
+26030 XM
+(release directory)92 W
+/Helvetica SF
+(, release/<machine_type>. The major servers)92 W
+7200 39660 MT
+(and the kernel files are put)
+96 W( into the directory release/<machine_type>/special, from which they must be)95 W
+7200 41086 MT
+(copied to)
+492 W( the directories in which they are used. Other programs and libraries are put into)493 W
+7200 42512 MT
+(release/<machine_type>/{bin,include,etc,lib}. These)
+44 W( directories are normally added to the approriate path)43 W
+7200 43938 MT
+(names when a Mach 3.0 system is running so the files can be used directly from there.)SH
+8312 46505 MT
+(The sixth Mach3 collection, Mach3.release, provides a copy of the)
+159 W( latest binaries that were built at)160 W
+7200 47931 MT
+(CMU. You may use these to facilitate boot-strapping or as a binary system if you do not want)
+3 W( to make any)2 W
+7200 49357 MT
+(changes and trust other people's binaries.)SH
+11 /Helvetica-Bold AF
+7200 53039 MT
+(7.2. AFS release directories)SH
+10 /Helvetica AF
+8312 54465 MT
+(If you are at CMU or have AFS access to cs.cmu.edu, the kernel and ux binary files can)
+86 W( be found in)87 W
+7200 55891 MT
+(/afs/cs.cmu.edu/project/mach3/latest/release/@sys/special and mach_init can be found in)1202 W
+7200 57317 MT
+(.../release/@sys/etc/mach_init.)SH
+ES
+%%Page: i 7
+BS
+0 SI
+10 /Helvetica-Bold AF
+30461 4329 MT
+(i)SH
+12 SS 
+25533 8075 MT
+(Table of Contents)SH
+11 SS 
+9036 9319 MT
+(1. Introduction)SH
+53388 XM
+(0)SH
+9036 10563 MT
+(2. Super root and local root)SH
+53388 XM
+(0)SH
+9036 11807 MT
+(3. Setup for a default boot)SH
+53388 XM
+(0)SH
+10 SS 
+11092 12956 MT
+(3.1. Micro-kernel Names)SH
+53444 XM
+(0)SH
+11092 14105 MT
+(3.2. Other file names)SH
+53444 XM
+(1)SH
+11092 15254 MT
+(3.3. Installing the pieces)SH
+53444 XM
+(2)SH
+11 SS 
+9036 16498 MT
+(4. Booting new kernel/server pieces)SH
+53388 XM
+(3)SH
+9036 17742 MT
+(5. Mach 3.0 Servers)SH
+53388 XM
+(4)SH
+9036 18986 MT
+(6. Accessing AFS)SH
+53388 XM
+(5)SH
+9036 20230 MT
+(7. Finding the files)SH
+53388 XM
+(5)SH
+10 SS 
+11092 21379 MT
+(7.1. Sup Collections)SH
+53444 XM
+(5)SH
+11092 22528 MT
+(7.2. AFS release directories)SH
+53444 XM
+(5)SH
+ES
+%%Trailer
+%%Pages: 7
+%%DocumentFonts: Helvetica Helvetica-Bold Helvetica-BoldOblique Helvetica-Oblique Courier

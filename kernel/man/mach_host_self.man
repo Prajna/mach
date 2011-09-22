@@ -1,0 +1,66 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	mach_host_self.man,v $
+.\" Revision 2.4  91/05/14  17:05:24  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:10:38  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:10:45  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:35:29  rpd
+.\" 	Created.
+.\" 
+.TH mach_host_self 2 9/19/86
+.CM 4
+.SH NAME
+.nf
+mach_host_self \- return calling thread's host port
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach/mach_traps.h>
+
+mach_port_t mach_host_self();
+.fi
+.ft P
+.SH DESCRIPTION
+The \fBmach_host_self\fR system call returns
+the calling thread's host port.
+
+\fBmach_host_self\fR has an effect equivalent to receiving
+a send right for the host port.  \fBmach_host_self\fR
+returns the name of the send right.  In particular,
+successive calls will increase the calling task's
+user-reference count for the send right.
+.SH DIAGNOSTICS
+.TP 25
+MACH_PORT_NULL
+A resource shortage prevented the reception of the send right.
+.SH SEE ALSO
+mach_task_self(2), mach_thread_self(2).

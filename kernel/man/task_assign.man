@@ -1,0 +1,149 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	task_assign.man,v $
+.\" Revision 2.5  93/03/18  15:14:41  mrt
+.\" 	corrected types
+.\" 	[93/03/12  16:51:54  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:12:18  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:14:26  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:15:16  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:43:23  rpd
+.\" 	Created.
+.\" 
+.TH task_assign 2 8/13/89
+.CM 4
+.SH NAME
+.nf
+task_assign  \-  assign task to processor set
+task_assign_default  \-  assign task to default processor set
+task_get_assignment  \-  get processor set to which task is assigned
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t
+task_assign(task, processor_set, assign_threads)
+	mach_port_t task;
+	mach_port_t processor_set;
+	boolean_t	assign_threads;
+
+
+.fi
+.ft P
+.nf
+.ft B
+kern_return_t
+task_assign_default(task, assign_threads)
+	mach_port_t	task;
+	boolean_t	assign_threads;
+
+
+.fi
+.ft P
+.nf
+.ft B
+kern_return_t
+task_get_assignment(task, processor_set)
+	mach_port_t		task;
+	mach_port_t	*processor_set;
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+task
+The task to be affected.
+.TP 15
+.B
+processor_set
+The processor set to assign it to, or the processor 
+set to which it is assigned.
+.TP 15
+.B
+assign_threads
+Boolean indicating whether this assignment applies 
+to existing threads in the task.
+
+.SH DESCRIPTION
+.B task_assign
+assigns 
+.B task
+the the set 
+.B processor_set.
+This assignment is for the purposes of determining the initial assignment
+of newly created threads in 
+.B task.
+Any previous assignment of
+the task is nullified.  Existing threads within the task are also reassigned
+if 
+.B assign_threads
+is TRUE.  They are not affected if it is FALSE.
+
+.B task_assign_default
+is a variant of 
+.B task_assign
+that assigns the task to the default processor set on that task's host.
+This variant exists
+because the control port for the default processor set is privileged and
+not ususally available to users.
+
+
+.B task_get_assignment
+returns the current assignment of the task.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The assignment has been performed.
+.TP 25
+KERN_INVALID_ARGUMENT
+.B task
+is not a task, or
+.B processor_set
+is not a processor_set on the same host as
+.B task
+.
+
+.SH BUGS
+Availability limited
+
+.SH SEE ALSO
+.B processor_set_create, processor_set_info, processor_assign, thread_assign
+,
+.B host_processor_set_priv
+

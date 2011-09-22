@@ -1,0 +1,298 @@
+/* 
+ * Mach Operating System
+ * Copyright (c) 1991,1990,1989,1988 Carnegie Mellon University
+ * All Rights Reserved.
+ * 
+ * Permission to use, copy, modify and distribute this software and its
+ * documentation is hereby granted, provided that both the copyright
+ * notice and this permission notice appear in all copies of the
+ * software, derivative works or modified versions, and any portions
+ * thereof, and that both notices appear in supporting documentation.
+ * 
+ * CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+ * CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+ * ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+ * 
+ * Carnegie Mellon requests users of this software to return to
+ * 
+ *  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+ *  School of Computer Science
+ *  Carnegie Mellon University
+ *  Pittsburgh PA 15213-3890
+ * 
+ * any improvements or extensions that they make and grant Carnegie Mellon
+ * the rights to redistribute these changes.
+ */
+/*
+ * HISTORY
+ * $Log:	mach_debug.defs,v $
+ * Revision 2.9  92/01/14  16:45:41  rpd
+ * 	Added CountInOut, Dealloc to all variable-sized Out array arguments.
+ * 	[92/01/08            rpd]
+ * 	Replaced the old mach_vm_region_info with new mach_vm_region_info,
+ * 	mach_vm_object_info, mach_vm_object_pages calls.
+ * 	Removed vm_mapped_pages_info.
+ * 	[91/12/30            rpd]
+ * 	Added mach_port_kernel_object.
+ * 	[91/12/14            rpd]
+ * 
+ * Revision 2.8  91/07/31  17:55:25  dbg
+ * 	Added host_load_symbol_table.
+ * 	[91/07/30  17:11:15  dbg]
+ * 
+ * Revision 2.7  91/05/14  17:03:35  mrt
+ * 	Correcting copyright
+ * 
+ * Revision 2.6  91/02/05  17:37:54  mrt
+ * 	Changed to new Mach copyright
+ * 	[91/02/01  17:28:41  mrt]
+ * 
+ * Revision 2.5  91/01/08  15:19:11  rpd
+ * 	Added host_virtual_physical_table_info.
+ * 	[91/01/02            rpd]
+ * 
+ * Revision 2.4  90/10/25  14:45:57  rwd
+ * 	Added processor_set_stack_usage.
+ * 	[90/10/22            rpd]
+ * 
+ * Revision 2.3  90/06/02  15:00:33  rpd
+ * 	Added mach_vm_region_info.
+ * 	[90/04/20            rpd]
+ * 	Converted to new IPC.
+ * 	[90/03/26  22:43:02  rpd]
+ * 
+ * Revision 2.2  90/05/03  15:48:45  dbg
+ * 	Remove callout_statistics.  Add vm_mapped_pages_info.
+ * 	[90/04/06            dbg]
+ * 
+ * Revision 2.1  89/08/03  17:19:04  rwd
+ * Created.
+ * 
+ * Revision 2.4  89/02/25  18:43:35  gm0w
+ * 	Changes for cleanup.
+ * 
+ * Revision 2.3  89/01/15  16:32:28  rpd
+ * 	Updated includes for the new mach/ directory.
+ * 	[89/01/15  15:11:01  rpd]
+ * 
+ * Revision 2.2  89/01/12  08:00:17  rpd
+ * 	Created.
+ * 	[89/01/12  04:20:38  rpd]
+ * 
+ */
+/*
+ *	Matchmaker definitions file for Mach kernel debugging interface.
+ */
+
+#ifdef	KERNEL
+#include <mach_ipc_debug.h>
+#include <mach_vm_debug.h>
+#include <mach_kdb.h>
+#endif	KERNEL
+
+subsystem
+#if	KERNEL_SERVER
+	  KernelServer
+#endif	KERNEL_SERVER
+		       mach_debug 3000;
+
+#include <mach/std_types.defs>
+#include <mach/mach_types.defs>
+#include <mach_debug/mach_debug_types.defs>
+
+skip;	/* host_ipc_statistics */
+skip;	/* host_ipc_statistics_reset */
+skip;	/* host_callout_info */
+skip;	/* host_callout_statistics */
+skip;	/* host_callout_statistics_reset */
+
+/*
+ *	Returns information about the memory allocation zones.
+ */
+routine host_zone_info(
+		host		: host_t;
+	out	names		: zone_name_array_t,
+					CountInOut, Dealloc;
+	out	info		: zone_info_array_t,
+					CountInOut, Dealloc);
+
+skip;	/* host_ipc_bucket_info */
+
+#if	!defined(MACH_IPC_DEBUG) || MACH_IPC_DEBUG
+
+/*
+ *	Returns the exact number of extant send rights
+ *	for the given receive right.
+ */
+
+routine	mach_port_get_srights(
+		task		: ipc_space_t;
+		name		: mach_port_name_t;
+	out	srights		: mach_port_rights_t);
+
+/*
+ *	Returns information about the global reverse hash table.
+ */
+
+routine host_ipc_hash_info(
+		host		: host_t;
+	out	info		: hash_info_bucket_array_t,
+					CountInOut, Dealloc);
+
+/*
+ *	Returns information about the marequest hash table.
+ */
+
+routine host_ipc_marequest_info(
+		host		: host_t;
+	out	max_requests	: unsigned;
+	out	info		: hash_info_bucket_array_t,
+					CountInOut, Dealloc);
+
+/*
+ *	Returns information about an IPC space.
+ */
+
+routine mach_port_space_info(
+		task		: ipc_space_t;
+	out	info		: ipc_info_space_t;
+	out	table_info	: ipc_info_name_array_t,
+					CountInOut, Dealloc;
+	out	tree_info	: ipc_info_tree_name_array_t,
+					CountInOut, Dealloc);
+
+/*
+ *	Returns information about the dead-name requests
+ *	registered with the named receive right.
+ */
+
+routine mach_port_dnrequest_info(
+		task		: ipc_space_t;
+		name		: mach_port_name_t;
+	out	total		: unsigned;	/* total size of table */
+	out	used		: unsigned);	/* amount used */
+
+#else	!defined(MACH_IPC_DEBUG) || MACH_IPC_DEBUG
+skip;	/* mach_port_get_srights */
+skip;	/* host_ipc_hash_info */
+skip;	/* host_ipc_marequest_info */
+skip;	/* mach_port_space_info */
+skip;	/* mach_port_dnrequest_info */
+#endif	!defined(MACH_IPC_DEBUG) || MACH_IPC_DEBUG
+
+skip;	/* mach_vm_region_info */
+skip;	/* vm_mapped_pages_info */
+
+/*
+ *	Returns stack usage information:
+ *		reserved	Amount of stack space reserved for pcb.
+ *		total		Number of stacks.
+ *		space		Total VM space for stacks.
+ *		resident	Resident VM space for stacks.
+ *		maxusage	Maximum amount of stack used.
+ *		maxstack	Address in the kernel of the largest stack.
+ */
+
+routine host_stack_usage(
+		host		: host_t;
+	out	reserved	: vm_size_t;
+	out	total		: unsigned;
+	out	space		: vm_size_t;
+	out	resident	: vm_size_t;
+	out	maxusage	: vm_size_t;
+	out	maxstack	: vm_offset_t);
+
+routine processor_set_stack_usage(
+		pset		: processor_set_name_t;
+	out	total		: unsigned;
+	out	space		: vm_size_t;
+	out	resident	: vm_size_t;
+	out	maxusage	: vm_size_t;
+	out	maxstack	: vm_offset_t);
+
+#if	!defined(MACH_VM_DEBUG) || MACH_VM_DEBUG
+
+/*
+ *	Returns information about the global VP table.
+ */
+
+routine host_virtual_physical_table_info(
+		host		: host_t;
+	out	info		: hash_info_bucket_array_t,
+					CountInOut, Dealloc);
+
+#else	!defined(MACH_VM_DEBUG) || MACH_VM_DEBUG
+skip;	/* host_virtual_physical_table_info */
+#endif	!defined(MACH_VM_DEBUG) || MACH_VM_DEBUG
+
+#if	!defined(MACH_KDB) || MACH_KDB
+/*
+ *	Loads a symbol table for an external file into the kernel debugger.
+ *	The symbol table data is an array of characters.  It is assumed that
+ *	the caller and the kernel debugger agree on its format.
+ */
+
+routine host_load_symbol_table(
+		host		: host_priv_t;
+		task		: task_t;
+		name		: symtab_name_t;
+		symtab		: pointer_t);
+
+#else	!defined(MACH_KDB) || MACH_KDB
+skip;	/* host_load_symbol_table */
+#endif	!defined(MACH_KDB) || MACH_KDB
+
+#if	!defined(MACH_IPC_DEBUG) || MACH_IPC_DEBUG
+
+/*
+ *	Return the type and address of the kernel object
+ *	that the given send/receive right represents.
+ */
+
+routine	mach_port_kernel_object(
+		task		: ipc_space_t;
+		name		: mach_port_name_t;
+	out	object_type	: unsigned;
+	out	object_addr	: vm_offset_t);
+
+#else	!defined(MACH_IPC_DEBUG) || MACH_IPC_DEBUG
+skip;	/* mach_port_kernel_object */
+#endif	!defined(MACH_IPC_DEBUG) || MACH_IPC_DEBUG
+
+#if	!defined(MACH_VM_DEBUG) || MACH_VM_DEBUG
+
+/*
+ *	Returns information about a region of memory.
+ */
+
+routine mach_vm_region_info(
+		task		: vm_task_t;
+		address		: vm_address_t;
+	out	region		: vm_region_info_t;
+	/* avoid out-translation of the argument */
+	out	object		: memory_object_name_t =
+					MACH_MSG_TYPE_MOVE_SEND
+					ctype: mach_port_t);
+
+routine mach_vm_object_info(
+		object		: memory_object_name_t;
+	out	info		: vm_object_info_t;
+	/* avoid out-translation of the argument */
+	out	shadow		: memory_object_name_t =
+					MACH_MSG_TYPE_MOVE_SEND
+					ctype: mach_port_t;
+	/* avoid out-translation of the argument */
+	out	copy		: memory_object_name_t =
+					MACH_MSG_TYPE_MOVE_SEND
+					ctype: mach_port_t);
+
+routine mach_vm_object_pages(
+		object		: memory_object_name_t;
+	out	pages		: vm_page_info_array_t,
+					CountInOut, Dealloc);
+
+#else	!defined(MACH_VM_DEBUG) || MACH_VM_DEBUG
+skip;	/* mach_vm_region_info */
+skip;	/* mach_vm_object_info */
+skip;	/* mach_vm_object_pages */
+#endif	!defined(MACH_VM_DEBUG) || MACH_VM_DEBUG

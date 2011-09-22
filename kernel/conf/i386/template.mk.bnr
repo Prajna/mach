@@ -1,0 +1,58 @@
+#
+# Mach Operating System
+# Copyright (c) 1993 Carnegie Mellon University
+# All Rights Reserved.
+# 
+# Permission to use, copy, modify and distribute this software and its
+# documentation is hereby granted, provided that both the copyright
+# notice and this permission notice appear in all copies of the
+# software, derivative works or modified versions, and any portions
+# thereof, and that both notices appear in supporting documentation.
+# 
+# CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS" 
+# CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+# ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+# 
+# Carnegie Mellon requests users of this software to return to
+# 
+#  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+#  School of Computer Science
+#  Carnegie Mellon University
+#  Pittsburgh PA 15213-3890
+# 
+# any improvements or extensions that they make and grant Carnegie Mellon
+# the rights to redistribute these changes.
+#  
+#
+# HISTORY
+# $Log:	template.mk.bnr,v $
+# Revision 2.2  93/05/10  17:45:44  rvb
+# 	Revised for bsdss
+# 
+# 	Condensed history:
+# 	[93/05/04  16:57:12  rvb]
+# 
+#	Created (af).
+
+###############################################################################
+#BEGIN	Machine dependent Makefile fragment for the i386
+###############################################################################
+
+# TEXTORG is set from the config file
+LDFLAGS 	= -e _pstart -T ${TEXTORG}
+
+mutex.o:	assym.s
+spl.o:		assym.s
+misc.o:		assym.s
+cswitch.o:	assym.s
+idt.o:		assym.s
+interrupt.o:	assym.s
+locore.o:	assym.s
+start.o:	assym.s
+abioscall.o:	assym.s
+kdasm.o:	assym.s
+
+###############################################################################
+#END	Machine dependent Makefile fragment for the i386
+###############################################################################
+

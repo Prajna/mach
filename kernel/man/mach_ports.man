@@ -1,0 +1,165 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	mach_ports.man,v $
+.\" Revision 2.4  91/05/14  17:07:59  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:12:14  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:12:24  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:38:36  rpd
+.\" 	Created.
+.\" 
+.TH mach_ports 2 9/19/86
+.CM 4
+.SH NAME
+.nf
+mach_ports_register  \-  manipulate the inherited ports array
+mach_ports_lookup  \-  child port acquires specific parent ports
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t mach_ports_register(target_task,
+				init_port_set, init_port_array_count)
+	task_t		target_task;
+	port_array_t	init_port_set;	       /* array */	
+	int		init_port_array_count;
+
+
+.fi
+.ft P
+.nf
+.ft B
+kern_return_t mach_ports_lookup(target_task,
+				init_port_set, init_port_array_count)
+	task_t		target_task;
+	port_array_t	*init_port_set; 	/* out array */
+	int		*init_port_array_count;	/* out */
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+target_task
+Task to be affected.
+.TP 15
+.B
+init_port_set
+An array of system ports to be registered, or returned.
+Although the array size is given as variable, the kernel will only accept a limited number of ports.
+.TP 15
+.B
+init_port_array_count
+The number of ports returned in 
+.B init_port_set.
+
+.SH DESCRIPTION
+.B mach_ports_register
+registers an array of well-known system ports with the
+kernel on behalf of a specific task.  Currently the ports to be
+registered are: the port to the Network Name Server, the port to the Environment
+Manager, and a port to the Service server. These port values must be placed
+in specific slots in the 
+.B init_port_set.
+The slot numbers are given by the
+global constants defined in 
+.B mach_init.h
+: 
+.B NAME_SERVER_SLOT
+, 
+.B ENVIRONMENT_SLOT
+,
+and 
+.B SERVICE_SLOT.
+These
+ports may later be retrieved with 
+.B mach_ports_lookup.
+
+When a new task is created (see 
+.B task_create
+), the
+child task will be given access to these ports.
+Only port send rights may be registered. 
+Furthermore, the number of ports which may be registered is
+fixed and given by the global constant 
+.B MACH_PORT_SLOTS_USED
+.
+Attempts to register too many ports will fail.
+
+It is intended that this mechanism be used only for task
+initialization, and then only by runtime support modules.
+A parent task has three choices in passing these system ports to
+a child task. Most commonly it can  do nothing and its child will
+inherit access to the same 
+.B init_port_set
+that the parent has;
+or a  parent task may register a set of ports it wishes to have passed
+to all of its children by calling 
+.B mach_ports_register
+using
+its task port;  or it may make necessary modifications
+to the set of ports it wishes its child to see, and then register
+those ports using the child's task port prior to starting the
+child's thread(s).
+The 
+.B mach_ports_lookup
+call which is done  by 
+.B mach_init
+in the child task will acquire these initial ports
+for the child.
+
+Tasks other than the Network Name Server and the
+Environment Mangager should  not need access to the Service port. The Network
+Name Server port is the same for all tasks on a given machine. The Environment port
+is the only port likely to have different values for different tasks.
+
+Since the number of ports which may be registered is limited,
+ports other than those used by the runtime system to initialize
+a task should be passed to children either through an initial
+message, or through the Network Name Server for public ports,
+or the Environment Manager for private ports. 
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+Memory allocated.
+.TP 25
+KERN_INVALID_ARGUMENT
+An attempt was made to register more ports than the
+current kernel implementation allows.
+
+.SH SEE ALSO
+.B mach_init, netname, env_mgr, service
+

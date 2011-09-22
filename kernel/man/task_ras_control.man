@@ -1,0 +1,131 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" HISTORY
+.\" $Log:	task_ras_control.man,v $
+.\" Revision 2.2  93/03/18  15:15:15  mrt
+.\" 		Created by Brian Bershad
+.\" 	[93/03/18            bershad]
+.\" 
+.\" 
+.TH task_ras_control 2 7/21/92
+.CM 4
+.SH NAME
+.nf
+task_ras_control  \-  set pc range of task's restartable atomic sequence
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t
+task_ras_control(
+ 	task_t 	    target_task,
+ 	vm_offset_t start_pc,
+ 	vm_offset_t end_pc,
+	int 	    flavor)
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+target_task
+The task for which the sequence should be set.
+.TP 15
+.B 
+start_pc
+The starting address of this restartable atomic sequence.
+.TP 15
+.B 
+end_pc
+The ending address of this restartable atomic sequence.
+.TP 15
+.B 
+flavor
+The particular operation that should be applied to this restartable atomic
+sequence.  Flavor can be one of
+.B TASK_RAS_CONTROL_PURGE_ALL
+, which removes all registered sequences for this task,
+.B TASK_RAS_CONTROL_PURGE_ONE
+, which removes the named registered sequence for this task, and
+.B TASK_RAS_CONTROL_PURGE_ALL_AND_INSTALL_ONE
+, which atomically removes all registered sequences and installs the named 
+sequence,
+.B TASK_RAS_CONTROL_INSTALL_ONE
+, which installs this sequence.
+
+
+.SH DESCRIPTION
+
+Manipulates a task's set of
+restartable atomic sequences.  If a sequence is installed, and
+any thread in the task is preempted
+within the range [start_pc,end_pc], then the thread is resumed at
+start_pc.  This enables applications to build atomic sequences which,
+when executed to completion, will have executed atomically.
+Restartable atomic sequences are intended to be used on systems  that
+do not have hardware support for low-overhead atomic primitives.
+
+As a thread can be rolled-back, the code in the sequence should have
+no side effects other than a final store at end_pc. The kernel does
+not guarantee that the sequence is restartable.  It assumes the
+application knows what it's doing.
+
+A task may have a finite number of atomic sequences that is defined at
+compile time.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The operation has been performed.
+.TP 25
+KERN_INVALID_ADDRESS
+The start_pc or end_pc values are not a valid address for the requested
+operation. For example, it is invalid to purge a sequence that has not been
+registered.
+.TP 25
+KERN_RESOURCE_SHORTAGE
+An attempt was made to install more restartable atomic sequences for a task
+than can be supported by the kernel.
+.TP 25
+KERN_INVALID_VALUE
+A bad flavor was specified.
+.TP 25
+KERN_INVALID_ARGUMENT
+.B target_task
+is not a task.
+.TP 25
+.B
+KERN_FAILURE
+The call is not not supported on this configuration.
+
+.SH SEE ALSO
+Fast Mutual Exclusion for Uniprocessors (1992 ASPLOS).
+
+
+
+

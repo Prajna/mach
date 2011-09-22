@@ -1,0 +1,116 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	vm_wire.man,v $
+.\" Revision 2.3  93/05/10  19:34:14  rvb
+.\" 	updated
+.\" 	[93/04/21  16:09:06  lli]
+.\" 
+.\" Revision 2.2  91/12/11  08:43:31  jsb
+.\" 	Created.
+.\" 	[91/11/25            rpd]
+.\" 
+.TH vm_wire 2 9/19/86
+.CM 4
+.SH NAME
+.nf
+vm_wire  \-  control pageability of memory
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t vm_wire(host_priv, task, address, size, access)
+	mach_port_t	host_priv;
+	mach_port_t	task;
+	vm_address_t	address;
+	vm_size_t	size;
+	vm_prot_t	access;
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+host_priv
+The privileged host port for the host on which the task resides.
+.TP 15
+.B
+task
+Task whose virtual memory is to be affected.
+.TP 15
+.B
+address
+Starting address (will be rounded down to a
+page boundary).
+.TP 15
+.B
+size
+Size in bytes of the region for which protection
+is to change (will be rounded up to give a page boundary).
+.TP 15
+.B
+access
+Types of accesses that must not cause page faults.
+.SH DESCRIPTION
+\fBvm_wire\fR allows privileged applications to control memory
+pageability.  The semantics of a successful \fBvm_wire\fR operation
+are that memory in the specified range will not cause page faults for
+any accesses included in \fBaccess\fR.  Data memory can be made
+non-pageable (wired) with a \fBaccess\fR argument of
+\fBVM_PROT_READ|VM_PROT_WRITE\fR.  A special case is that
+\fBVM_PROT_NONE\fR makes the memory pageable.
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The call succeeded.
+.TP 25
+KERN_INVALID_HOST
+\fBhost_priv\fR is not the privileged host port.
+.TP 25
+KERN_INVALID_TASK
+\fBtask\fR is not a valid task.
+.TP 25
+KERN_INVALID_VALUE
+\fBaccess\fR specified an invalid access mode.
+.TP 25
+KERN_FAILURE
+Some memory in the specified range is not present
+or has an inappropriate protection value.
+.TP 25
+KERN_INVALID_ARGUMENT
+Unwiring (\fBaccess\fR is \fBVM_PROT_NONE\fR) and the memory
+is not already wired.
+.PP
+The \fBmach_port_allocate\fR call is actually an RPC to
+\fBhost_priv\fR, normally a send right for a privileged host port, but
+potentially any send right.  In addition to the normal diagnostic
+return codes from the call's server (normally the kernel), the call
+may return \fBmach_msg(2)\fR return codes.
+.SH SEE ALSO
+thread_wire(2).

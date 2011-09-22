@@ -1,0 +1,125 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	thread_policy.man,v $
+.\" Revision 2.4  91/05/14  17:14:12  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:15:20  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:16:11  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:46:06  rpd
+.\" 	Created.
+.\" 
+.TH thread_policy 2 8/13/89
+.CM 4
+.SH NAME
+.nf
+thread_policy  \-  set schedulng policy for a thread
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t thread_policy(thread, policy, data)
+	thread_t	thread;
+	int		policy;
+	int		data;
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+thread
+Thread to set policy for.
+.TP 15
+.B
+policy
+Policy to set.
+.TP 15
+.B
+data
+Policy-specific data.
+
+.SH DESCRIPTION
+.B thread_policy
+changes the scheduling policy for 
+.B thread
+to 
+.B policy.
+
+.B data
+is policy-dependent scheduling information.  There are currently two
+supported policies: 
+.B POLICY_TIMESHARE
+and 
+.B POLICY_FIXEDPRI
+defined in <mach/policy.h>; this file is included by mach.h.
+.B data
+is meaningless for timesharing, but is the quantum to be used (in milliseconds)
+for the fixed priority policy.  To be meaningful, this quantum must be
+a multiple of the basic system quantum (min_quantum) which can be obtained
+from 
+.B host_info.
+The system will always round up to the next multiple of the quantum.
+
+Processor sets may restrict the allowed policies, so this call will fail
+if the processor set to which 
+.B thread
+is currently assigned does not permit 
+.B policy.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The call succeeded.
+.TP 25
+KERN_INVALID_ARGUMENT
+.B thread
+is not a thread, or
+.B policy
+is not a recognized policy.
+.TP 25
+KERN_FAILURE
+The processor set to which 
+.B thread
+is currently assigned does not permit 
+.B policy.
+
+.SH BUGS
+Availability limited.  Fixed priority not supported on all systems.
+
+.SH SEE ALSO
+.B task_policy, processor_set_policy, host_info
+
+
+

@@ -1,0 +1,148 @@
+/* 
+ * Mach Operating System
+ * Copyright (c) 1991 Carnegie Mellon University
+ * All Rights Reserved.
+ * 
+ * Permission to use, copy, modify and distribute this software and its
+ * documentation is hereby granted, provided that both the copyright
+ * notice and this permission notice appear in all copies of the
+ * software, derivative works or modified versions, and any portions
+ * thereof, and that both notices appear in supporting documentation.
+ * 
+ * CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+ * CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+ * ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+ * 
+ * Carnegie Mellon requests users of this software to return to
+ * 
+ *  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+ *  School of Computer Science
+ *  Carnegie Mellon University
+ *  Pittsburgh PA 15213-3890
+ * 
+ * any improvements or extensions that they make and grant Carnegie Mellon
+ * the rights to redistribute these changes.
+ */
+/*
+ * HISTORY
+ * $Log:	mach_norma.defs,v $
+ * Revision 2.6  91/12/13  13:45:12  jsb
+ * 	Moved non-exported interfaces to norma/norma_internal.defs.
+ * 	Changed name of task_create_remote to norma_task_create.
+ * 	Added comments.
+ * 
+ * Revision 2.5  91/11/14  16:56:43  rpd
+ * 	Picked up mysterious norma changes.
+ * 	[91/11/14            rpd]
+ * 
+ * Revision 2.4  91/08/28  11:15:08  jsb
+ * 	Added KERNEL_USER definitions.
+ * 	Removed norma_set_task_server.
+ * 	Added task_create_remote, norma_copy_create.
+ * 	[91/08/15  13:28:27  jsb]
+ * 
+ * Revision 2.3  91/08/03  18:19:02  jsb
+ * 	Removed norma_get_{host,host_priv,device}_port;
+ * 	Use norma_{get,set}_special_port instead.
+ * 	[91/07/25  07:51:11  jsb]
+ * 
+ * Revision 2.2  91/06/06  17:07:57  jsb
+ * 	First checkin.
+ * 	[91/05/25  10:37:22  jsb]
+ * 
+ */
+
+subsystem
+#if	KERNEL_USER
+	  KernelUser
+#endif	KERNEL_USER
+#if	KERNEL_SERVER
+	  KernelServer
+#endif	KERNEL_SERVER
+		       mach_norma 555000;
+#ifdef	KERNEL_USER
+userprefix r_;
+#endif	KERNEL_USER
+
+#include <mach/std_types.defs>
+#include <mach/mach_types.defs>
+
+skip;
+
+/*
+ * Specify a node upon which children tasks will be created.
+ * This call exists only to allow testing with unmodified servers.
+ * Server developers should use norma_task_create instead.
+ */
+routine	task_set_child_node(
+		target_task	: task_t;
+		child_node	: int);
+
+/*
+ * THIS CALL WILL BE ELIMINATED.
+ * Use norma_port_location_hint(,mach_task_self(),) instead.
+ */
+routine norma_node_self(
+		host		: host_t;
+	out	node		: int);
+
+skip;
+
+skip;
+
+skip;
+
+/*
+ * (Used to be called task_create_remote.)
+ * Create a task on the given node, possibly inheriting memory.
+ * Same inheritance semantics as task_create, including inheritance
+ * of initial ports and emulation library.
+ * Setting child_node to node_self forces local task creation.
+ */
+routine norma_task_create(
+		target_task	: task_t;
+		inherit_memory	: boolean_t;
+		child_node	: int;
+	out	child_task	: task_t);
+
+/*
+ * Get a given special port for a given node.
+ * Norma special ports are defined in norma_special_ports.h;
+ * examples include the master device port.
+ * There are a limited number of slots available for system servers.
+ *
+ * XXX MAX_SPECIAL_ID should be defined in norma_special_ports.h,
+ * XXX not just in norma/ipc_special.c!
+ * (MAX_SPECIAL_ID specifies total number of slots available)
+ */
+routine	norma_get_special_port(
+		host_priv	: host_priv_t;
+		node		: int;
+		which		: int;
+	out	port		: mach_port_t);
+
+/*
+ * Set a given special port for a given node.
+ * See norma_get_special_port.
+ */
+routine	norma_set_special_port(
+		host_priv	: host_priv_t;
+		which		: int;
+		port		: mach_port_t);
+
+skip;
+
+skip;
+
+skip;
+
+/*
+ * Return best guess of port's current location.
+ * Guaranteed to be a node where the port once was.
+ * Guaranteed to be accurate if port has never moved.
+ * Can be used to determine residence node for hosts, tasks, threads, etc.
+ */
+routine norma_port_location_hint(
+		task		: task_t;
+		port		: mach_port_t;
+	out	node		: int);

@@ -1,0 +1,93 @@
+#
+# Mach Operating System
+# Copyright (c) 1993 Carnegie Mellon University
+# All Rights Reserved.
+# 
+# Permission to use, copy, modify and distribute this software and its
+# documentation is hereby granted, provided that both the copyright
+# notice and this permission notice appear in all copies of the
+# software, derivative works or modified versions, and any portions
+# thereof, and that both notices appear in supporting documentation.
+# 
+# CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+# CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+# ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+# 
+# Carnegie Mellon requests users of this software to return to
+# 
+#  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+#  School of Computer Science
+#  Carnegie Mellon University
+#  Pittsburgh PA 15213-3890
+# 
+# any improvements or extensions that they make and grant Carnegie Mellon
+# the rights to redistribute these changes.
+#
+#
+# HISTORY
+# $Log:	BSD_TREE,v $
+# Revision 2.1.1.1  94/06/01  10:17:36  rvb
+# 
+# 
+# Revision 2.3.1.1  93/06/17  09:23:47  rvb
+# 	Delete "IMPORTANT" from list of transfered files
+# 
+# Revision 2.3  93/05/13  13:50:10  rvb
+# 	uxmon-
+# 
+# Revision 2.2  93/05/11  11:40:23  rvb
+# 	Created for bsdss.
+# 	[93/05/05  15:06:35  rvb]
+# 
+
+# leave links in bsdss and mk to new home
+#
+if $#argv > 1  then
+	set LN
+endif
+
+#
+# rearrange tree to be flat under src/mach
+#
+if { test -d ../../mach } then
+	echo Already Installed
+	exit 0
+endif
+
+mkdir ../../mach
+
+foreach i (Makefile README binutils make tree util xstrip)
+	mv $i ../../mach
+	if $?LN then
+		ln -s ../../mach/$i $i
+	endif
+end
+
+cd ../..
+if { test -d mk } then
+	cd mk
+	foreach i (bootstrap kernel)
+		mv $i ../mach
+		if $?LN then
+			ln -s ../mach/$i $i
+		endif
+	end
+	mv user/libmach ../mach/libmach
+	if $?LN then
+		ln -s ../../mach/libmach user
+	endif
+	mv user/threads ../mach/libthreads
+	if $?LN then
+		ln -s ../../mach/libthreads user/threads
+	endif
+	cd ..
+endif
+
+cd mach/kernel/src
+foreach i (config makeboot mig)
+	mv $i ../..
+	if $?LN then
+		ln -s ../../$i $i
+	endif
+end
+cd ../..

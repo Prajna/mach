@@ -1,0 +1,71 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	mach_reply_port.man,v $
+.\" Revision 2.4  91/05/14  17:08:07  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:12:18  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:12:30  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:38:44  rpd
+.\" 	Created.
+.\" 
+.TH mach_reply_port 2 9/19/86
+.CM 4
+.SH NAME
+.nf
+mach_reply_port \- create a reply port
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach/mach_traps.h>
+
+mach_port_t mach_reply_port();
+.fi
+.ft P
+.SH DESCRIPTION
+The \fBmach_reply_port\fR system call creates
+a reply port in the calling task.
+
+\fBmach_reply_port\fR creates a port, giving the calling
+task the receive right for the port.  The call returns
+the name of the new receive right.
+
+This is very much like creating a receive right
+with the \fBmach_port_allocate(2)\fR call,
+with two differences.  First, \fBmach_reply_port\fR
+is a system call and not an RPC (which requires a reply port).
+Second, the port created by \fBmach_reply_port\fR may be
+optimized for use as a reply port.
+.SH DIAGNOSTICS
+.TP 25
+MACH_PORT_NULL
+A resource shortage prevented the creation of the receive right.
+.SH SEE ALSO
+mach_port_allocate(2).

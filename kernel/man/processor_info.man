@@ -1,0 +1,162 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	processor_info.man,v $
+.\" Revision 2.5  93/03/18  15:14:08  mrt
+.\" 	corrected types
+.\" 	[93/03/11  12:53:50  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:11:07  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:13:49  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:14:34  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:42:10  rpd
+.\" 	Created.
+.\" 
+.TH processor_info 2 8/13/89
+.CM 4
+.SH NAME
+.nf
+processor_info   \-   gets information about processor
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+/* the definition of processor_info_t from mach.h - sys/processor_info.h is */
+
+typedef	int	*processor_info_t;	/* variable length array of int */
+
+/* one interpretation of info is */
+
+   struct processor_basic_info {
+	cpu_type_t	cpu_type;	/* cpu type */
+	cpu_subtype_t	cpu_subtype;	/* cpu subtype */
+	boolean_t	running;	/* is processor running? */
+	int		slot_num;	/* slot number */
+	boolean_t	is_master;	/* is this the master processor */
+   };
+typedef struct processor_basic_info		*processor_basic_info_t;
+
+
+
+kern_return_t
+processor_info(processor, flavor, host, processor_info, processor_infoCnt)
+	mach_port_t 		processor;
+	int 			flavor;
+	mach_port_t		*host;
+	processor_info_t 	processor_info;	/* in and out */
+        mach_msg_type_number_t	*processor_infoCnt;	/* in and out */
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+processor
+The processor for which information is to be obtained
+.TP 15
+.B
+flavor
+The type of information that is wanted.  Currently only
+.B PROCESSOR_BASIC_INFO
+is implemented.
+.TP 15
+.B
+host
+The host on which the processor resides.  This is the non-privileged
+host port.
+.TP 15
+.B
+processor_info
+Information about the processor specified by 
+.B processor.
+.TP 15
+.B
+processor_infoCnt
+Size of the info structure. Should be
+.B PROCESSOR_BASIC_INFO_COUNT
+for flavor 
+.B PROCESSOR_BASIC_INFO.
+
+.SH DESCRIPTION
+
+Returns the selected information array for a processor, as specified
+by 
+.B flavor.
+
+.B processor_info
+is an array of integers that is supplied
+by the caller, and filled with specified information. 
+.B processor_infoCnt
+is supplied as the maximum number of integers in 
+.B processor_info.
+On return,
+it contains the actual number of integers in  
+.B processor_info.
+
+Basic information is defined by 
+.B PROCESSOR_BASIC_INFO.
+The size of this information is defined by  
+.B PROCESSOR_BASIC_INFO_COUNT.
+Machines which require more configuration information beyond the slot
+number are expected to define additional (machine-dependent) flavors.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The call succeeded.
+.TP 25
+KERN_INVALID_ARGUMENT
+.B processor
+is not a processor or
+.B flavor
+is not recognized.
+.TP 25
+MIG_ARRAY_TOO_LARGE
+Returned info array is too large for
+.B processor_info.
+
+.B processor_info
+is filled as much as possible.
+.B processor_infoCnt
+is set to the number of elements that would
+be returned if there were enough room.
+
+.SH BUGS
+Availability limited.
+
+.SH SEE ALSO
+.B processor_start, processor_exit, processor_control, host_processors
+.B host_info
+

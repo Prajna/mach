@@ -1,0 +1,82 @@
+#
+# Mach Operating System
+# Copyright (c) 1993-1989 Carnegie Mellon University
+# All Rights Reserved.
+# 
+# Permission to use, copy, modify and distribute this software and its
+# documentation is hereby granted, provided that both the copyright
+# notice and this permission notice appear in all copies of the
+# software, derivative works or modified versions, and any portions
+# thereof, and that both notices appear in supporting documentation.
+# 
+# CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+# CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+# ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+# 
+# Carnegie Mellon requests users of this software to return to
+# 
+#  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+#  School of Computer Science
+#  Carnegie Mellon University
+#  Pittsburgh PA 15213-3890
+# 
+# any improvements or extensions that they make and grant Carnegie Mellon
+# the rights to redistribute these changes.
+#
+#
+# HISTORY
+# $Log:	Makefile.bnr,v $
+# Revision 2.3  93/12/23  10:05:21  dbg
+# 	Upgrade for NetBSD 0.9 and "md".
+# 	[93/12/13            rvb]
+# 
+# Revision 2.2  93/05/10  17:47:57  rvb
+# 	Revised for bsdss.
+# 	[93/05/04  16:36:19  rvb]
+# 
+# Revision 2.12  93/02/04  13:48:15  mrt
+# 	Modifed for ODE make.
+# 	[92/12/23            mrt]
+# 
+# Revision 2.10  92/04/08  23:19:33  rpd
+# 	Added cross-compilation support.
+# 	[92/03/18            jvh]
+# 
+
+
+.if	defined(MACH_SRC)
+.PATH: ${.CURDIR} ${MACH_SRC:S/$/\/config/g}
+ISRC=  -I${.CURDIR} ${MACH_SRC:S/^/-I/g:S/$/\/config/g} 
+.else
+ISRC=  -I${.CURDIR}
+.endif
+
+CFLAGS+= -MD ${MYFLAGS} -I. ${ISRC}
+
+all: config
+
+CONFIG_O= gram.o main.o mkioconf.o mkmakefile.o \
+	  mkheaders.o mkglue.o parse.o
+
+config: ${CONFIG_O}
+	${CC} -o config ${CONFIG_O} -ll
+
+.if	${MACHINE} == "SUN3" || ${MACHINE} == "SUN4"
+mkioconf.o:	sun/sun_mkioconf.c
+.endif
+
+# Write our own yacc rule to avoid having yacc run twice
+# when Make is run in parallel mode.
+
+gram.c: gram.h
+gram.h:	gram.y
+		${YACC} -d ${.OODATE}
+		mv -f y.tab.c gram.c
+		mv -f y.tab.h gram.h
+
+
+clean:
+	rm -f core ${CONFIG_O} gram.c gram.h config
+
+.END .INTERRUPT:
+	-@../util/md -u .depend ${ISRC} -d *.d 

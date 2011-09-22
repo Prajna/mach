@@ -1,0 +1,142 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	processor_assign.man,v $
+.\" Revision 2.5  93/03/18  14:46:36  mrt
+.\" 	corrected types
+.\" 	[93/03/11  12:31:40  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:10:51  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:13:38  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:14:23  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:41:56  rpd
+.\" 	Created.
+.\" 
+.TH processor_assign 2 8/13/89
+.CM 4
+.SH NAME
+.nf
+processor_assign  \-  assign processor to processor set
+processor_get_assignment  \-  obtain assignment of processor
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t processor_assign(processor, new_set, wait)
+	mach_port_t	processor;
+	mach_port_t	new_set;
+	boolean_t	wait;
+
+
+.fi
+.ft P
+.nf
+.ft B
+kern_return_t processor_get_assignment(processor, assigned_set)
+	mach_port_t	processor;
+	mach_port_t *assigned_set;
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+.B processor
+The processor to be assigned.
+.TP 15
+.B
+.B processor_set
+The processor set to assign it to.
+.TP 15
+.B
+.B wait
+Whether to wait for the assignment to complete.
+.TP 15
+.B
+.B assigned_set_name
+Name port for processor set that processor is currently
+assigned to
+
+.SH DESCRIPTION
+.B processor_assign
+assigns 
+.B processor
+to the the set
+.B processor_set
+.
+After the assignment is completed, the processor only executes threads
+that are assigned to that processor set.  Any previous assignment of
+the processor is nullified.  The master processor cannot be reassigned.
+All processors take clock interrupts at all times.  The wait argument
+indicates whether the caller should wait for the assignment to be
+completed or should return immediately.  Dedicated kernel threads are
+used to perform processor assignment, so setting 
+.B wait
+to 
+.B FALSE
+allows assignment requests to be queued and performed faster, especially
+if the kernel has more than one dedicated internal thread for processor
+assignment.
+Redirection of other device interrupts away from processors assigned to
+other than the default processor set is machine-dependent.  Intermediaries
+that interpose on ports must be sure to interpose on both ports involved
+in this call if they interpose on either.
+
+.B processor_get_assignment
+Obtains the current assignment of a processor.
+The name port of the processor set is returned.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The assignment has been performed.
+.TP 25
+KERN_INVALID_ARGUMENT
+.B processor
+is not a processor, or
+.B processor_set
+is not a processor_set on the same host as
+.B processor
+.
+
+.SH BUGS
+Availability limited.
+
+.SH SEE ALSO
+.B processor_set_create, processor_set_info, task_assign, thread_assign
+,
+.B host_processor_set_priv
+
+

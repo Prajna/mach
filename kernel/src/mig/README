@@ -1,0 +1,8 @@
+The following files include stdlib.h. It is only used to
+define malloc.
+
+routine.c, statement.c, string.c, type.c
+
+
+vprint.c does not compile on BNR2. It is not needed by
+machines where libc.a provides the routines.

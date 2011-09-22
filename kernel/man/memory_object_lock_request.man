@@ -1,0 +1,155 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	memory_object_lock_request.man,v $
+.\" Revision 2.5  93/05/10  19:34:00  rvb
+.\" 	updated
+.\" 	[93/04/21  16:08:49  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:10:17  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:13:22  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:14:07  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:41:26  rpd
+.\" 	Created.
+.\" 
+.TH memory_object_lock_request 2 12/19/89
+.CM 4
+.SH NAME
+.nf
+memory_object_lock_request  \-  request consistency control actions
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t	memory_object_lock_request(memory_control,
+				offset, size, should_clean
+				should_flush, lock_value, reply_to)
+	mach_port_t
+			memory_control;
+	vm_offset_t	offset;
+	vm_size_t	size;
+	memory_object_return_t	should_clean;
+	boolean_t	should_flush;
+	vm_prot_t	lock_value;
+	mach_port_t		reply_to;
+
+
+.fi
+.ft P
+.SH DESCRIPTION
+
+.B memory_object_lock_request
+allows a memory manager to make cache
+management requests.
+As specified in arguments to the call, the kernel will:
+clean (i.e., write back using 
+.B memory_object_data_write
+)
+any cached data which
+has been modified since the last time it was written;
+flush (i.e., remove any uses of) that data from memory;
+lock (i.e., prohibit the specified uses of) the cached data.
+Locks applied to cached data are not cumulative; new lock values override
+previous ones.  Thus, data may also be unlocked using this primitive.
+The lock values must be one or more of the following values:
+.B VM_PROT_NONE, VM_PROT_READ, VM_PROT_WRITE, VM_PROT_EXECUTE
+and
+.B VM_PROT_ALL
+as defined in 
+.B <mach/vm_prot.h>
+. 
+
+Only data which is cached at the time of this call is affected.
+When a running thread requires a prohibited
+access to cached data, the will issue a 
+.B memory_object_data_unlock
+call specifying the forms of access
+required.
+Once all of the actions requested by this call have been completed,
+the on the specified reply port.
+
+.SH ARGUMENTS
+.TP 15
+.B
+memory_control
+The port, provided by the kernel 
+in a 
+.B memory_object_init
+call, to which cache management requests may be issued.
+.TP 15
+.B
+offset
+An offset within a memory object, in bytes.  This must be
+page aligned.
+.TP 15
+.B
+size
+The amount of cached data (starting at 
+.B offset
+) to be handled, must
+be an integral multiple of the memory object page size.
+.TP 15
+.B
+should_clean
+If set, modified data should be written back to the memory manager.
+.TP 15
+.B
+should_flush
+If set, the specified cached data should be invalidated, and all
+uses of that data should be revoked.
+.TP 15
+.B
+lock_value
+A protection value indicating those forms of access that should
+.B not
+be permitted to the specified cached data.
+.TP 15
+.B
+reply_to
+A port on which a 
+.B memory_object_lock_completed
+call should be issued,
+or 
+.B PORT_NULL
+if no acknowledgement is desired.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+This routine does not receive a reply message (and consequently
+has no return value), so only message transmission errors apply.
+
+.SH SEE ALSO
+.B memory_object_lock_completed, memory_object_data_unlock
+

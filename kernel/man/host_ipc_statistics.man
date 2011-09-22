@@ -1,0 +1,91 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	host_ipc_statistics.man,v $
+.\" Revision 2.4  91/05/14  17:04:41  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:10:19  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:10:27  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:34:38  rpd
+.\" 	Created.
+.\" 
+.TH host_ipc_statistics 2 9/19/86
+.CM 4
+.SH NAME
+.nf
+host_ipc_statistics  \-  returns IPC statistics for the system
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t host_ipc_statistics(task, statistics)
+	task_t target_task;
+	ipc_statistics_t *statistics;	/* inout */
+
+
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 15
+.B
+task
+Task running on the kernel whose statistics are desired.
+.TP 15
+.B
+statistics
+The returned statistics.
+
+.SH DESCRIPTION
+.B host_ipc_statistics
+returns the statistics about since the kernel was booted. 
+.B statistics
+is a fixed length array provided
+by the user.  See 
+.B <kern/ipc_statistics.h>
+for a  description of what is
+returned.
+
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The call succeeded.
+
+.SH BUGS
+Only kernels compiled with 
+.B MACH_IPCSTATS
+enabled support this call.
+
+The first argument should be a host port of some kind.
+
+The meaning of the statistics varies; not all fields are used.
+

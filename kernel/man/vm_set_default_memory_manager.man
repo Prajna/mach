@@ -1,0 +1,109 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	vm_set_default_memory_manager.man,v $
+.\" Revision 2.5  93/03/18  15:17:04  mrt
+.\" 	corrected types
+.\" 	[93/03/12  16:55:40  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:16:30  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:16:38  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:17:42  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:48:12  rpd
+.\" 	Created.
+.\" 
+.TH vm_set_default_memory_manager 2 12/28/89
+.CM 4
+.SH NAME
+.nf
+vm_set_default_memory_manager  \-  defines a new default memory manager
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+routine vm_set_default_memory_manager(host,default_manager)
+	mach_port_t	host;
+	mach_port_t	default_manager;	/* in/out */
+
+
+.fi
+.ft P
+.SH DESCRIPTION
+
+.B vm_set_default_memory_manager
+sets the kernel's default memory manager.
+It sets the port to which newly-created temporary memory objects are delivered
+by 
+.B memory_object_create
+to the 
+.B host
+. 
+The old memory manager port is returned.  If 
+.B default_manager
+is 
+.B PORT_NULL
+then this routine just returns the current default manager port without
+changing it.
+
+.SH ARGUMENTS
+.TP 15
+.B
+host
+A task port to the kernel whose default memory manager is to be changed.
+.TP 15
+.B
+default_manager
+Input as the port that the new memory manager is listening on for
+.B memory_object_create
+calls. Returned as the old default memory manager's port.
+
+.SH DIAGNOSTICS
+.TP 25
+.B KERN_SUCCESS
+The new memory manager is installed.
+.TP 25
+.B KERN_INVALID_ARGUMENT
+This task does not have the privileges required for
+this call.
+
+.SH SEE ALSO
+
+.B vm_allocate, memory_object_create, memory_object_data_initialize
+
+.SH BUGS
+
+There is no way for the user task to acquire the appropriate privilege to
+make this call.
+
+

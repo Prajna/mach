@@ -1,0 +1,340 @@
+#
+# Mach Operating System
+# Copyright (c) 1992,1991,1990,1989 Carnegie Mellon University
+# All Rights Reserved.
+# 
+# Permission to use, copy, modify and distribute this software and its
+# documentation is hereby granted, provided that both the copyright
+# notice and this permission notice appear in all copies of the
+# software, derivative works or modified versions, and any portions
+# thereof, and that both notices appear in supporting documentation.
+# 
+# CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS" 
+# CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+# ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+# 
+# Carnegie Mellon requests users of this software to return to
+# 
+#  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+#  School of Computer Science
+#  Carnegie Mellon University
+#  Pittsburgh PA 15213-3890
+# 
+# any improvements or extensions that they make and grant Carnegie Mellon
+# the rights to redistribute these changes.
+#
+#
+# HISTORY
+# $Log:	files.bnr,v $
+# Revision 2.4  93/08/10  15:52:54  mrt
+# 		Added net_atm option to switch on the atm kernel traps.
+# 	And device/dk_label.c
+# 	[93/08/06            rvb]
+# 
+# Revision 2.3  93/05/11  09:40:21  rvb
+# 	Added TTD teledebug i386 optional files.
+# 	[93/05/11            grm]
+# 
+# Revision 2.2  93/05/10  17:45:28  rvb
+# 	Revised for bsdss
+# 	[93/05/04  16:54:34  rvb]
+# 
+# Revision 2.42  93/03/11  13:57:51  danner
+# 	kern/strings.c
+# 	[93/03/09            danner]
+# 
+# Revision 2.41  93/03/09  10:52:45  danner
+# 	Added kern/sscanf.c
+# 	[93/03/05            af]
+# 
+# Revision 2.40  93/01/24  13:14:47  danner
+# 	Add mach4 interface "defs" file and kern/pc_sample.c
+# 	[93/01/11            rvb]
+# 
+# Revision 2.39  93/01/14  17:23:51  danner
+# 	Added ddb/db_mp.c for multiprocessor debugger support.
+# 	[92/10/25            dbg]
+# 
+# Revision 2.38  92/08/05  18:06:11  jfriedl
+# 	Added power_save option to trigger machine independent
+# 	power conservation functions.
+# 	[92/08/05            mrt]
+# 
+# Revision 2.37  92/07/20  14:48:16  cmaeda
+# 	Added fast_tas option.
+# 
+# 
+# Revision 2.36  92/05/04  11:23:39  danner
+# 	Added bootstrap_symbols option. When set, the bootstrap task
+# 	 symbols are preserved by the kernel debugger. Used in
+# 	 kern/bootstrap.c 
+# 	[92/05/03            danner]
+# 
+# Revision 2.35  92/03/10  16:25:03  jsb
+# 	Merged in norma branch changes as of NORMA_MK7.
+# 	[92/03/09  12:56:28  jsb]
+# 
+# Revision 2.34  92/03/06  13:38:21  rpd
+# 	Added vm/vm_external.c.
+# 	[92/03/06  13:16:00  jsb]
+# 
+# Revision 2.33  92/03/05  18:53:32  rpd
+# 	Fixed ./mach/memory_object_*.c for norma.
+# 	[92/03/05            rpd]
+# 
+# Revision 2.32  92/02/29  15:33:31  rpd
+# 	Removed vers.c.
+# 	[92/02/27            rpd]
+# 
+# Revision 2.31  92/02/19  15:07:17  elf
+# 	Simplified, condensed history.
+# 	[92/02/17            rpd]
+# 
+#
+# Condensed history:
+#	Removed bootstrap code (dbg).
+#	Converted to new IPC (rpd).
+#	Changes for MACH_KERNEL (dbg, rwd).
+#	Changes for new scheduling code (dlb).
+#	Created mach directory (rpd).
+#	Options cleanup (mwyoung).
+#	Split up IPC files (rpd).
+#	Added MACH and CMUCS options (mja).
+#	Cleaned up, removed old history (avie).
+
+#
+# N.B. "kern/lock.c" is listed as "optional cpus" so that config will
+# create a "cpus.h" file.
+#
+
+OPTIONS/bootstrap_symbols	optional bootstrap_symbols
+OPTIONS/cmucs_disk		optional cmucs_disk
+OPTIONS/dli			optional dli
+OPTIONS/fast_tas		optional fast_tas
+OPTIONS/hw_footprint		optional hw_footprint
+OPTIONS/mach_assert		optional mach_assert
+OPTIONS/mach_counters		optional mach_counters
+OPTIONS/mach_debug		optional mach_debug
+OPTIONS/mach_fixpri		optional mach_fixpri
+OPTIONS/mach_host		optional mach_host
+OPTIONS/mach_ipc_compat		optional mach_ipc_compat
+OPTIONS/mach_ipc_debug		optional mach_ipc_debug
+OPTIONS/mach_ipc_test		optional mach_ipc_test
+OPTIONS/mach_kdb		optional mach_kdb
+OPTIONS/mach_ttd		optional mach_ttd
+OPTIONS/mach_ldebug		optional mach_ldebug
+OPTIONS/mach_machine_routines.h	optional mach_machine_routines
+OPTIONS/mach_pagemap		optional mach_pagemap
+OPTIONS/mach_pcsample		optional mach_pcsample
+OPTIONS/mach_vm_debug		optional mach_vm_debug
+OPTIONS/net_atm			optional net_atm
+OPTIONS/norma_device		optional norma_device
+OPTIONS/norma_ether		optional norma_ether
+OPTIONS/norma_ipc		optional norma_ipc
+OPTIONS/norma_task		optional norma_task
+OPTIONS/norma_vm		optional norma_vm
+OPTIONS/power_save		optional power_save
+OPTIONS/simple_clock		optional simple_clock
+OPTIONS/stat_time		optional stat_time
+OPTIONS/xpr_debug		optional xpr_debug
+ddb/db_access.c			optional mach_kdb
+ddb/db_aout.c			optional mach_kdb
+ddb/db_break.c			optional mach_kdb
+ddb/db_command.c		optional mach_kdb
+ddb/db_cond.c			optional mach_kdb
+ddb/db_examine.c		optional mach_kdb
+ddb/db_expr.c			optional mach_kdb
+ddb/db_ext_symtab.c		optional mach_kdb
+ddb/db_input.c			optional mach_kdb
+ddb/db_lex.c			optional mach_kdb
+ddb/db_macro.c			optional mach_kdb
+ddb/db_mp.c			optional mach_kdb cpus
+ddb/db_output.c			optional mach_kdb
+ddb/db_print.c			optional mach_kdb
+ddb/db_run.c			optional mach_kdb
+ddb/db_sym.c			optional mach_kdb
+ddb/db_task_thread.c		optional mach_kdb
+ddb/db_trap.c			optional mach_kdb
+ddb/db_variables.c		optional mach_kdb
+ddb/db_watch.c			optional mach_kdb
+ddb/db_write_cmd.c		optional mach_kdb
+ipc/ipc_entry.c			standard
+ipc/ipc_hash.c			standard
+ipc/ipc_init.c			standard
+ipc/ipc_kmsg.c			standard
+ipc/ipc_marequest.c		standard
+ipc/ipc_mqueue.c		standard
+ipc/ipc_notify.c		standard
+ipc/ipc_object.c		standard
+ipc/ipc_port.c			standard
+ipc/ipc_pset.c			standard
+ipc/ipc_right.c			standard
+ipc/ipc_space.c			standard
+ipc/ipc_splay.c			standard
+ipc/ipc_table.c			standard
+ipc/ipc_thread.c		standard
+ipc/mach_debug.c		optional mach_ipc_debug
+ipc/mach_msg.c			standard
+ipc/mach_port.c			standard
+kern/ast.c			standard
+kern/bootstrap.c		standard
+kern/counters.c			standard
+kern/debug.c			standard
+kern/eventcount.c		standard
+kern/exception.c		standard
+kern/host.c			standard
+kern/ipc_host.c			standard
+kern/ipc_kobject.c		standard
+kern/ipc_mig.c			standard
+kern/ipc_sched.c		standard
+kern/ipc_tt.c			standard
+kern/kalloc.c			standard
+kern/lock.c			optional cpus
+kern/mach_clock.c		standard
+kern/mach_factor.c		standard
+kern/machine.c			standard
+kern/pc_sample.c		optional mach_pcsample
+kern/printf.c			standard
+kern/priority.c			standard
+kern/processor.c		standard
+kern/queue.c			standard
+kern/sched_prim.c		standard
+kern/sscanf.c			standard
+kern/startup.c			standard
+kern/strings.c			standard
+kern/syscall_emulation.c	standard
+kern/syscall_subr.c		standard
+kern/syscall_sw.c		standard
+kern/task.c			standard
+kern/thread.c			standard
+kern/thread_swap.c		standard
+kern/time_stamp.c		standard
+kern/timer.c			standard
+kern/xpr.c			optional xpr_debug
+kern/zalloc.c			standard
+./mach/memory_object_data_provided.c		optional not norma_task
+./mach/memory_object_data_unavailable.c		optional not norma_task
+./mach/memory_object_data_error.c		optional not norma_task
+./mach/memory_object_set_attributes.c		optional not norma_task
+./mach/memory_object_data_supply.c		optional not norma_task
+./mach/memory_object_ready.c			optional not norma_task
+./mach/memory_object_change_attributes.c	optional not norma_task
+./mach/mach_host_server.c			standard
+./mach/mach_port_server.c			standard
+./mach/mach_server.c				standard
+./mach/mach4_server.c				standard
+./mach/memory_object_default_user.c		standard
+./mach/memory_object_user.c			standard
+./mach_debug/mach_debug_server.c		optional mach_debug
+ttd/ttd_comm.c			optional mach_ttd
+ttd/ttd_stub.c			optional mach_ttd
+ttd/ttd_server.c		optional mach_ttd
+vm/memory_object.c		standard
+vm/vm_debug.c			optional mach_vm_debug
+vm/vm_external.c		optional mach_pagemap
+vm/vm_fault.c			standard
+vm/vm_init.c			standard
+vm/vm_kern.c			standard
+vm/vm_map.c			standard
+vm/vm_object.c			standard
+vm/vm_pageout.c			standard
+vm/vm_resident.c		standard
+vm/vm_user.c			standard
+device/blkio.c			standard
+device/chario.c			standard
+device/cirbuf.c			standard
+device/dev_lookup.c		standard
+device/dev_name.c		standard
+device/dev_pager.c		standard
+./device/device_reply_user.c	standard
+./device/device_server.c	standard
+device/device_init.c		standard
+device/dk_label.c		standard
+device/ds_routines.c		standard
+device/net_io.c			standard
+device/subrs.c			standard
+./ioconf.c			standard
+./mach/dev_forward.c		optional norma_device
+./mach/mach_norma_server.c	optional norma_ipc
+./mach/norma_internal_server.c	optional norma_ipc
+norma/ipc_clean.c		optional norma_ipc
+norma/ipc_input.c		optional norma_ipc
+norma/ipc_kserver.c		optional norma_ipc
+norma/ipc_list.c		optional norma_ipc
+norma/ipc_migrate.c		optional norma_ipc
+norma/ipc_net.c			optional norma_ipc
+norma/ipc_output.c		optional norma_ipc
+norma/ipc_special.c		optional norma_ipc
+norma/ipc_transit.c		optional norma_ipc
+norma/ipc_unreliable.c		optional norma_ipc
+norma/ipc_wait.c		optional norma_ipc
+norma/ipc_wire.c		optional norma_ipc
+./mach/proxy_user.c		optional norma_vm
+./mach/proxy_server.c		optional norma_vm
+norma/xmm.c			optional norma_vm
+norma/xmm_buffer.c		optional norma_vm
+norma/xmm_copy.c		optional norma_vm
+norma/xmm_debug.c		optional norma_vm
+norma/xmm_export.c		optional norma_vm
+norma/xmm_import.c		optional norma_vm
+norma/xmm_interpose.c		optional norma_vm
+norma/xmm_invalid.c		optional norma_vm
+norma/xmm_invoke.c		optional norma_vm
+norma/xmm_object.c		optional norma_vm
+norma/xmm_server.c		optional norma_vm
+norma/xmm_split.c		optional norma_vm
+norma/xmm_svm.c			optional norma_vm
+norma/xmm_user.c		optional norma_vm
+./mach/mach_norma_user.c	optional norma_task
+./mach/norma_internal_user.c	optional norma_task
+./mach/mach_user.c		optional norma_task
+norma/kern_task.c		optional norma_ipc
+norma/ipc_ether.c		optional norma_ether
+device/bpf.h			standard
+device/device_types.h		standard
+device/device_types.defs	standard
+device/net_status.h		standard
+device/tty_status.h		standard
+mach/boolean.h			standard
+mach/boot_info.h		standard
+mach/error.h			standard
+mach/exception.h		standard
+mach/host_info.h		standard
+mach/kern_return.h		standard
+mach/mig_errors.h		standard
+mach/mig_support.h		standard
+mach/mach.defs			standard
+mach/machine.h			standard
+mach/mach_types.h		standard
+mach/mach_types.defs		standard
+mach/memory_object.h		standard
+mach/message.h			standard
+mach/msg_type.h			standard
+mach/notify.h			standard
+mach/pc_sample.h		standard
+mach/policy.h			standard
+mach/port.h			standard
+mach/processor_info.h		standard
+mach/std_types.h		standard
+mach/std_types.defs		standard
+mach/syscall_sw.h		standard
+mach/task_info.h		standard
+mach/task_special_ports.h	standard
+mach/thread_info.h		standard
+mach/thread_special_ports.h	standard
+mach/thread_status.h		standard
+mach/thread_switch.h		standard
+mach/time_value.h		standard
+mach/mach_traps.h		standard
+mach/vm_attributes.h		standard
+mach/vm_inherit.h		standard
+mach/vm_prot.h			standard
+mach/vm_statistics.h		standard
+mach_debug/hash_info.h		standard
+mach_debug/ipc_info.h		standard
+mach_debug/mach_debug.defs	standard
+mach_debug/mach_debug_types.defs	standard
+mach_debug/mach_debug_types.h		standard
+mach_debug/vm_info.h		standard
+mach_debug/zone_info.h		standard
+sys/macro_help.h		standard

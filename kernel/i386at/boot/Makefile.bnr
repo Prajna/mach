@@ -1,0 +1,91 @@
+#
+# Mach Operating System
+# Copyright (c) 1992, 1991 Carnegie Mellon University
+# All Rights Reserved.
+# 
+# Permission to use, copy, modify and distribute this software and its
+# documentation is hereby granted, provided that both the copyright
+# notice and this permission notice appear in all copies of the
+# software, derivative works or modified versions, and any portions
+# thereof, and that both notices appear in supporting documentation.
+# 
+# CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS" 
+# CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+# ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+# 
+# Carnegie Mellon requests users of this software to return to
+# 
+#  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+#  School of Computer Science
+#  Carnegie Mellon University
+#  Pittsburgh PA 15213-3890
+# 
+# any improvements or extensions that they make and grant Carnegie Mellon
+# the rights to redistribute these changes.
+#
+#
+# HISTORY
+# $Log:	Makefile.bnr,v $
+# Revision 2.3  93/12/23  10:04:46  dbg
+# 	Upgrade for NetBSD 0.9 and "md".
+# 	[93/12/13            rvb]
+# 
+# Revision 2.2  93/05/10  17:46:50  rvb
+# 	Revised for bsdss
+# 	[93/05/04  17:19:43  rvb]
+# 
+# Revision 2.2  92/04/04  11:33:46  rpd
+# 	Fabricated for 3.0
+# 	[92/03/30            mg32]
+# 
+#
+.SUFFIXES:
+.SUFFIXES: .c .o .S .sed
+.if	defined(MACH_SRC)
+PATH=	${.CURDIR} ${MACH_SRC:S/$/\/kernel\/i386at\/boot/g}
+.PATH: ${PATH} ../../../include
+ISRC=  -I${.CURDIR} ${MACH_SRC:S/^/-I/g:S/$/\/kernel\/i386at\/boot/g} -I../../../include
+.else
+ISRC=  -I${.CURDIR} -I../../../include
+.endif
+
+.PRECIOUS: Makefile
+
+IDIR		= -I. ${ISRC}
+CFLAGS		+= -MD ${MYFLAGS} ${IDIR}
+
+LIBS= -lc
+
+.c.o:
+	$(CC) $(CFLAGS)  -S ${.ALLSRC:M*.c}
+	sed -f ${.ALLSRC:M*sed} ${.PREFIX}.s > ${.PREFIX}.i
+	$(AS) ${.PREFIX}.i -o ${.TARGET}
+	rm -f ${.PREFIX}.i ${.PREFIX}.s
+
+.S.o:
+	$(CC) $(CFLAGS) -c ${.ALLSRC:M*.S}
+
+
+# start.o should be first, table.o should be second
+OBJS = start.o table.o boot2.o boot.o asm.o bios.o io.o disk.o sys.o
+COBJS = table.o boot.o io.o disk.o sys.o
+
+all: boot
+
+boot: $(OBJS)
+	$(LD) -N -T 0 -o ${.TARGET}.sym $(OBJS) $(LIBS)
+	cp ${.TARGET}.sym ${.TARGET}
+	@strip ${.TARGET}
+	dd if=${.TARGET} of=${.TARGET}.tmp ibs=32 skip=1 obs=1024b
+	mv -f ${.TARGET}.tmp ${.TARGET}
+	@ls -l ${.TARGET}
+
+${COBJS}: boot.sed
+
+clean:
+	/bin/rm -f *.o *.d boot boot.sym
+	rm -f .depend *.d
+
+.END .INTERRUPT:
+	-@../util/md -u .depend ${ISRC} -d *.d 
+

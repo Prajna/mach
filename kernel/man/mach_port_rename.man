@@ -1,0 +1,108 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	mach_port_rename.man,v $
+.\" Revision 2.6  93/05/10  19:31:37  rvb
+.\" 	updated
+.\" 	[93/04/21  16:03:52  lli]
+.\" 
+.\" Revision 2.5  91/12/11  08:43:14  jsb
+.\" 	Changed <mach/mach.h> to <mach.h>.
+.\" 	[91/11/25  10:55:50  rpd]
+.\" 
+.\" Revision 2.4  91/05/14  17:07:21  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:11:47  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:11:59  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:37:55  rpd
+.\" 	Created.
+.\" 
+.TH mach_port_rename 2 4/13/87
+.CM 4
+.SH NAME
+.nf
+mach_port_rename \-  change a task's name for a right
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+kern_return_t
+mach_port_rename(task, old_name, new_name)
+	mach_port_t task;
+	mach_port_t old_name;
+	mach_port_t new_name;
+.fi
+.ft P
+.SH ARGUMENTS
+.TP 12
+.B
+task
+The task holding the port right.
+.TP 12
+.B
+old_name
+The original name of the port right.
+.TP 12
+.B
+new_name
+The new name for the port right.
+.SH DESCRIPTION
+\fBmach_port_rename\fR changes the name by which a port, port set, or
+dead name is known to \fBtask\fR.  \fBnew_name\fR must not already be
+in use, and it can't be the distinguished values MACH_PORT_NULL
+and MACH_PORT_DEAD.
+.SH DIAGNOSTICS
+.TP 25
+KERN_SUCCESS
+The call succeeded.
+.TP 25
+KERN_INVALID_TASK
+\fBtask\fR was invalid.
+.TP 25
+KERN_INVALID_NAME
+\fBold_name\fR did not denote a right.
+.TP 25
+KERN_INVALID_VALUE
+\fBnew_name\fR was MACH_PORT_NULL or MACH_PORT_DEAD.
+.TP 25
+KERN_NAME_EXISTS
+\fBnew_name\fR already denoted a right.
+.TP 25
+KERN_RESOURCE_SHORTAGE
+The kernel ran out of memory.
+.PP
+The \fBmach_port_rename\fR call is actually an RPC to \fBtask\fR,
+normally a send right for a task port, but potentially any send right.
+In addition to the normal diagnostic
+return codes from the call's server (normally the kernel),
+the call may return \fBmach_msg(2)\fR return codes.
+.SH SEE ALSO
+mach_port_names(2).

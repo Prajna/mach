@@ -1,0 +1,97 @@
+#
+# Mach Operating System
+# Copyright (c) 1993 Carnegie Mellon University
+# All Rights Reserved.
+# 
+# Permission to use, copy, modify and distribute this software and its
+# documentation is hereby granted, provided that both the copyright
+# notice and this permission notice appear in all copies of the
+# software, derivative works or modified versions, and any portions
+# thereof, and that both notices appear in supporting documentation.
+# 
+# CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+# CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+# ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+# 
+# Carnegie Mellon requests users of this software to return to
+# 
+#  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+#  School of Computer Science
+#  Carnegie Mellon University
+#  Pittsburgh PA 15213-3890
+# 
+# any improvements or extensions that they make and grant Carnegie Mellon
+# the rights to redistribute these changes.
+#
+#
+# HISTORY
+# $Log:	Makefile.bnr,v $
+# Revision 2.4  93/12/23  10:08:01  dbg
+# 	Upgrade for NetBSD 0.9 and "md".
+# 	[93/12/13            rvb]
+# 
+# Revision 2.3  93/05/13  13:47:38  rvb
+# 	".if <var> == string" requires string to be in double quotes.
+# 	[93/05/13            rvb]
+# 
+# Revision 2.2  93/05/10  17:51:16  rvb
+# 	-DCTHREAD_DATA is now unnecessary.  It is effectively
+# 	always true.
+# 	[93/05/06            rvb]
+# 	Revised for bsdss
+# 	[93/05/04  18:02:13  rvb]
+# 
+
+.SUFFIXES:
+.SUFFIXES: .c .o .S .h
+.if	defined(MACH_SRC)
+.PATH: ${.CURDIR} ${MACH_SRC:S/$/\/libthreads/g}
+ISRC=  -I${.CURDIR} ${MACH_SRC:S/^/-I/g:S/$/\/libthreads/g} 
+.else
+ISRC=  -I${.CURDIR}
+.endif
+
+
+.S.o:
+	${CC} -c ${CFLAGS} -DASSEMBLER ${.OODATE}
+
+.if 	defined(PROFILE)
+CFLAGS		+= -DGPROF -pg
+.endif
+
+MACH_AR		?=../binutils/ar
+MACH_RANLIB	?=../binutils/ranlib
+
+CFLAGS+= -MD ${MYFLAGS} -I. ${ISRC} -I../include
+
+
+OFILES	= cprocs.o cthreads.o malloc.o \
+          mig_support.o stack.o sync.o \
+       	  thread.o lock.o csw.o cthread_data.o
+
+all: includes ../lib/libthreads.a
+
+IHDR		= ../include/
+INCLUDES	= cthreads.h i386/cthreads.h
+
+includes: ${INCLUDES:S/^/${IHDR}/g}
+${INCLUDES:S/^/${IHDR}/g}: ${.TARGET:S/^${IHDR}//}
+	/bin/rm -f ${.TARGET}
+	/bin/cp -p ${.OODATE} ${.TARGET}
+
+../lib/libthreads.a: ${OFILES}
+	${MACH_AR} rv ${.TARGET} ${.ALLSRC:M*.o}
+	${MACH_RANLIB} ${.TARGET}
+
+.if	${MACHINE} == "i386"
+csw.o: ${MACHINE}/csw.S
+lock.o: ${MACHINE}/lock.S
+thread.o: ${MACHINE}/thread.c
+.endif
+
+
+clean:
+	rm -f ${OFILES} ../lib/libthreads.a
+
+.END .INTERRUPT:
+	-@../util/md -u .depend ${ISRC} -d *.d 

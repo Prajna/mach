@@ -1,0 +1,127 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	memory_object_init.man,v $
+.\" Revision 2.5  93/05/10  19:33:55  rvb
+.\" 	updated
+.\" 	[93/04/21  16:08:43  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:09:57  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:13:15  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:13:58  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:41:11  rpd
+.\" 	Created.
+.\" 
+.TH memory_object_init 2 12/19/89
+.CM 4
+.SH NAME
+.nf
+memory_object_init  \-  initialize paging object
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t memory_object_init(memory_object, memory_control,
+			    memory_object_name, memory_object_page_size)
+	mach_port_t	memory_object;
+	mach_port_t
+			memory_control;
+	mach_port_t
+			memory_object_name;
+	vm_size_t	memory_object_page_size;
+
+
+.fi
+.ft P
+.SH DESCRIPTION
+
+.B memory_object_init
+serves as a notification that a has been asked to map the given memory object into a task's virtual
+address space.  Additionally, it provides a port on which the memory manager
+may issue cache management requests, and a port which the kernel
+will use to name this data region.  In the event that different
+each will perform a 
+.B memory_object_init
+call with new request and name ports.
+The virtual page size that is used by the calling kernel is included
+for planning purposes.
+
+When the memory manager is prepared to accept requests for data for
+this object, it should call 
+.B memory_object_set_attribute
+with the
+attribute 
+.B ready
+set. Othewise the kernel will not process requests
+on this object.
+
+.SH ARGUMENTS
+.TP 15
+.B
+.B memory_object
+The port that represents the memory object data, as 
+supplied to the kernel in a 
+.B vm_map
+call.
+.TP 15
+.B
+.B memory_control
+The request port to which a response is 
+requested.  [In the event that a memory object has been supplied 
+to more than one the kernel that has made the request.]
+.TP 15
+.B
+.B memory_object_name
+A port used by the kernel to refer to the 
+memory object data in reponse to 
+.B vm_region
+calls.
+.TP 15
+.B
+.B memory_object_page_size
+The page size to be used by this kernel.
+All data sizes in calls involving this kernel must be an integral multiple
+of the page size.  [Note that different kernels, indicated by different
+.B memory_control
+s may have different page sizes.]
+
+.SH DIAGNOSTICS
+.TP 25
+.B KERN_SUCCESS
+Since this routine is called by the kernel, which does not
+wait for a reply message, this value is ignored.
+
+.SH SEE ALSO
+.B memory_object_set_attributes
+

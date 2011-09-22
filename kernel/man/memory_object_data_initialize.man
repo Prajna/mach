@@ -1,0 +1,127 @@
+.\" 
+.\" Mach Operating System
+.\" Copyright (c) 1991,1990 Carnegie Mellon University
+.\" All Rights Reserved.
+.\" 
+.\" Permission to use, copy, modify and distribute this software and its
+.\" documentation is hereby granted, provided that both the copyright
+.\" notice and this permission notice appear in all copies of the
+.\" software, derivative works or modified versions, and any portions
+.\" thereof, and that both notices appear in supporting documentation.
+.\" 
+.\" CARNEGIE MELLON ALLOWS FREE USE OF THIS SOFTWARE IN ITS "AS IS"
+.\" CONDITION.  CARNEGIE MELLON DISCLAIMS ANY LIABILITY OF ANY KIND FOR
+.\" ANY DAMAGES WHATSOEVER RESULTING FROM THE USE OF THIS SOFTWARE.
+.\" 
+.\" Carnegie Mellon requests users of this software to return to
+.\" 
+.\"  Software Distribution Coordinator  or  Software.Distribution@CS.CMU.EDU
+.\"  School of Computer Science
+.\"  Carnegie Mellon University
+.\"  Pittsburgh PA 15213-3890
+.\" 
+.\" any improvements or extensions that they make and grant Carnegie Mellon
+.\" the rights to redistribute these changes.
+.\" 
+.\" 
+.\" HISTORY
+.\" $Log:	memory_object_data_initialize.man,v $
+.\" Revision 2.5  93/05/10  19:33:30  rvb
+.\" 	updated
+.\" 	[93/04/21  16:08:14  lli]
+.\" 
+.\" Revision 2.4  91/05/14  17:08:53  mrt
+.\" 	Correcting copyright
+.\" 
+.\" Revision 2.3  91/02/14  14:12:43  mrt
+.\" 	Changed to new Mach copyright
+.\" 	[91/02/12  18:13:02  mrt]
+.\" 
+.\" Revision 2.2  90/08/07  18:39:43  rpd
+.\" 	Created.
+.\" 
+.TH memory_object_data_initialize 2 12/22/89
+.CM 4
+.SH NAME
+.nf
+memory_object_data_initialize  \-  provides initial data for memory object
+.SH SYNOPSIS
+.nf
+.ft B
+#include <mach.h>
+
+.nf
+.ft B
+kern_return_t memory_object_data_initialize(memory_object,memory_control, 
+				offset, data, data_count)
+	mach_port_t	memory_object;
+	mach_port_t
+			memory_control;
+	vm_offset_t	offset;
+	vm_offset_t	data;
+	vm_size_t	data_count;
+
+
+
+.fi
+.ft P
+.SH DESCRIPTION
+.B memory_object_data_initialize
+provides the memory manager with initial data for
+a kernel-created memory object.  If the memory manager already has been
+supplied data (by a previous 
+.B memory_object_data_initialize
+or 
+.B memory_object_data_write
+),
+then this data should be ignored.  Otherwise, this call behaves
+exactly as does 
+.B memory_object_data_write
+.  This call will only be made
+on memory objects created by the kernel via 
+.B memory_object_create
+
+and thus will only be made to default memory managers.  This call will not
+be made on objects created via 
+.B memory_object_copy
+.
+
+.SH ARGUMENTS
+.TP 15
+.B
+.B memory_object
+The port that represents the memory object data, as 
+supplied by the kernel in a 
+.B memory_object_create
+call.
+.TP 15
+.B
+.B memory_control
+The request port to which a response is 
+requested.  [In the event that a memory object has been supplied 
+to more than one the kernel that has made the request.]
+.TP 15
+.B
+.B offset
+The offset within a memory object to which this call refers.
+This will be page aligned.
+.TP 15
+.B
+.B data
+Data which has been modified while cached in physical memory.
+.TP 15
+.B
+.B data_count
+The amount of data to be written, in bytes. This will be
+an integral number of memory object pages.
+
+.SH DIAGNOSTICS
+.TP 25
+.B KERN_SUCCESS
+Since this routine is called by the kernel, which does not
+wait for a reply message, this value is ignored.
+
+.SH SEE ALSO
+.B memory_object_data_write, memory_object_create
+
+
